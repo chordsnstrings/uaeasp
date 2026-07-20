@@ -51,6 +51,18 @@ export const faqContent: Record<"en" | "ar", FaqItem[]> = {
       a: "Non-compliant businesses face administrative penalties under UAE tax law, and — just as importantly — operational risk: in-scope trading partners will expect to exchange invoices through the network, and government entities will require it. Late movers also face compressed implementation timelines and less provider bandwidth as deadlines approach.",
     },
     {
+      q: "What information does the official pre-approved list include?",
+      a: "For every pre-approved service provider, the Ministry of Finance's list records the company name, company website, one or more designated contact persons, their email addresses and phone numbers, in alphabetical order. Our registry page mirrors exactly these fields, so you can reach any provider's official e-invoicing contact directly — and each provider also has a fuller profile page on this site with background, category and regional experience.",
+    },
+    {
+      q: "How do I contact a pre-approved provider directly?",
+      a: "Every provider designates an official contact person for e-invoicing enquiries, published with an email address and phone number. You'll find all of them on our registry page and on each provider's profile. If you'd rather not approach dozens of vendors one by one, our free matching service does the comparison for you and introduces you to the best fit for your requirements and budget.",
+    },
+    {
+      q: "What is the difference between the directory and the registry on this site?",
+      a: "The directory presents each provider as a browsable profile — background, category, regional experience and websites — designed for comparing options. The registry mirrors the official list format: a single alphabetical table of all providers with their designated contact persons, emails and phone numbers, useful when you need official contact details at a glance.",
+    },
+    {
       q: "Is this the official Ministry of Finance list?",
       a: "This directory is independent and is not affiliated with the UAE Ministry of Finance. We track the Ministry's official pre-approved service provider list closely and show the date the directory was last updated. For official confirmation of any provider's status, always refer to the Ministry of Finance's website.",
     },
@@ -95,6 +107,18 @@ export const faqContent: Record<"en" | "ar", FaqItem[]> = {
     {
       q: "ماذا يحدث إذا لم أمتثل؟",
       a: "تواجه الشركات غير الممتثلة غرامات إدارية بموجب التشريعات الضريبية الإماراتية، والأهم مخاطر تشغيلية: الشركاء التجاريون المشمولون سيتوقعون تبادل الفواتير عبر الشبكة، والجهات الحكومية ستشترطه. كما يواجه المتأخرون جداول تنفيذ مضغوطة وطاقة أقل لدى المزودين مع اقتراب المواعيد.",
+    },
+    {
+      q: "ما المعلومات التي تتضمنها القائمة الرسمية للمعتمدين مبدئياً؟",
+      a: "تسجل قائمة وزارة المالية لكل مزود معتمد مبدئياً: اسم الشركة وموقعها الإلكتروني وجهة اتصال معينة أو أكثر مع بريدها الإلكتروني وأرقام هواتفها، بالترتيب الأبجدي. تعكس صفحة السجل لدينا هذه الحقول نفسها بدقة لتتمكن من الوصول مباشرة إلى جهة الاتصال الرسمية لأي مزود — ولكل مزود أيضاً صفحة ملف أوسع في موقعنا تتضمن الخلفية والفئة والخبرة الإقليمية.",
+    },
+    {
+      q: "كيف أتواصل مباشرة مع مزود معتمد مبدئياً؟",
+      a: "يعين كل مزود جهة اتصال رسمية لاستفسارات الفوترة الإلكترونية، منشورة مع بريد إلكتروني ورقم هاتف. تجدها جميعاً في صفحة السجل وفي ملف كل مزود. وإذا كنت لا تفضل مخاطبة عشرات المزودين واحداً واحداً، تقوم خدمة الترشيح المجانية لدينا بالمقارنة نيابة عنك وتعرّفك على الأنسب لمتطلباتك وميزانيتك.",
+    },
+    {
+      q: "ما الفرق بين الدليل والسجل في هذا الموقع؟",
+      a: "يعرض الدليل كل مزود كملف تعريفي قابل للتصفح — الخلفية والفئة والخبرة الإقليمية والمواقع — وهو مصمم للمقارنة بين الخيارات. أما السجل فيعكس صيغة القائمة الرسمية: جدول أبجدي واحد لجميع المزودين مع جهات الاتصال المعينة والبريد الإلكتروني وأرقام الهاتف، وهو مفيد عندما تحتاج بيانات التواصل الرسمية في لمحة واحدة.",
     },
     {
       q: "هل هذه هي القائمة الرسمية لوزارة المالية؟",

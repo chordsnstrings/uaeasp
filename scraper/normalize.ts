@@ -35,7 +35,7 @@ export function looksLikeCompanyName(text: string): boolean {
   if (!/[a-z]/i.test(t)) return false;
   // Obvious non-name page furniture
   if (
-    /^(home|about|contact|search|menu|news|events|initiatives|services|share|print|download|read more|learn more|last updated|page \d|©|copyright|ministry of finance|pre-?approved|service providers?|e-?invoicing|(provider|company|entity)?\s*name|website|email|phone|country|no\.?|#|sr\.?\s*no\.?|s\/n|status|date)$/i.test(
+    /^(home|about|contact|search|menu|news|events|initiatives|services|share|print|download|read more|learn more|last updated|page \d|©|copyright|ministry of finance|pre-?approved|service providers?|e-?invoicing|((provider|company|entity)\s+)?(name|website)|email|phone( number)?|contact person|country|no\.?|#|sr\.?\s*no\.?|s\/n|status|date)$/i.test(
       t,
     )
   ) {

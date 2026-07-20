@@ -26,9 +26,10 @@ ENV NODE_ENV=production \
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-# Migration runner + SQL migrations (applied on container start, idempotent)
+# Boot script: migrations + first-boot seed (applied on container start, idempotent)
 COPY --from=builder /app/scripts/migrate-prod.mjs ./migrate-prod.mjs
 COPY --from=builder /app/src/db/migrations ./migrations
+COPY --from=builder /app/db-seed/providers.seed.json ./seed/providers.seed.json
 
 RUN chown -R node:node /app
 USER node

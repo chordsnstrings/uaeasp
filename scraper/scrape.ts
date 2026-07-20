@@ -36,7 +36,21 @@ const MIN_PROVIDERS = 20;
 const resultSchema = z.object({
   strategy: z.enum(["scrape_html", "scrape_pdf"]),
   providers: z
-    .array(z.object({ name: z.string().min(2), website: z.string().nullable() }))
+    .array(
+      z.object({
+        name: z.string().min(2),
+        website: z.string().nullable(),
+        contacts: z
+          .array(
+            z.object({
+              name: z.string().optional(),
+              emails: z.array(z.string()),
+              phones: z.array(z.string()),
+            }),
+          )
+          .optional(),
+      }),
+    )
     .min(MIN_PROVIDERS),
 });
 
@@ -58,11 +72,12 @@ async function htmlStrategy(page: Page): Promise<ExtractedProvider[]> {
   // Some WAFs interpose a JS challenge; give it a moment to clear.
   await page.waitForTimeout(4000);
 
-  // 1) Table rows anywhere in the main content
+  // 1) Table rows anywhere in the main content. innerText (not textContent)
+  // so multi-line cells (several contact persons/emails) keep their breaks.
   const rows: RawRow[] = await page.$$eval("table tr", (trs) =>
     trs.map((tr) => ({
       cells: Array.from(tr.querySelectorAll("td,th")).map(
-        (td) => td.textContent?.trim() ?? "",
+        (td) => (td as HTMLElement).innerText?.trim() ?? "",
       ),
       links: Array.from(tr.querySelectorAll("a[href]")).map(
         (a) => (a as HTMLAnchorElement).href,

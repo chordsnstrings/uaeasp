@@ -89,6 +89,7 @@ export default async function ProvidersPage({
                   locale === "ar" && p.descriptionAr ? p.descriptionAr : p.description,
                 descriptionAr: p.descriptionAr,
                 status: p.status,
+                category: p.category,
               }))}
             />
           </Suspense>

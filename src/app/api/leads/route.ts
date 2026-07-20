@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
 
   // Notify sales + confirm to the client without blocking the response.
   after(async () => {
-    const recipients = getSalesNotifyEmails();
+    const recipients = await getSalesNotifyEmails();
     if (recipients.length > 0) {
       const { subject, html, text } = newLeadEmail(lead);
       const result = await sendEmail({ to: recipients, subject, html, text });

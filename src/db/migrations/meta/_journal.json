@@ -15,6 +15,13 @@
       "when": 1784534730447,
       "tag": "0001_luxuriant_starbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784537015313,
+      "tag": "0002_daffy_starbolt",
+      "breakpoints": true
     }
   ]
 }

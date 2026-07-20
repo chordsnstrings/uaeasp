@@ -32,6 +32,7 @@ The authoritative list is published by the Ministry of Finance at mof.gov.ae.
 ## Key pages
 
 - [All providers](${absoluteUrl("/providers")}): full directory with profiles
+- [ASP registry](${absoluteUrl("/registry")}): the official-list registry including each provider's contact person, email and phone number
 - [Get matched (free)](${absoluteUrl("/get-matched")}): free provider matching for businesses
 - [Readiness assessment](${absoluteUrl("/assessment")}): 2-minute e-invoicing readiness check
 - [UAE e-invoicing FAQ](${absoluteUrl("/faq")}): mandate, timeline, Peppol PINT AE, choosing an ASP

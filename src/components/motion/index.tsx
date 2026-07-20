@@ -17,7 +17,8 @@ export function MotionProvider({ children }: { children: ReactNode }) {
 
 export { m, AnimatePresence };
 
-/** Fade + rise into view on scroll, once. */
+/** Fade + rise into view on scroll, once. Skips the hidden state entirely for
+ * reduced-motion users so content is never invisible for them. */
 export function FadeIn({
   children,
   delay = 0,
@@ -30,12 +31,13 @@ export function FadeIn({
   as?: "div" | "section" | "li" | "article";
 }) {
   const MotionTag = m[Tag];
+  const reduced = useReducedMotion();
   return (
     <MotionTag
       className={className}
-      initial={{ opacity: 0, y: 18 }}
+      initial={reduced ? false : { opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
+      viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
@@ -51,10 +53,11 @@ export function StaggerGroup({
   children: ReactNode;
   className?: string;
 }) {
+  const reduced = useReducedMotion();
   return (
     <m.div
       className={className}
-      initial="hidden"
+      initial={reduced ? false : "hidden"}
       whileInView="show"
       viewport={{ once: true, margin: "-40px" }}
       variants={{

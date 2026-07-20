@@ -8,7 +8,8 @@
       "faq": "FAQ",
       "about": "About",
       "getMatched": "Get Matched Free",
-      "track": "Track Request"
+      "track": "Track Request",
+      "registry": "Registry"
     },
     "footer": {
       "tagline": "The complete, always-current directory of UAE Ministry of Finance pre-approved e-invoicing service providers.",
@@ -25,7 +26,8 @@
       "notAffiliated": "This is an independent directory. We are not affiliated with, endorsed by, or connected to the UAE Ministry of Finance or any government entity.",
       "lastUpdated": "Directory last updated: {date}",
       "rights": "All rights reserved.",
-      "trackRequest": "Track Your Request"
+      "trackRequest": "Track Your Request",
+      "registry": "ASP Registry"
     },
     "cta": {
       "stickyText": "Not sure which provider fits your business?",
@@ -45,6 +47,14 @@
       "umm-al-quwain": "Umm Al Quwain",
       "ras-al-khaimah": "Ras Al Khaimah",
       "fujairah": "Fujairah"
+    },
+    "categories": {
+      "erp": "ERP / Accounting software",
+      "tax-tech": "Tax technology",
+      "consulting": "Advisory & consulting",
+      "edi-network": "E-invoicing / EDI network",
+      "enterprise-software": "Enterprise software",
+      "fintech": "Fintech / AP automation"
     }
   },
   "home": {
@@ -79,7 +89,8 @@
     "directoryPreview": {
       "title": "The complete pre-approved provider list",
       "subtitle": "Every provider recognised by the UAE Ministry of Finance, kept current.",
-      "viewAll": "View the full directory"
+      "viewAll": "View the full directory",
+      "registryButton": "Registry with contact details"
     },
     "how": {
       "title": "How it works",
@@ -116,7 +127,8 @@
       "title": "Overwhelmed by {count} options?",
       "body": "Tell us your budget and requirements — we'll shortlist the right providers for you, free.",
       "button": "Get matched free"
-    }
+    },
+    "categoryAll": "All types"
   },
   "providerDetail": {
     "metaTitle": "{name} — UAE Pre-Approved E-Invoicing Provider",
@@ -135,7 +147,10 @@
       "body": "Every provider has different pricing, integrations and strengths. Tell us your requirements and budget — our team will tell you honestly whether {name} or another pre-approved ASP is the better match. Free, no obligation.",
       "button": "Compare my options free"
     },
-    "othersTitle": "Other pre-approved providers"
+    "othersTitle": "Other pre-approved providers",
+    "officialContacts": "Official contact details",
+    "officialContactsNote": "As designated on the official pre-approved service provider list.",
+    "categoryLabel": "Provider type"
   },
   "leadForm": {
     "title": "Get matched with the right provider",
@@ -247,7 +262,18 @@
         "label": "Early days",
         "body": "You're at the start of the journey — and that's fine, but the clock is ticking. The right ASP can handle most of the complexity for you. Start the conversation early."
       },
-      "cta": "Now tell us your requirements below and we'll match you with the provider that fits your situation and budget — free."
+      "cta": "Now tell us your requirements below and we'll match you with the provider that fits your situation and budget — free.",
+      "trackTitle": "Track your request",
+      "trackBody": "We saved your details — a specialist will follow up within one business day. Follow the status anytime:",
+      "trackButton": "View my request status",
+      "moreDetail": "Want a sharper match? Add budget & system details"
+    },
+    "gate": {
+      "title": "Your results are ready",
+      "subtitle": "Tell us where to send your readiness score and personalised action plan — and unlock your results instantly.",
+      "progressLabel": "Final step",
+      "submit": "Show my results",
+      "privacyNote": "Free, no obligation. Your details are used to prepare your provider match and are never sold."
     }
   },
   "faqPage": {
@@ -353,5 +379,29 @@
     "closedNote": "This request has been closed. If you still need a provider match, you're welcome to submit a new request — it's free.",
     "keepLink": "Bookmark this page — it's your private tracking link.",
     "questions": "Questions about your request? Reply to any of our emails or submit an update via a new request."
+  },
+  "registry": {
+    "metaTitle": "UAE E-Invoicing ASP Registry — All {count} Pre-Approved Providers & Contact Details ({year})",
+    "metaDescription": "The full registry of all {count} UAE Ministry of Finance pre-approved e-invoicing service providers with official contact persons, emails and phone numbers. Updated {date}.",
+    "title": "UAE E-Invoicing Service Provider Registry",
+    "subtitle": "All {count} pre-approved eInvoicing Service Providers with their official contact details, in alphabetical order. Updated {date}.",
+    "intro1": "Under Article 15 of Ministerial Decision No. 64 of 2025 on the eligibility criteria and accreditation procedure for Service Providers under the Electronic Invoicing System, the UAE Ministry of Finance maintains a list of pre-approved eInvoicing Service Providers. Final accreditation is granted in accordance with Article 16 of the same Decision.",
+    "intro2": "The registry below mirrors that official list, including each provider's designated contact person(s), email and phone number, and is refreshed regularly — the current version is shown as of the date above. This is an independent directory; always verify a provider's status with the Ministry of Finance before contracting.",
+    "th": {
+      "num": "#",
+      "company": "Company Name",
+      "website": "Website",
+      "contact": "Contact Person",
+      "email": "Email",
+      "phone": "Phone Number",
+      "profile": "Profile"
+    },
+    "viewProfile": "View profile",
+    "delisted": "No longer listed",
+    "matchCta": {
+      "title": "Don't want to call {count} providers one by one?",
+      "body": "Tell us your requirements and budget once — our team shortlists the right providers for you and makes the introduction. Free for businesses.",
+      "button": "Get matched free"
+    }
   }
 }

@@ -2,7 +2,7 @@
 
 A bilingual (English/Arabic, full RTL) SEO-optimized directory of all UAE Ministry of
 Finance **pre-approved e-invoicing service providers (ASPs)**, built as a lead-generation
-funnel with a granular sales CRM, a client request-tracking portal, and a weekly
+funnel with a granular sales CRM, a client request-tracking portal, and a nightly
 self-updating provider database.
 
 ## What's inside
@@ -15,7 +15,7 @@ self-updating provider database.
 | **Lead capture** | Form + quiz funnel into `POST /api/leads`: honeypot + time-trap, Postgres rate limiting, optional Cloudflare Turnstile, PDPL consent timestamp, duplicate flagging, UTM/referrer capture. Instant email to sales + confirmation email (with tracking link) to the client. |
 | **Client portal** | Every lead gets a private tracking token. Clients follow status at `/track/<token>` (also reachable via email+phone lookup at `/track`). Statuses are mapped to client-safe steps. |
 | **Admin CRM** (`/admin`) | Auth.js credentials login (roles: `admin`, `sales`). Dashboard (pipeline counts, win rate, weekly volume, sources), filterable lead table, lead detail with status pipeline / assignment / notes / activity timeline, CSV export (UTF-8 BOM), provider management with scrape-protected manual overrides, data-refresh history with diffs, team management, audit log. |
-| **Auto-updating directory** | GitHub Actions cron (weekly) runs a Playwright scraper against the official MOF list with a PDF fallback, then POSTs to `/api/ingest/providers`. Server-side reconciler applies sanity gates, never deletes, delists only after 2 consecutive missing runs, preserves admin overrides, records diffs, and emails alerts. The public site only ever shows a neutral "Directory last updated" date. |
+| **Auto-updating directory** | GitHub Actions cron (nightly, 02:00 UAE) runs a Playwright scraper against the official MOF list with a PDF fallback, then POSTs to `/api/ingest/providers`. Server-side reconciler applies sanity gates, never deletes, delists only after 2 consecutive missing runs, preserves admin overrides, records diffs, and emails alerts. The public site only ever shows a neutral "Directory last updated" date. |
 
 ## Stack
 
@@ -74,8 +74,19 @@ lead capture never depends on SMTP availability.
 7. **GitHub secrets for the scraper**: in the repo settings add
    `INGEST_URL=https://<your-domain>/api/ingest/providers` and the same
    `INGEST_SECRET` as the app. Then run the **"Refresh provider directory"** workflow
-   manually once and review the result in `/admin/scrapes`. The weekly cron takes over
+   manually once and review the result in `/admin/scrapes`. The nightly cron takes over
    from there.
+
+### AI profile drafts (optional)
+
+When a **new** provider appears on the official list, it arrives with only a name,
+website and contacts. If `AI_API_BASE_URL`, `AI_API_KEY` and `AI_MODEL` are set on the
+app (any OpenAI-compatible API — DeepSeek `deepseek-chat`, GLM `glm-4-plus`, etc.), the
+refresh auto-drafts a conservative English + Arabic profile and category for it,
+**filling empty fields only** — existing content and admin edits are never touched, and
+every draft is recorded in the audit log. Without a key, new providers show a neutral
+fallback line until an admin writes the profile. All structural updates (new pages,
+counts, registry rows, sitemap, delistings) are deterministic and never involve AI.
 
 ### How the auto-refresh stays safe
 
@@ -97,6 +108,16 @@ directory untouched). Options, in order: re-run manually (IPs rotate), add a ste
 plugin, run the scraper from any machine with
 `INGEST_URL=... INGEST_SECRET=... npm run scrape` inside `scraper/`, or paste the list
 via the manual upload path.
+
+### Runtime settings (/admin/settings)
+
+SMTP, notification recipients, AI-draft credentials and the ingest secret are all
+editable at runtime in **/admin/settings** (admin role only). Values saved there are
+stored in the database, override the corresponding env vars immediately (no redeploy),
+and secrets are write-only — masked after saving, changes audit-logged by field name
+only. Env vars remain the bootstrap/fallback, so a fresh deploy works before the first
+admin login. The page also shows the exact ingest URL to copy into GitHub secrets and
+has a send-test-email button to verify SMTP.
 
 ## Operations notes
 
@@ -122,7 +143,7 @@ src/lib/…                auth, data, email, ingest/reconcile, leads, rate-limi
 src/db/…                 Drizzle schema + migrations
 db-seed/                 hand-compiled provider seed JSON
 scraper/                 standalone Playwright scraper (GitHub Actions)
-.github/workflows/       ci.yml + scrape-mof.yml (weekly cron)
+.github/workflows/       ci.yml + scrape-mof.yml (nightly cron)
 .do/app.yaml             DigitalOcean App Platform spec
 Dockerfile               standalone production image (runs migrations on start)
 ```
