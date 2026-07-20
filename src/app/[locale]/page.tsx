@@ -47,6 +47,7 @@ export default async function HomePage({
   setRequestLocale(locale);
   const t = await getTranslations("home");
   const tp = await getTranslations("providers");
+  const th = await getTranslations("toolkit.hub");
   const [providers, count, lastUpdated] = await Promise.all([
     getPublicProviders(),
     getActiveProviderCount(),
@@ -242,6 +243,64 @@ export default async function HomePage({
             ))}
           </StaggerGroup>
         </div>
+      </section>
+
+      {/* Free tools teaser */}
+      <section className="mx-auto max-w-6xl px-4 pt-20 sm:px-6">
+        <FadeIn>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight text-ink-900">
+                {t("toolsTeaser.title")}
+              </h2>
+              <p className="mt-2 max-w-2xl text-ink-600">{t("toolsTeaser.subtitle")}</p>
+            </div>
+            <Link
+              href="/toolkit"
+              className="press hover-lift rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800 hover:shadow-sm"
+            >
+              {t("toolsTeaser.viewAll")}
+            </Link>
+          </div>
+        </FadeIn>
+        <StaggerGroup className="mt-8 grid gap-5 sm:grid-cols-3">
+          {(
+            [
+              { key: "calculator", href: "/toolkit/penalty-calculator", emoji: "🧮" },
+              { key: "planner", href: "/toolkit/readiness-planner", emoji: "🗓️" },
+              { key: "checklist", href: "/toolkit/checklist", emoji: "✅" },
+            ] as const
+          ).map((tool) => (
+            <StaggerItem key={tool.key}>
+              <Link
+                href={tool.href}
+                className="card-hover group flex h-full flex-col rounded-2xl border border-ink-100 bg-white p-6 transition-transform"
+              >
+                <span
+                  aria-hidden
+                  className="grid size-11 place-items-center rounded-xl bg-brand-50 text-xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
+                >
+                  {tool.emoji}
+                </span>
+                <h3 className="mt-4 font-bold text-ink-900 group-hover:text-brand-800">
+                  {th(`tools.${tool.key}.title` as Parameters<typeof th>[0])}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-600">
+                  {th(`tools.${tool.key}.body` as Parameters<typeof th>[0])}
+                </p>
+                <span className="mt-4 text-sm font-semibold text-brand-700">
+                  {th("open")}{" "}
+                  <span
+                    aria-hidden
+                    className="inline-block transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
+                  >
+                    →
+                  </span>
+                </span>
+              </Link>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
       </section>
 
       {/* How it works */}

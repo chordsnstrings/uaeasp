@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getPublicProviders } from "@/lib/data";
+import { GUIDE_SLUGS } from "@/content/guides";
 import { absoluteUrl, localePath } from "@/lib/site";
 
 export const revalidate = 3600;
@@ -32,6 +33,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/get-matched", { priority: 0.9, changeFrequency: "monthly" }),
     entry("/assessment", { priority: 0.8, changeFrequency: "monthly" }),
     entry("/faq", { priority: 0.8, changeFrequency: "weekly" }),
+    entry("/toolkit", { priority: 0.8, changeFrequency: "monthly" }),
+    entry("/toolkit/penalty-calculator", { priority: 0.8, changeFrequency: "monthly" }),
+    entry("/toolkit/readiness-planner", { priority: 0.8, changeFrequency: "monthly" }),
+    entry("/toolkit/checklist", { priority: 0.7, changeFrequency: "monthly" }),
+    entry("/guides", { priority: 0.8, changeFrequency: "weekly" }),
+    ...GUIDE_SLUGS.map((slug) =>
+      entry(`/guides/${slug}`, { priority: 0.7, changeFrequency: "monthly" }),
+    ),
+    entry("/integrations", { priority: 0.7, changeFrequency: "monthly" }),
+    entry("/resources", { priority: 0.6, changeFrequency: "monthly" }),
+    entry("/resources/pint-ae-reference", { priority: 0.7, changeFrequency: "monthly" }),
     entry("/about", { priority: 0.4, changeFrequency: "monthly" }),
     entry("/privacy", { priority: 0.2, changeFrequency: "yearly" }),
     entry("/disclaimer", { priority: 0.2, changeFrequency: "yearly" }),

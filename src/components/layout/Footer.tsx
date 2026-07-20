@@ -14,7 +14,7 @@ export async function Footer() {
   return (
     <footer className="border-t border-ink-100 bg-ink-50">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <p className="text-lg font-bold text-ink-900">{SITE_NAME}</p>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-ink-600">
@@ -59,6 +59,47 @@ export async function Footer() {
               <li>
                 <Link href="/track" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
                   {t("trackRequest")}
+                </Link>
+              </li>
+            </ul>
+          </nav>
+
+          <nav aria-label={t("toolsGuides")}>
+            <p className="text-sm font-semibold text-ink-900">{t("toolsGuides")}</p>
+            <ul className="mt-3 space-y-2 text-sm">
+              <li>
+                <Link href="/toolkit" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
+                  {t("toolkit")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/toolkit/penalty-calculator" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
+                  {t("penaltyCalculator")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/toolkit/readiness-planner" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
+                  {t("readinessPlanner")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/toolkit/checklist" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
+                  {t("checklist")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/guides" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
+                  {t("guides")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/integrations" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
+                  {t("integrations")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/resources" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
+                  {t("resources")}
                 </Link>
               </li>
             </ul>
