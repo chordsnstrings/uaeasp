@@ -2,7 +2,7 @@
 
 A bilingual (English/Arabic, full RTL) SEO-optimized directory of all UAE Ministry of
 Finance **pre-approved e-invoicing service providers (ASPs)**, built as a lead-generation
-funnel with a granular sales CRM, a client request-tracking portal, and a weekly
+funnel with a granular sales CRM, a client request-tracking portal, and a nightly
 self-updating provider database.
 
 ## What's inside
@@ -15,7 +15,7 @@ self-updating provider database.
 | **Lead capture** | Form + quiz funnel into `POST /api/leads`: honeypot + time-trap, Postgres rate limiting, optional Cloudflare Turnstile, PDPL consent timestamp, duplicate flagging, UTM/referrer capture. Instant email to sales + confirmation email (with tracking link) to the client. |
 | **Client portal** | Every lead gets a private tracking token. Clients follow status at `/track/<token>` (also reachable via email+phone lookup at `/track`). Statuses are mapped to client-safe steps. |
 | **Admin CRM** (`/admin`) | Auth.js credentials login (roles: `admin`, `sales`). Dashboard (pipeline counts, win rate, weekly volume, sources), filterable lead table, lead detail with status pipeline / assignment / notes / activity timeline, CSV export (UTF-8 BOM), provider management with scrape-protected manual overrides, data-refresh history with diffs, team management, audit log. |
-| **Auto-updating directory** | GitHub Actions cron (weekly) runs a Playwright scraper against the official MOF list with a PDF fallback, then POSTs to `/api/ingest/providers`. Server-side reconciler applies sanity gates, never deletes, delists only after 2 consecutive missing runs, preserves admin overrides, records diffs, and emails alerts. The public site only ever shows a neutral "Directory last updated" date. |
+| **Auto-updating directory** | GitHub Actions cron (nightly, 02:00 UAE) runs a Playwright scraper against the official MOF list with a PDF fallback, then POSTs to `/api/ingest/providers`. Server-side reconciler applies sanity gates, never deletes, delists only after 2 consecutive missing runs, preserves admin overrides, records diffs, and emails alerts. The public site only ever shows a neutral "Directory last updated" date. |
 
 ## Stack
 
@@ -74,7 +74,7 @@ lead capture never depends on SMTP availability.
 7. **GitHub secrets for the scraper**: in the repo settings add
    `INGEST_URL=https://<your-domain>/api/ingest/providers` and the same
    `INGEST_SECRET` as the app. Then run the **"Refresh provider directory"** workflow
-   manually once and review the result in `/admin/scrapes`. The weekly cron takes over
+   manually once and review the result in `/admin/scrapes`. The nightly cron takes over
    from there.
 
 ### How the auto-refresh stays safe
@@ -122,7 +122,7 @@ src/lib/…                auth, data, email, ingest/reconcile, leads, rate-limi
 src/db/…                 Drizzle schema + migrations
 db-seed/                 hand-compiled provider seed JSON
 scraper/                 standalone Playwright scraper (GitHub Actions)
-.github/workflows/       ci.yml + scrape-mof.yml (weekly cron)
+.github/workflows/       ci.yml + scrape-mof.yml (nightly cron)
 .do/app.yaml             DigitalOcean App Platform spec
 Dockerfile               standalone production image (runs migrations on start)
 ```
