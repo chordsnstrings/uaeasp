@@ -109,6 +109,16 @@ plugin, run the scraper from any machine with
 `INGEST_URL=... INGEST_SECRET=... npm run scrape` inside `scraper/`, or paste the list
 via the manual upload path.
 
+### Runtime settings (/admin/settings)
+
+SMTP, notification recipients, AI-draft credentials and the ingest secret are all
+editable at runtime in **/admin/settings** (admin role only). Values saved there are
+stored in the database, override the corresponding env vars immediately (no redeploy),
+and secrets are write-only — masked after saving, changes audit-logged by field name
+only. Env vars remain the bootstrap/fallback, so a fresh deploy works before the first
+admin login. The page also shows the exact ingest URL to copy into GitHub secrets and
+has a send-test-email button to verify SMTP.
+
 ## Operations notes
 
 - **CRM workflow**: leads arrive as `new` → sales moves them through

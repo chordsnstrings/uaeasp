@@ -14,6 +14,7 @@ import {
   type ReconcileResult,
 } from "@/lib/ingest/reconcile";
 import { PROVIDERS_CACHE_TAG } from "@/lib/data";
+import { getConfig } from "@/lib/settings";
 import {
   ingestFailureSchema,
   ingestPayloadSchema,
@@ -24,8 +25,8 @@ export const maxDuration = 120;
 
 async function isAuthorized(req: NextRequest): Promise<boolean> {
   const bearer = req.headers.get("authorization");
-  const secret = process.env.INGEST_SECRET;
-  if (secret && bearer === `Bearer ${secret}`) return true;
+  const { ingestSecret } = await getConfig();
+  if (ingestSecret && bearer === `Bearer ${ingestSecret}`) return true;
   // Admins may upload the list manually through the same endpoint.
   const session = await auth();
   return session?.user?.role === "admin";
@@ -55,7 +56,7 @@ function notifyAfterRun(result: ReconcileResult) {
       summary: `${result.found} providers found · +${result.added} added · ${result.updated} updated · ${result.missing} missing`,
       detailLines: lines,
     });
-    await sendEmail({ to: getAdminAlertEmail(), subject, html, text });
+    await sendEmail({ to: await getAdminAlertEmail(), subject, html, text });
   });
 }
 
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
               ]
             : ["First failure — the next scheduled run may recover on its own."],
       });
-      await sendEmail({ to: getAdminAlertEmail(), subject, html, text });
+      await sendEmail({ to: await getAdminAlertEmail(), subject, html, text });
     });
     return NextResponse.json({ ok: true, runId, recorded: "failed" });
   }
@@ -115,7 +116,7 @@ export async function POST(req: NextRequest) {
     // list with only name/website/contacts. Draft a profile (EN + AR +
     // category) for them — filling NULL fields only, never overwriting
     // existing or admin-edited content. Skipped when no AI key is configured.
-    if (result.addedNames.length > 0 && isEnrichmentConfigured()) {
+    if (result.addedNames.length > 0 && (await isEnrichmentConfigured())) {
       after(async () => {
         const blank = await db
           .select({

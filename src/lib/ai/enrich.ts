@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PROVIDER_CATEGORIES, type ProviderCategory } from "@/db/schema";
+import { getConfig } from "@/lib/settings";
 
 /**
  * Optional AI enrichment for providers that appear in a data refresh without
@@ -29,8 +30,9 @@ export const enrichmentSchema = z.object({
 
 export type Enrichment = z.infer<typeof enrichmentSchema>;
 
-export function isEnrichmentConfigured(): boolean {
-  return !!(process.env.AI_API_BASE_URL && process.env.AI_API_KEY && process.env.AI_MODEL);
+export async function isEnrichmentConfigured(): Promise<boolean> {
+  const config = await getConfig();
+  return !!(config.aiApiBaseUrl && config.aiApiKey && config.aiModel);
 }
 
 const SYSTEM_PROMPT = `You write short, factual company profiles for a directory of UAE Ministry of Finance pre-approved e-invoicing service providers (Accredited Service Providers / ASPs).
@@ -60,9 +62,10 @@ export async function enrichProvider(input: {
   name: string;
   website: string | null;
 }): Promise<{ category: ProviderCategory; description: string; descriptionAr: string } | null> {
-  if (!isEnrichmentConfigured()) return null;
+  const config = await getConfig();
+  if (!(config.aiApiBaseUrl && config.aiApiKey && config.aiModel)) return null;
 
-  const baseUrl = process.env.AI_API_BASE_URL!.replace(/\/$/, "");
+  const baseUrl = config.aiApiBaseUrl.replace(/\/$/, "");
   const endpoint = baseUrl.endsWith("/chat/completions")
     ? baseUrl
     : `${baseUrl}/v1/chat/completions`;
@@ -71,10 +74,10 @@ export async function enrichProvider(input: {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.AI_API_KEY}`,
+        Authorization: `Bearer ${config.aiApiKey}`,
       },
       body: JSON.stringify({
-        model: process.env.AI_MODEL,
+        model: config.aiModel,
         temperature: 0.2,
         // Generous budget: some hosted models (e.g. Seed/R1 family) spend
         // completion tokens on reasoning before the JSON answer.

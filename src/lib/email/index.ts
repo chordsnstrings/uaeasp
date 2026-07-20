@@ -1,24 +1,13 @@
 import nodemailer from "nodemailer";
+import { getConfig } from "@/lib/settings";
 
 /**
  * Provider-agnostic SMTP mailer. Works with Resend SMTP, Postmark, SES, Zoho
- * or any other SMTP endpoint — configured entirely via env vars. When SMTP is
- * not configured (e.g. local dev), emails are logged instead of sent so lead
- * capture never depends on email availability.
+ * or any other SMTP endpoint. Configuration comes from admin settings
+ * (/admin/settings) with env vars as fallback — see src/lib/settings.ts.
+ * When SMTP is not configured (e.g. local dev), emails are logged instead of
+ * sent so lead capture never depends on email availability.
  */
-
-function getTransport() {
-  const host = process.env.SMTP_HOST;
-  if (!host) return null;
-  return nodemailer.createTransport({
-    host,
-    port: Number(process.env.SMTP_PORT ?? 587),
-    secure: Number(process.env.SMTP_PORT ?? 587) === 465,
-    auth: process.env.SMTP_USER
-      ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-      : undefined,
-  });
-}
 
 export async function sendEmail({
   to,
@@ -31,14 +20,23 @@ export async function sendEmail({
   html: string;
   text: string;
 }): Promise<{ ok: boolean; error?: string }> {
-  const transport = getTransport();
-  if (!transport) {
+  const config = await getConfig();
+  if (!config.smtpHost) {
     console.log(`[email:dry-run] to=${to.join(",")} subject="${subject}"`);
     return { ok: true };
   }
+  const port = Number(config.smtpPort || 587);
+  const transport = nodemailer.createTransport({
+    host: config.smtpHost,
+    port,
+    secure: port === 465,
+    auth: config.smtpUser
+      ? { user: config.smtpUser, pass: config.smtpPass }
+      : undefined,
+  });
   try {
     await transport.sendMail({
-      from: process.env.EMAIL_FROM ?? "noreply@localhost",
+      from: config.emailFrom || "noreply@localhost",
       to: to.join(", "),
       subject,
       html,
@@ -51,14 +49,16 @@ export async function sendEmail({
   }
 }
 
-export function getSalesNotifyEmails(): string[] {
-  return (process.env.SALES_NOTIFY_EMAILS ?? "")
+export async function getSalesNotifyEmails(): Promise<string[]> {
+  const config = await getConfig();
+  return config.salesNotifyEmails
     .split(",")
     .map((e) => e.trim())
     .filter(Boolean);
 }
 
-export function getAdminAlertEmail(): string[] {
-  const email = process.env.ADMIN_ALERT_EMAIL?.trim();
+export async function getAdminAlertEmail(): Promise<string[]> {
+  const config = await getConfig();
+  const email = config.adminAlertEmail.trim();
   return email ? [email] : getSalesNotifyEmails();
 }

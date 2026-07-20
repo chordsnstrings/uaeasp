@@ -11,6 +11,7 @@ const NAV = [
   { href: "/admin/providers", label: "Providers" },
   { href: "/admin/scrapes", label: "Data refreshes" },
   { href: "/admin/users", label: "Team", adminOnly: true },
+  { href: "/admin/settings", label: "Settings", adminOnly: true },
 ];
 
 export default async function DashboardLayout({
