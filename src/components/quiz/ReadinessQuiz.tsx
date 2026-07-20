@@ -95,7 +95,7 @@ export function ReadinessQuiz() {
   }
 
   const inputClass = (field: string) =>
-    `w-full rounded-xl border bg-white px-4 py-3 text-sm shadow-sm placeholder:text-ink-400 focus:ring-2 ${
+    `h-12 w-full rounded-xl border bg-white px-4 text-base shadow-sm placeholder:text-ink-400 focus:ring-2 ${
       fieldErrors[field]
         ? "border-red-300 focus:border-red-400 focus:ring-red-100"
         : "border-ink-200 focus:border-brand-400 focus:ring-brand-100"
@@ -318,7 +318,17 @@ export function ReadinessQuiz() {
                     aria-invalid={!!fieldErrors.consent}
                     onChange={() => setFieldErrors((f) => ({ ...f, consent: false }))}
                   />
-                  <span className="text-ink-600">{tf("consent")}</span>
+                  <span className="text-ink-600">
+                    {tf("consentPrefix")}{" "}
+                    <Link
+                      href="/privacy"
+                      className="font-medium text-brand-700 underline underline-offset-2"
+                      target="_blank"
+                    >
+                      {tf("consentLinkText")}
+                    </Link>
+                    .
+                  </span>
                 </label>
 
                 {gateError && (

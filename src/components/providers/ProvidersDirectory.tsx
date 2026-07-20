@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useDeferredValue } from "react";
+import { useEffect, useMemo, useRef, useState, useDeferredValue } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -28,24 +28,33 @@ const CATEGORIES = [
   "fintech",
 ] as const;
 
+const PAGE_SIZE = 12;
+
 export function ProvidersDirectory({ providers }: { providers: DirectoryProvider[] }) {
   const t = useTranslations("providers");
   const tc = useTranslations("common");
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [category, setCategory] = useState(searchParams.get("category") ?? "");
+  const [page, setPage] = useState(() => {
+    const p = Number(searchParams.get("page") ?? 1);
+    return Number.isInteger(p) && p > 0 ? p : 1;
+  });
   const deferredQuery = useDeferredValue(query);
+  const listTopRef = useRef<HTMLDivElement>(null);
 
-  // Keep search + filter shareable/bookmarkable: reflect them in the address
-  // bar without triggering navigation.
+  // Keep search + filter + page shareable/bookmarkable: reflect them in the
+  // address bar without triggering navigation.
   useEffect(() => {
     const url = new URL(window.location.href);
     if (query.trim()) url.searchParams.set("q", query.trim());
     else url.searchParams.delete("q");
     if (category) url.searchParams.set("category", category);
     else url.searchParams.delete("category");
+    if (page > 1) url.searchParams.set("page", String(page));
+    else url.searchParams.delete("page");
     window.history.replaceState(null, "", url.toString());
-  }, [query, category]);
+  }, [query, category, page]);
 
   const filtered = useMemo(() => {
     const q = deferredQuery.trim().toLowerCase();
@@ -59,6 +68,15 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
       );
     });
   }, [providers, deferredQuery, category]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  function goToPage(next: number) {
+    setPage(next);
+    listTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   const labels = {
     visitWebsite: t("visitWebsite"),
@@ -83,7 +101,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
         <input
           type="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => { setQuery(e.target.value); setPage(1); }}
           placeholder={t("searchPlaceholder")}
           aria-label={t("searchPlaceholder")}
           className="w-full rounded-xl border border-ink-200 bg-white py-3 pe-4 ps-10 text-sm shadow-sm placeholder:text-ink-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
@@ -94,7 +112,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => setCategory("")}
+          onClick={() => { setCategory(""); setPage(1); }}
           className={`press rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
             !category
               ? "bg-ink-900 text-white ring-ink-900"
@@ -108,7 +126,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
           <button
             key={cat}
             type="button"
-            onClick={() => setCategory(category === cat ? "" : cat)}
+            onClick={() => { setCategory(category === cat ? "" : cat); setPage(1); }}
             className={`press rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
               category === cat
                 ? "bg-brand-700 text-white ring-brand-700"
@@ -120,6 +138,8 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
           </button>
         ))}
       </div>
+
+      <div ref={listTopRef} className="scroll-mt-24" />
 
       <AnimatePresence mode="popLayout">
         {filtered.length === 0 ? (
@@ -133,7 +153,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
             <p className="text-ink-500">{t("noResults")}</p>
             <button
               type="button"
-              onClick={() => setQuery("")}
+              onClick={() => { setQuery(""); setPage(1); }}
               className="press mt-4 rounded-lg border border-ink-200 px-4 py-2 text-sm font-medium text-ink-700 hover:border-brand-300 hover:text-brand-800"
             >
               {t("clearSearch")}
@@ -145,7 +165,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
             layout
             className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
           >
-            {filtered.map((p, i) => (
+            {paged.map((p, i) => (
               <m.div
                 key={p.id}
                 layout
@@ -180,6 +200,55 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
           </m.div>
         )}
       </AnimatePresence>
+
+      {/* Pagination */}
+      {filtered.length > PAGE_SIZE && (
+        <nav
+          className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-between"
+          aria-label="Pagination"
+        >
+          <p className="text-sm text-ink-500">
+            {t("pagination.showing", {
+              from: (safePage - 1) * PAGE_SIZE + 1,
+              to: Math.min(safePage * PAGE_SIZE, filtered.length),
+              count: filtered.length,
+            })}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              disabled={safePage <= 1}
+              onClick={() => goToPage(safePage - 1)}
+              className="press rounded-lg border border-ink-200 bg-white px-3.5 py-2 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {t("pagination.prev")}
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => goToPage(n)}
+                aria-current={n === safePage ? "page" : undefined}
+                className={`press size-10 rounded-lg text-sm font-semibold transition-colors ${
+                  n === safePage
+                    ? "bg-brand-700 text-white"
+                    : "border border-ink-200 bg-white text-ink-700 hover:border-brand-300 hover:text-brand-800"
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              type="button"
+              disabled={safePage >= totalPages}
+              onClick={() => goToPage(safePage + 1)}
+              className="press rounded-lg border border-ink-200 bg-white px-3.5 py-2 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {t("pagination.next")}
+            </button>
+          </div>
+        </nav>
+      )}
     </div>
   );
 }
