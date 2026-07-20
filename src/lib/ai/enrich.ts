@@ -4,12 +4,17 @@ import { PROVIDER_CATEGORIES, type ProviderCategory } from "@/db/schema";
 /**
  * Optional AI enrichment for providers that appear in a data refresh without
  * profile content. Uses any OpenAI-compatible chat API (DeepSeek, GLM/Zhipu,
- * OpenAI, …) configured entirely via env vars:
+ * Volcengine/BytePlus Ark, OpenAI, …) configured entirely via env vars:
  *
- *   AI_API_BASE_URL  e.g. https://api.deepseek.com  (DeepSeek)
- *                         https://open.bigmodel.cn/api/paas  (GLM)
+ *   AI_API_BASE_URL  either a provider base URL (…/v1/chat/completions is
+ *                    appended) or a full chat-completions URL (used as-is
+ *                    when it already ends in /chat/completions):
+ *                      https://api.deepseek.com                       (DeepSeek)
+ *                      https://open.bigmodel.cn/api/paas/v4/chat/completions  (GLM)
+ *                      https://ark.cn-beijing.volces.com/api/v3/chat/completions  (Volcengine Ark)
+ *                      https://ark.ap-southeast.bytepluses.com/api/v3/chat/completions  (BytePlus Ark)
  *   AI_API_KEY       provider API key
- *   AI_MODEL         e.g. deepseek-chat | glm-4-plus
+ *   AI_MODEL         e.g. deepseek-chat | glm-4-plus | deepseek-v3-250324 | ep-…
  *
  * When unset, enrichment is skipped and new providers show the neutral
  * fallback text until an admin fills the profile. Drafts NEVER overwrite
@@ -58,8 +63,11 @@ export async function enrichProvider(input: {
   if (!isEnrichmentConfigured()) return null;
 
   const baseUrl = process.env.AI_API_BASE_URL!.replace(/\/$/, "");
+  const endpoint = baseUrl.endsWith("/chat/completions")
+    ? baseUrl
+    : `${baseUrl}/v1/chat/completions`;
   try {
-    const res = await fetch(`${baseUrl}/v1/chat/completions`, {
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -68,7 +76,9 @@ export async function enrichProvider(input: {
       body: JSON.stringify({
         model: process.env.AI_MODEL,
         temperature: 0.2,
-        max_tokens: 800,
+        // Generous budget: some hosted models (e.g. Seed/R1 family) spend
+        // completion tokens on reasoning before the JSON answer.
+        max_tokens: 2000,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           {
