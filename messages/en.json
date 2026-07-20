@@ -9,7 +9,9 @@
       "about": "About",
       "getMatched": "Get Matched Free",
       "track": "Track Request",
-      "registry": "Registry"
+      "registry": "Registry",
+      "toolkit": "Toolkit",
+      "guides": "Guides"
     },
     "footer": {
       "tagline": "The complete, always-current directory of UAE Ministry of Finance pre-approved e-invoicing service providers.",
@@ -27,7 +29,14 @@
       "lastUpdated": "Directory last updated: {date}",
       "rights": "All rights reserved.",
       "trackRequest": "Track Your Request",
-      "registry": "ASP Registry"
+      "registry": "ASP Registry",
+      "toolsGuides": "Tools & guides",
+      "toolkit": "Free toolkit",
+      "penaltyCalculator": "Penalty calculator",
+      "readinessPlanner": "Readiness planner",
+      "checklist": "Compliance checklist",
+      "guides": "Guides",
+      "integrations": "Integrations"
     },
     "cta": {
       "stickyText": "Not sure which provider fits your business?",
@@ -119,6 +128,11 @@
       "minutes": "Minutes",
       "seconds": "Seconds",
       "note": "January 2027 — don't leave provider selection to the last quarter"
+    },
+    "toolsTeaser": {
+      "title": "Free tools for your compliance project",
+      "subtitle": "Work out your penalties, your dates and your to-do list in minutes — no signup, no cost.",
+      "viewAll": "Explore the full toolkit"
     }
   },
   "providers": {
@@ -419,5 +433,242 @@
       "body": "Tell us your requirements and budget once — our team shortlists the right providers for you and makes the introduction. Free for businesses.",
       "button": "Get matched free"
     }
+  },
+  "toolkit": {
+    "hub": {
+      "metaTitle": "Free UAE E-Invoicing Toolkit: Calculator, Planner & Checklist",
+      "metaDescription": "Free interactive tools for UAE e-invoicing compliance: penalty calculator, readiness planner, compliance checklist, readiness assessment and the PINT AE field reference.",
+      "title": "The UAE e-invoicing toolkit",
+      "subtitle": "Free interactive tools that turn the mandate's deadlines, penalties and specifications into answers for your business — no signup required.",
+      "tools": {
+        "calculator": {
+          "title": "Penalty calculator",
+          "body": "Model your AED exposure under Cabinet Decision No. 106 of 2025 — appointment delays, missed go-live, invoices issued outside the system."
+        },
+        "planner": {
+          "title": "Readiness planner",
+          "body": "A dated milestone plan for your phase, worked backwards from your go-live date and adjusted to your systems."
+        },
+        "checklist": {
+          "title": "Compliance checklist",
+          "body": "Every step from scoping to go-live in 23 checkable items. Progress saves in your browser and prints cleanly."
+        },
+        "assessment": {
+          "title": "Readiness assessment",
+          "body": "Five questions, an instant readiness score, and personalised next steps for your business."
+        },
+        "pint": {
+          "title": "PINT AE field reference",
+          "body": "A searchable reference of all 88 invoice fields, UAE document type codes and transaction flags."
+        }
+      },
+      "open": "Open tool",
+      "ctaTitle": "Prefer a human to do the work?",
+      "ctaBody": "Tell us your systems, volume and budget — we compare every pre-approved provider and introduce you to the right fit, free.",
+      "ctaButton": "Get matched free"
+    },
+    "calculator": {
+      "metaTitle": "UAE E-Invoicing Penalty Calculator (Cabinet Decision 106)",
+      "metaDescription": "Calculate your UAE e-invoicing penalty exposure: AED 5,000/month for missing the ASP deadline or go-live, AED 100 per invoice outside the system, AED 1,000/day for unreported changes.",
+      "kicker": "Free tool",
+      "title": "E-invoicing penalty calculator",
+      "subtitle": "Estimate what non-compliance would cost your business under Cabinet Decision No. 106 of 2025. Adjust the scenario — the totals update instantly.",
+      "inputsTitle": "Your scenario",
+      "phaseLabel": "Your implementation phase",
+      "phaseDates": "Appoint an ASP by {appoint} · go live by {goLive}",
+      "monthsNoAsp": "Months late appointing an ASP",
+      "monthsNotLive": "Months past go-live without the system",
+      "invoicesOutside": "Invoices issued outside the system (per month)",
+      "monthsOutside": "Months issuing outside the system",
+      "daysUnreported": "Days of unreported changes to registered data",
+      "totalLabel": "Estimated exposure — {phase}",
+      "totalNote": "Cumulative administrative penalties for this scenario",
+      "rules": {
+        "appoint": "ASP not appointed (AED 5,000/month)",
+        "implement": "System not implemented (AED 5,000/month)",
+        "outside": "Invoices outside the system (AED 100 each, capped)",
+        "data": "Unreported data changes (AED 1,000/day)"
+      },
+      "capNote": "The per-invoice penalty is capped at AED 5,000 per calendar month — your volume hits the cap.",
+      "ctaTitle": "The fix costs less than one month of penalties",
+      "ctaBody": "Appointing an accredited provider stops the clock. We shortlist the right one for your systems and budget, free.",
+      "ctaButton": "Get matched free",
+      "disclaimer": "Estimates reflect Cabinet Decision No. 106 of 2025 and implementation decisions as amended at the time of writing. Penalties apply from your phase's mandatory dates; nothing applies during voluntary adoption. This tool is general information, not legal or tax advice — verify current amounts with official MoF/FTA publications."
+    },
+    "planner": {
+      "metaTitle": "UAE E-Invoicing Readiness Planner: Your Dated Milestone Plan",
+      "metaDescription": "Generate a dated e-invoicing implementation plan for your business: ASP shortlisting, appointment, integration, testing and go-live milestones worked backwards from your phase deadline.",
+      "kicker": "Free tool",
+      "title": "E-invoicing readiness planner",
+      "subtitle": "Answer three questions and get a dated milestone plan, worked backwards from your phase's go-live date.",
+      "phaseLabel": "Your implementation phase",
+      "systemLabel": "Your invoicing systems today",
+      "systems": {
+        "cloud": "Cloud accounting (Zoho, QuickBooks, Xero, Tally…)",
+        "erp": "Enterprise ERP (SAP, Oracle, Dynamics…)",
+        "custom": "Custom / in-house system",
+        "manual": "Spreadsheets or manual invoicing"
+      },
+      "volumeLabel": "Monthly invoice volume",
+      "volumes": {
+        "low": "Under 500 invoices",
+        "medium": "500 – 5,000 invoices",
+        "high": "Over 5,000 invoices"
+      },
+      "planTitle": "Your milestone plan",
+      "printButton": "Print / save PDF",
+      "overdue": "Behind schedule — start now",
+      "milestones": {
+        "shortlist": {
+          "title": "Shortlist providers",
+          "body": "Compare pre-approved ASPs on integration fit, pricing and onboarding capacity. Two to four weeks is enough with a focused shortlist."
+        },
+        "appoint": {
+          "title": "Appoint your ASP (target)",
+          "body": "Sign with your chosen provider — this stops the penalty clock and books your onboarding slot before the pre-deadline rush."
+        },
+        "appointDeadline": {
+          "title": "Official appointment deadline",
+          "body": "The legal deadline to have an accredited provider appointed. Missing it costs AED 5,000 per month."
+        },
+        "integrate": {
+          "title": "Integrate & clean data",
+          "body": "Connect your systems to the ASP and clean master data in parallel: customer TRNs, VAT codes, addresses, rounding rules."
+        },
+        "test": {
+          "title": "Test end-to-end",
+          "body": "Validate real invoice samples across your actual scenarios — credit notes, discounts, multi-currency — and train the finance team."
+        },
+        "goLive": {
+          "title": "Mandatory go-live",
+          "body": "From this date, in-scope invoices must be issued and exchanged through the Electronic Invoicing System."
+        }
+      },
+      "highVolumeNote": "At your volume, ask shortlisted providers about throughput guarantees, batch APIs and peak-period handling — and include a realistic volume test in UAT.",
+      "ctaTitle": "Want this plan executed for you?",
+      "ctaBody": "We track every pre-approved provider's integration coverage and onboarding capacity. Tell us your setup and we'll shortlist the best fit, free.",
+      "ctaButton": "Get matched free"
+    },
+    "checklist": {
+      "metaTitle": "UAE E-Invoicing Compliance Checklist: 23 Steps to Go-Live",
+      "metaDescription": "The complete UAE e-invoicing compliance checklist: scoping, ASP selection, data cleanup, integration, testing and go-live in 23 checkable steps that save in your browser.",
+      "kicker": "Free tool",
+      "title": "E-invoicing compliance checklist",
+      "subtitle": "Every step from scoping to go-live. Your progress saves automatically in this browser, and the list prints cleanly for project meetings.",
+      "progress": "{done} of {total} complete",
+      "printButton": "Print",
+      "resetButton": "Reset",
+      "groups": {
+        "scope": {
+          "title": "Scope & phase",
+          "subtitle": "Know exactly which rules and dates apply to you.",
+          "i1": "Confirm your annual revenue against the AED 50 million threshold to identify your phase",
+          "i2": "Diarise both of your dates: the ASP appointment deadline and the go-live date",
+          "i3": "Map which of your transactions are in scope (B2B and B2G; note exclusions with your tax adviser)",
+          "i4": "Brief leadership on the mandate, penalties and the project budget"
+        },
+        "select": {
+          "title": "Select your ASP",
+          "subtitle": "The decision that shapes everything downstream.",
+          "i1": "List your invoicing systems, versions and monthly invoice volumes (issued and received)",
+          "i2": "Shortlist pre-approved providers with proven integrations for your systems",
+          "i3": "Request demos and written onboarding start dates from your shortlist",
+          "i4": "Compare pricing on your real volume, including onboarding and support tiers",
+          "i5": "Sign with your chosen provider before the appointment deadline"
+        },
+        "data": {
+          "title": "Prepare your data",
+          "subtitle": "Master data quality decides how smooth go-live is.",
+          "i1": "Collect and verify TRNs for every active B2B customer",
+          "i2": "Map every product and service line to its correct VAT treatment",
+          "i3": "Standardise customer names and addresses against registration records",
+          "i4": "Archive dormant customers and duplicate records",
+          "i5": "Agree rounding and totals rules between your system and the ASP"
+        },
+        "integrate": {
+          "title": "Integrate & test",
+          "subtitle": "Connect, validate, and rehearse before the switch.",
+          "i1": "Connect your systems to the ASP (connector, API or portal)",
+          "i2": "Run validation on real invoice samples and fix every rejection cause",
+          "i3": "Test edge cases: credit notes, discounts, multi-currency, summary invoices",
+          "i4": "Test received (inbound) invoices, not just issued ones",
+          "i5": "Train the finance team on the new flow and failure handling"
+        },
+        "live": {
+          "title": "Go live & operate",
+          "subtitle": "Switch on, monitor, and stay compliant.",
+          "i1": "Go live on or before your mandatory date",
+          "i2": "Monitor delivery and FTA reporting status daily in the first weeks",
+          "i3": "Set up a process to notify your ASP of changes to registered data (AED 1,000/day if unreported)",
+          "i4": "Review invoice rejection rates monthly and fix root causes"
+        }
+      },
+      "ctaTitle": "Stuck on the provider step?",
+      "ctaBody": "It's the hardest checkbox on the list. We compare all pre-approved providers against your systems and budget, free.",
+      "ctaButton": "Get matched free"
+    },
+    "pint": {
+      "metaTitle": "PINT AE Field Reference: All 88 UAE E-Invoice Fields",
+      "metaDescription": "Searchable PINT AE reference for the UAE e-invoice format: all 88 fields with UBL paths and obligations, document type codes (380, 381, 480, 81) and the 8-digit transaction flag string.",
+      "kicker": "Technical reference",
+      "title": "PINT AE field reference",
+      "subtitle": "The UAE e-invoice format, searchable: document type codes, the BTAE-02 transaction flag string, and all 88 fields with their UBL paths and obligations.",
+      "docTypesTitle": "UAE document type codes",
+      "docTypesSubtitle": "The invoice type code that identifies a UAE document.",
+      "flagsTitle": "Transaction type flags (BTAE-02)",
+      "flagsSubtitle": "UAE invoices carry an 8-digit flag string in ProfileExecutionID. Each position is 1 if it applies, else 0 — e.g. 10000000 for a Free Trade Zone supply, 00000000 for none.",
+      "flagName": "Transaction type",
+      "flagValue": "Flag string",
+      "flagDescription": "Description",
+      "fieldsTitle": "All invoice fields",
+      "fieldsSubtitle": "International terms use EN 16931 / PINT identifiers (IBT-xxx); UAE-specific terms use BTAE-xx. Search by code, name, UBL path or description.",
+      "searchPlaceholder": "Search fields, BT codes, UBL paths…",
+      "uaeOnly": "UAE-specific only",
+      "allGroups": "All groups",
+      "showing": "{count} of {total} fields",
+      "uaeBadge": "UAE",
+      "noResults": "No fields match your search.",
+      "sourceNote": "Source: Peppol International (PINT) model for Billing, UAE specialisation — {version}. Obligations and conditions follow the model and UAE business rules; always validate against the current official MoF / Peppol specification before relying on any field."
+    }
+  },
+  "guides": {
+    "metaTitle": "UAE E-Invoicing Guides: Timeline, Penalties, ASP Selection",
+    "metaDescription": "Plain-English guides to UAE e-invoicing: what it is, every deadline, the penalties, how to choose an ASP, Peppol PINT AE explained, ERP integration and the SME guide.",
+    "title": "UAE e-invoicing guides",
+    "subtitle": "Plain-language, practical guides to every part of the mandate — written for the people who have to make it happen.",
+    "readingTime": "{minutes} min read",
+    "readGuide": "Read guide",
+    "backToGuides": "All guides",
+    "relatedTitle": "Keep reading",
+    "articleCtaTitle": "Ready to choose your provider?",
+    "articleCtaBody": "We compare every pre-approved ASP against your systems, volume and budget — and the service is free.",
+    "articleCtaButton": "Get matched free",
+    "ctaTitle": "Questions the guides didn't answer?",
+    "ctaBody": "Tell us your situation and we'll point you at the right provider — or just give you a straight answer.",
+    "ctaButton": "Talk to us free"
+  },
+  "integrations": {
+    "metaTitle": "UAE E-Invoicing Integrations: SAP, Oracle, Tally, Zoho & More ({count} ASPs)",
+    "metaDescription": "How UAE e-invoicing integrates with your systems — SAP, Oracle, Dynamics, Tally, Zoho, Odoo, QuickBooks, Sage, Xero, custom software and POS — with realistic routes and timelines across {count} pre-approved providers.",
+    "title": "E-invoicing integrations by system",
+    "subtitle": "How the {count} pre-approved providers connect to the software you already run — realistic routes, and honest timelines, for every common stack.",
+    "tiers": {
+      "enterprise": "Enterprise",
+      "sme": "SME & mid-market",
+      "custom": "Custom & other"
+    },
+    "routeLabel": "Typical route:",
+    "timelineLabel": "Realistic timeline:",
+    "disclaimer": "Integration availability varies by provider and version. Descriptions reflect common market patterns, not a guarantee that any specific provider supports any specific system — confirm connector coverage directly with shortlisted providers, or use our free matching and we'll do it for you.",
+    "ctaTitle": "Tell us your stack — we'll find the match",
+    "ctaBody": "We track which providers actually integrate with which systems. Share your setup and get a shortlist that fits, free.",
+    "ctaButton": "Get matched free"
+  },
+  "resources": {
+    "metaTitle": "UAE E-Invoicing Resources: Official Sources, Laws & Free Tools",
+    "metaDescription": "Every UAE e-invoicing resource in one place: official MoF and FTA sources, the key Ministerial and Cabinet Decisions, Peppol specifications and our free compliance tools.",
+    "title": "E-invoicing resources",
+    "subtitle": "The official sources, key legislation and free tools — everything worth bookmarking for UAE e-invoicing, in one place.",
+    "note": "External links open official third-party sites. Legislation summaries are provided for orientation only — always rely on the official published texts and take professional advice for decisions."
   }
 }

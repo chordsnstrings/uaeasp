@@ -8,7 +8,8 @@ import { m, AnimatePresence } from "@/components/motion";
 const NAV_ITEMS = [
   { href: "/providers", key: "providers" },
   { href: "/registry", key: "registry" },
-  { href: "/assessment", key: "assessment" },
+  { href: "/toolkit", key: "toolkit" },
+  { href: "/guides", key: "guides" },
   { href: "/faq", key: "faq" },
   { href: "/track", key: "track" },
 ] as const;
