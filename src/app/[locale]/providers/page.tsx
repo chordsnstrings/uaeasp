@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { EMIRATES, PROVIDER_CATEGORIES } from "@/db/schema";
+import { emirateContent } from "@/content/emirates";
 import {
   getPublicProviders,
   getActiveProviderCount,
@@ -39,6 +42,8 @@ export default async function ProvidersPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("providers");
+  const tl = await getTranslations("landing");
+  const tc = await getTranslations("common");
   const [providers, count, lastUpdated] = await Promise.all([
     getPublicProviders(),
     getActiveProviderCount(),
@@ -90,6 +95,43 @@ export default async function ProvidersPage({
                 category: p.category,
               }))}
             />
+        </div>
+
+        {/* Crawlable category + emirate cross-links (the chips above are
+            client-side filters; these are real pages) */}
+        <div className="mt-14 space-y-8 border-t border-ink-100 pt-10">
+          <nav aria-label={tl("browseByCategory")}>
+            <p className="text-sm font-semibold uppercase tracking-wide text-ink-500">
+              {tl("browseByCategory")}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {PROVIDER_CATEGORIES.map((c) => (
+                <Link
+                  key={c}
+                  href={`/providers/category/${c}`}
+                  className="press hover-lift rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
+                >
+                  {tc(`categories.${c}` as Parameters<typeof tc>[0])}
+                </Link>
+              ))}
+            </div>
+          </nav>
+          <nav aria-label={tl("browseByEmirate")}>
+            <p className="text-sm font-semibold uppercase tracking-wide text-ink-500">
+              {tl("browseByEmirate")}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {EMIRATES.map((e) => (
+                <Link
+                  key={e}
+                  href={`/e-invoicing/${e}`}
+                  className="press hover-lift rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
+                >
+                  {emirateContent[locale][e].name}
+                </Link>
+              ))}
+            </div>
+          </nav>
         </div>
       </div>
     </>

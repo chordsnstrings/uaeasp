@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getPublicProviders } from "@/lib/data";
 import { GUIDE_SLUGS } from "@/content/guides";
+import { EMIRATES, PROVIDER_CATEGORIES } from "@/db/schema";
 import { absoluteUrl, localePath } from "@/lib/site";
 
 export const revalidate = 3600;
@@ -40,6 +41,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/guides", { priority: 0.8, changeFrequency: "weekly" }),
     ...GUIDE_SLUGS.map((slug) =>
       entry(`/guides/${slug}`, { priority: 0.7, changeFrequency: "monthly" }),
+    ),
+    ...PROVIDER_CATEGORIES.map((category) =>
+      entry(`/providers/category/${category}`, { priority: 0.7, changeFrequency: "weekly" }),
+    ),
+    ...EMIRATES.map((emirate) =>
+      entry(`/e-invoicing/${emirate}`, { priority: 0.8, changeFrequency: "monthly" }),
     ),
     entry("/integrations", { priority: 0.7, changeFrequency: "monthly" }),
     entry("/resources", { priority: 0.6, changeFrequency: "monthly" }),
