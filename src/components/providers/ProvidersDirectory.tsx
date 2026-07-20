@@ -126,7 +126,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
         <button
           type="button"
           onClick={() => { setCategory(""); setPage(1); }}
-          className={`press rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
+          className={`press hover-lift rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
             !category
               ? "bg-ink-900 text-white ring-ink-900"
               : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"
@@ -140,7 +140,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
             key={cat}
             type="button"
             onClick={() => { setCategory(category === cat ? "" : cat); setPage(1); }}
-            className={`press rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
+            className={`press hover-lift rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
               category === cat
                 ? "bg-brand-700 text-white ring-brand-700"
                 : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"
@@ -204,7 +204,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
                 </div>
                 <Link
                   href="/get-matched"
-                  className="press mt-5 inline-block rounded-lg bg-accent-500 px-4 py-2.5 text-center text-sm font-bold text-ink-950 hover:bg-accent-400"
+                  className="press btn-shine hover-lift mt-5 inline-block rounded-lg bg-accent-500 px-4 py-2.5 text-center text-sm font-bold text-ink-950 hover:bg-accent-400"
                 >
                   {t("getMatchedCard.button")}
                 </Link>

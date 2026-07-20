@@ -84,6 +84,15 @@ export default async function HomePage({
               "radial-gradient(circle at 20% 20%, rgba(45,212,191,.4) 0, transparent 40%), radial-gradient(circle at 80% 0%, rgba(251,191,36,.25) 0, transparent 45%)",
           }}
         />
+        {/* Slow-drifting glow blobs give the hero gentle life */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 start-1/4 size-96 animate-float-slow rounded-full bg-brand-400/15 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-32 end-1/4 size-80 animate-float-slower rounded-full bg-accent-400/10 blur-3xl"
+        />
         <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
           <FadeIn>
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium ring-1 ring-white/20">
@@ -108,13 +117,13 @@ export default async function HomePage({
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/get-matched"
-                className="press rounded-xl bg-accent-500 px-6 py-3.5 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/25 hover:bg-accent-400"
+                className="press btn-shine hover-lift rounded-xl bg-accent-500 px-6 py-3.5 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/25 hover:bg-accent-400 hover:shadow-xl hover:shadow-accent-500/30"
               >
                 {t("hero.matchButton")}
               </Link>
               <Link
                 href="/providers"
-                className="press rounded-xl bg-white/10 px-6 py-3.5 text-base font-semibold text-white ring-1 ring-white/25 hover:bg-white/15"
+                className="press hover-lift rounded-xl bg-white/10 px-6 py-3.5 text-base font-semibold text-white ring-1 ring-white/25 hover:bg-white/15 hover:ring-white/40"
               >
                 {t("hero.browseButton", { count })}
               </Link>
@@ -172,10 +181,10 @@ export default async function HomePage({
         <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <StaggerItem key={i}>
-              <div className="card-hover h-full rounded-2xl border border-ink-100 bg-white p-6 transition-transform">
+              <div className="card-hover group h-full rounded-2xl border border-ink-100 bg-white p-6 transition-transform">
                 <span
                   aria-hidden
-                  className="grid size-10 place-items-center rounded-xl bg-brand-50 text-lg font-bold text-brand-800"
+                  className="grid size-10 place-items-center rounded-xl bg-brand-50 text-lg font-bold text-brand-800 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
                 >
                   {i}
                 </span>
@@ -205,13 +214,13 @@ export default async function HomePage({
               <div className="flex flex-wrap gap-2">
                 <Link
                   href="/providers"
-                  className="press rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800"
+                  className="press hover-lift rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800 hover:shadow-sm"
                 >
                   {t("directoryPreview.viewAll")}
                 </Link>
                 <Link
                   href="/registry"
-                  className="press rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800"
+                  className="press hover-lift rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800 hover:shadow-sm"
                 >
                   {t("directoryPreview.registryButton")}
                 </Link>
@@ -248,7 +257,7 @@ export default async function HomePage({
               <div className="relative text-center">
                 <span
                   aria-hidden
-                  className="mx-auto grid size-14 place-items-center rounded-2xl bg-brand-700 text-xl font-extrabold text-white shadow-lg shadow-brand-700/20"
+                  className="mx-auto grid size-14 place-items-center rounded-2xl bg-brand-700 text-xl font-extrabold text-white shadow-lg shadow-brand-700/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-700/30"
                 >
                   {i}
                 </span>
@@ -274,7 +283,7 @@ export default async function HomePage({
             </div>
             <Link
               href="/faq"
-              className="press shrink-0 rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
+              className="press btn-shine hover-lift shrink-0 rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
             >
               {t("faqTeaser.button")}
             </Link>
@@ -292,7 +301,7 @@ export default async function HomePage({
             <p className="mt-4 text-lg text-brand-100">{t("finalCta.subtitle")}</p>
             <Link
               href="/get-matched"
-              className="press mt-8 inline-block rounded-xl bg-accent-500 px-8 py-4 text-lg font-bold text-ink-950 shadow-lg shadow-accent-500/25 hover:bg-accent-400"
+              className="press btn-shine hover-lift mt-8 inline-block rounded-xl bg-accent-500 px-8 py-4 text-lg font-bold text-ink-950 shadow-lg shadow-accent-500/25 hover:bg-accent-400 hover:shadow-xl hover:shadow-accent-500/30"
             >
               {t("finalCta.button")}
             </Link>

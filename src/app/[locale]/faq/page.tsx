@@ -58,7 +58,7 @@ export default async function FaqPage({
         <StaggerGroup className="mt-10 space-y-3">
           {items.map((item) => (
             <StaggerItem key={item.q}>
-              <details className="group rounded-2xl border border-ink-100 bg-white open:border-brand-200 open:shadow-card">
+              <details className="group rounded-2xl border border-ink-100 bg-white transition-shadow hover:border-ink-200 hover:shadow-sm open:border-brand-200 open:shadow-card">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold text-ink-900 [&::-webkit-details-marker]:hidden">
                   <h2 className="text-base font-semibold">{item.q}</h2>
                   <span
@@ -82,7 +82,7 @@ export default async function FaqPage({
             </p>
             <Link
               href="/get-matched"
-              className="press mt-6 inline-block rounded-xl bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
+              className="press btn-shine hover-lift mt-6 inline-block rounded-xl bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
             >
               {t("stillQuestionsButton")}
             </Link>

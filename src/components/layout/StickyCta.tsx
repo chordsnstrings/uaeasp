@@ -41,7 +41,7 @@ export function StickyCta() {
             </p>
             <Link
               href="/get-matched"
-              className="press shrink-0 rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm"
+              className="press btn-shine shrink-0 rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm"
             >
               {t("stickyButton")}
             </Link>

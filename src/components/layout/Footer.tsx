@@ -21,7 +21,7 @@ export async function Footer() {
               {t("tagline")}
             </p>
             <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-ink-500 ring-1 ring-ink-200">
-              <span className="size-1.5 rounded-full bg-brand-500" aria-hidden />
+              <span className="size-1.5 animate-pulse-soft rounded-full bg-brand-500" aria-hidden />
               {t("lastUpdated", {
                 date: formatDirectoryDate(lastUpdated, locale),
               })}
@@ -32,32 +32,32 @@ export async function Footer() {
             <p className="text-sm font-semibold text-ink-900">{t("directory")}</p>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <Link href="/providers" className="text-ink-600 hover:text-brand-800">
+                <Link href="/providers" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
                   {t("allProviders")}
                 </Link>
               </li>
               <li>
-                <Link href="/registry" className="text-ink-600 hover:text-brand-800">
+                <Link href="/registry" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
                   {t("registry")}
                 </Link>
               </li>
               <li>
-                <Link href="/get-matched" className="text-ink-600 hover:text-brand-800">
+                <Link href="/get-matched" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
                   {t("getMatchedFree")}
                 </Link>
               </li>
               <li>
-                <Link href="/assessment" className="text-ink-600 hover:text-brand-800">
+                <Link href="/assessment" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
                   {t("readinessCheck")}
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-ink-600 hover:text-brand-800">
+                <Link href="/faq" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
                   {t("faqTitle")}
                 </Link>
               </li>
               <li>
-                <Link href="/track" className="text-ink-600 hover:text-brand-800">
+                <Link href="/track" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
                   {t("trackRequest")}
                 </Link>
               </li>
@@ -68,17 +68,17 @@ export async function Footer() {
             <p className="text-sm font-semibold text-ink-900">{t("legal")}</p>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <Link href="/about" className="text-ink-600 hover:text-brand-800">
+                <Link href="/about" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
                   {t("aboutUs")}
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-ink-600 hover:text-brand-800">
+                <Link href="/privacy" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
                   {t("privacy")}
                 </Link>
               </li>
               <li>
-                <Link href="/disclaimer" className="text-ink-600 hover:text-brand-800">
+                <Link href="/disclaimer" className="link-slide inline-block text-ink-600 hover:text-brand-800 hover:translate-x-0.5 rtl:hover:-translate-x-0.5">
                   {t("disclaimer")}
                 </Link>
               </li>

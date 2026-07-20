@@ -55,7 +55,8 @@
       "edi-network": "E-invoicing / EDI network",
       "enterprise-software": "Enterprise software",
       "fintech": "Fintech / AP automation"
-    }
+    },
+    "backToTop": "Back to top"
   },
   "home": {
     "metaTitle": "UAE E-Invoicing Service Providers — All {count} Pre-Approved ASPs ({year})",

@@ -8,6 +8,8 @@ import { MotionProvider } from "@/components/motion";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { StickyCta } from "@/components/layout/StickyCta";
+import { ScrollProgress } from "@/components/layout/ScrollProgress";
+import { BackToTop } from "@/components/layout/BackToTop";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { SITE_NAME, SITE_URL, absoluteUrl, localePath } from "@/lib/site";
 import "../globals.css";
@@ -116,10 +118,12 @@ export default async function LocaleLayout({
         />
         <NextIntlClientProvider>
           <MotionProvider>
+            <ScrollProgress />
             <Header />
             <main id="main">{children}</main>
             <Footer />
             <StickyCta />
+            <BackToTop />
           </MotionProvider>
         </NextIntlClientProvider>
       </body>

@@ -10,7 +10,7 @@ export default function NotFoundPage() {
       <p className="mt-2 text-ink-600">{t("body")}</p>
       <Link
         href="/"
-        className="press mt-8 inline-block rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
+        className="press btn-shine hover-lift mt-8 inline-block rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
       >
         {t("backHome")}
       </Link>

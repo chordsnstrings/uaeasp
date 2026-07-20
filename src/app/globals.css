@@ -41,6 +41,9 @@
   --animate-fade-up: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-fade-in: fade-in 0.5s ease-out both;
   --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
+  --animate-pop-in: pop-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-float-slow: float-slow 9s ease-in-out infinite;
+  --animate-float-slower: float-slow 13s ease-in-out -4s infinite reverse;
 
   @keyframes fade-up {
     from {
@@ -67,6 +70,25 @@
     }
     50% {
       opacity: 0.55;
+    }
+  }
+  @keyframes pop-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes float-slow {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(24px, -28px, 0);
     }
   }
 }
@@ -126,6 +148,85 @@ summary {
 .card-hover:hover {
   box-shadow: var(--shadow-card-hover);
   transform: translateY(-2px);
+}
+
+/* Buttons/chips that lift a touch on hover (pair with .press). */
+.hover-lift:hover {
+  transform: translateY(-1px);
+}
+.hover-lift:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Sheen sweep across primary CTAs on hover. */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-130%) skewX(-18deg);
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgb(255 255 255 / 0.35) 50%,
+    transparent 80%
+  );
+  transition: transform 650ms ease;
+  pointer-events: none;
+}
+.btn-shine:hover::after {
+  transform: translateX(130%) skewX(-18deg);
+}
+[dir="rtl"] .btn-shine::after {
+  transform: translateX(130%) skewX(18deg);
+}
+[dir="rtl"] .btn-shine:hover::after {
+  transform: translateX(-130%) skewX(18deg);
+}
+
+/* Animated underline that grows from the start edge on hover. */
+.link-slide {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1.5px;
+  transition:
+    background-size 250ms ease,
+    color 150ms ease;
+}
+[dir="rtl"] .link-slide {
+  background-position: 100% 100%;
+}
+.link-slide:hover {
+  background-size: 100% 1.5px;
+}
+
+/* Checkbox pop on tick. */
+input[type="checkbox"]:checked {
+  animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Inputs hint interactivity before focus. */
+input:hover:not(:focus):not([type="checkbox"]),
+select:hover:not(:focus),
+textarea:hover:not(:focus) {
+  border-color: var(--color-ink-300);
+}
+
+/* FAQ accordions: answer content slides in when opened. */
+details[open] > :not(summary) {
+  animation: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Table rows ease their hover tint. */
+tbody tr {
+  transition: background-color 150ms ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
