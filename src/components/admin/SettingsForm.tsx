@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import {
   saveSettingsAction,
   sendTestEmailAction,
+  testAiAction,
 } from "@/app/admin/(dashboard)/settings/actions";
 
 interface FieldStatus {
@@ -84,6 +85,7 @@ function Field({
 export function SettingsForm({ status, ingestUrl }: { status: Status; ingestUrl: string }) {
   const [saveState, saveAction, saving] = useActionState(saveSettingsAction, undefined);
   const [testState, testAction, testing] = useActionState(sendTestEmailAction, undefined);
+  const [aiState, aiAction, aiTesting] = useActionState(testAiAction, undefined);
 
   return (
     <div className="max-w-3xl space-y-8">
@@ -152,6 +154,38 @@ export function SettingsForm({ status, ingestUrl }: { status: Status; ingestUrl:
             English + Arabic profile (empty fields only — your edits are never touched).
             Any OpenAI-compatible API works.
           </p>
+          <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-4 text-xs leading-relaxed text-ink-600">
+            <p className="font-bold text-ink-800">Using BytePlus (ModelArk)? Map the console fields like this:</p>
+            <ul className="mt-2 space-y-1.5">
+              <li>
+                <span className="font-semibold text-ink-800">API key</span> ← the key from
+                BytePlus console → <span className="italic">API Key Management</span> — the value
+                starting <code className="rounded bg-white px-1" dir="ltr">ark-…</code> (the name
+                you gave it, e.g. &ldquo;BakeOffAPI&rdquo;, and the Resource ID{" "}
+                <code className="rounded bg-white px-1" dir="ltr">apikey-…</code> are just labels —
+                don&rsquo;t paste those here).
+              </li>
+              <li>
+                <span className="font-semibold text-ink-800">API base URL</span> ← BytePlus&rsquo;s
+                chat endpoint:{" "}
+                <code className="rounded bg-white px-1" dir="ltr">
+                  https://ark.ap-southeast.bytepluses.com/api/v3/chat/completions
+                </code>
+              </li>
+              <li>
+                <span className="font-semibold text-ink-800">Model</span> ← the model ID (or your
+                endpoint ID) from the BytePlus model list, e.g.{" "}
+                <code className="rounded bg-white px-1" dir="ltr">seed-1-6-250615</code>.
+              </li>
+            </ul>
+            <p className="mt-2 text-ink-500">
+              For OpenAI, DeepSeek, GLM or any other OpenAI-compatible service, the same three
+              fields apply — base URL, key, model — and a base URL without{" "}
+              <code className="rounded bg-white px-1" dir="ltr">/chat/completions</code> gets{" "}
+              <code className="rounded bg-white px-1" dir="ltr">/v1/chat/completions</code> appended
+              automatically.
+            </p>
+          </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <Field
@@ -159,6 +193,7 @@ export function SettingsForm({ status, ingestUrl }: { status: Status; ingestUrl:
                 label="API base URL"
                 status={status.aiApiBaseUrl}
                 placeholder="https://ark.ap-southeast.bytepluses.com/api/v3/chat/completions"
+                hint="The provider's chat-completions endpoint (or its API root)."
               />
             </div>
             <Field
@@ -166,9 +201,15 @@ export function SettingsForm({ status, ingestUrl }: { status: Status; ingestUrl:
               label="API key"
               status={status.aiApiKey}
               secret
-              hint='Write-only. Blank keeps the current value; type "unset" to clear.'
+              hint='The secret key itself (BytePlus: starts with "ark-"). Write-only — blank keeps the current value; type "unset" to clear.'
             />
-            <Field name="aiModel" label="Model" status={status.aiModel} placeholder="seed-1-6-250615" />
+            <Field
+              name="aiModel"
+              label="Model"
+              status={status.aiModel}
+              placeholder="seed-1-6-250615"
+              hint="Model or endpoint ID exactly as the provider lists it."
+            />
           </div>
         </section>
 
@@ -215,6 +256,34 @@ export function SettingsForm({ status, ingestUrl }: { status: Status; ingestUrl:
         >
           {saving ? "Saving…" : "Save settings"}
         </button>
+      </form>
+
+      {/* Test AI connection */}
+      <form action={aiAction} className="rounded-2xl border border-ink-100 bg-white p-6">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-ink-500">
+          Test AI connection
+        </h2>
+        <p className="mt-1 text-xs text-ink-400">
+          Sends a tiny request to the configured AI endpoint using the saved key and model.
+          Save your settings first, then test.
+        </p>
+        <button
+          type="submit"
+          disabled={aiTesting}
+          className="press mt-4 rounded-xl border border-ink-200 px-5 py-2.5 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:opacity-50"
+        >
+          {aiTesting ? "Testing…" : "Test AI connection"}
+        </button>
+        {aiState?.error && (
+          <p className="mt-3 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700" role="alert">
+            {aiState.error}
+          </p>
+        )}
+        {aiState?.ok && (
+          <p className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-700">
+            AI connection works. {aiState.detail}
+          </p>
+        )}
       </form>
 
       {/* Test email */}

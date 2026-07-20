@@ -116,3 +116,41 @@ export async function enrichProvider(input: {
     return null;
   }
 }
+
+/** Cheap round-trip to verify the configured AI credentials actually work.
+ * Returns the model's reply text on success, an error description otherwise. */
+export async function testAiConnection(): Promise<{ ok: boolean; detail: string }> {
+  const config = await getConfig();
+  if (!(config.aiApiBaseUrl && config.aiApiKey && config.aiModel)) {
+    return { ok: false, detail: "AI is not fully configured — base URL, API key and model are all required." };
+  }
+  const baseUrl = config.aiApiBaseUrl.replace(/\/$/, "");
+  const endpoint = baseUrl.endsWith("/chat/completions")
+    ? baseUrl
+    : `${baseUrl}/v1/chat/completions`;
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.aiApiKey}`,
+      },
+      body: JSON.stringify({
+        model: config.aiModel,
+        max_tokens: 400,
+        messages: [{ role: "user", content: "Reply with exactly: OK" }],
+      }),
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!res.ok) {
+      const body = (await res.text()).slice(0, 200);
+      return { ok: false, detail: `API returned HTTP ${res.status}: ${body}` };
+    }
+    const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+    const content = data.choices?.[0]?.message?.content?.trim();
+    if (!content) return { ok: false, detail: "API responded but returned no message content." };
+    return { ok: true, detail: `Model ${config.aiModel} responded: "${content.slice(0, 60)}"` };
+  } catch (err) {
+    return { ok: false, detail: err instanceof Error ? err.message : String(err) };
+  }
+}

@@ -78,3 +78,18 @@ export async function sendTestEmailAction(
   });
   return { ok: true };
 }
+
+export async function testAiAction(
+  _prev: { ok?: boolean; error?: string; detail?: string } | undefined,
+): Promise<{ ok?: boolean; error?: string; detail?: string }> {
+  const admin = await requireAdmin();
+  const { testAiConnection } = await import("@/lib/ai/enrich");
+  const result = await testAiConnection();
+  await writeAudit({
+    userId: admin.id,
+    action: "settings.test_ai",
+    entity: "settings",
+    diff: { ok: result.ok },
+  });
+  return result.ok ? { ok: true, detail: result.detail } : { error: result.detail };
+}
