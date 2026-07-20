@@ -123,12 +123,20 @@ export function LeadForm({
     consent: "errors.consent",
   };
 
-  const inputClass = (field: string) =>
-    `w-full rounded-xl border bg-white px-4 py-3 text-sm shadow-sm placeholder:text-ink-400 focus:ring-2 ${
+  // 16px text prevents iOS focus-zoom; fixed height keeps inputs and native
+  // selects visually identical across rows.
+  const inputClass = (field: string, fixedHeight = true) =>
+    `w-full rounded-xl border bg-white px-4 text-base shadow-sm placeholder:text-ink-400 focus:ring-2 ${
+      fixedHeight ? "h-12" : "py-3"
+    } ${
       errors[field]
         ? "border-red-300 focus:border-red-400 focus:ring-red-100"
         : "border-ink-200 focus:border-brand-400 focus:ring-brand-100"
     }`;
+
+  // Bottom-align the control inside each grid cell so a label that wraps to
+  // two lines can never push its input out of line with the neighbouring one.
+  const fieldClass = "flex flex-col justify-end";
 
   const fieldError = (field: string) =>
     errors[field] && errorKeyMap[field] ? (
@@ -156,7 +164,7 @@ export function LeadForm({
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <div>
+        <div className={fieldClass}>
           <label htmlFor="lead-fullName" className="mb-1.5 block text-sm font-semibold text-ink-800">
             {t("fullName")} <span className="text-red-500">*</span>
           </label>
@@ -171,7 +179,7 @@ export function LeadForm({
           />
           {fieldError("fullName")}
         </div>
-        <div>
+        <div className={fieldClass}>
           <label htmlFor="lead-companyName" className="mb-1.5 block text-sm font-semibold text-ink-800">
             {t("companyName")} <span className="text-red-500">*</span>
           </label>
@@ -186,7 +194,7 @@ export function LeadForm({
           />
           {fieldError("companyName")}
         </div>
-        <div>
+        <div className={fieldClass}>
           <label htmlFor="lead-email" className="mb-1.5 block text-sm font-semibold text-ink-800">
             {t("email")} <span className="text-red-500">*</span>
           </label>
@@ -203,7 +211,7 @@ export function LeadForm({
           />
           {fieldError("email")}
         </div>
-        <div>
+        <div className={fieldClass}>
           <label htmlFor="lead-phone" className="mb-1.5 block text-sm font-semibold text-ink-800">
             {t("phone")} <span className="text-red-500">*</span>
           </label>
@@ -247,7 +255,7 @@ export function LeadForm({
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <div>
+        <div className={fieldClass}>
           <label htmlFor="lead-invoiceVolume" className="mb-1.5 block text-sm font-semibold text-ink-800">
             {t("invoiceVolume")}
           </label>
@@ -260,7 +268,7 @@ export function LeadForm({
             ))}
           </select>
         </div>
-        <div>
+        <div className={fieldClass}>
           <label htmlFor="lead-budgetRange" className="mb-1.5 block text-sm font-semibold text-ink-800">
             {t("budgetRange")}
           </label>
@@ -273,7 +281,7 @@ export function LeadForm({
             ))}
           </select>
         </div>
-        <div>
+        <div className={fieldClass}>
           <label htmlFor="lead-software" className="mb-1.5 block text-sm font-semibold text-ink-800">
             {t("accountingSoftware")}
           </label>
@@ -284,7 +292,7 @@ export function LeadForm({
             className={inputClass("accountingSoftware")}
           />
         </div>
-        <div>
+        <div className={fieldClass}>
           <label htmlFor="lead-timeline" className="mb-1.5 block text-sm font-semibold text-ink-800">
             {t("timeline")}
           </label>
@@ -308,7 +316,7 @@ export function LeadForm({
           name="message"
           rows={3}
           placeholder={t("messagePlaceholder")}
-          className={inputClass("message")}
+          className={inputClass("message", false)}
         />
       </div>
 
@@ -325,10 +333,15 @@ export function LeadForm({
           onChange={() => setErrors((e) => ({ ...e, consent: undefined }))}
         />
         <span className="text-ink-600">
-          {t("consent")}{" "}
-          <Link href="/privacy" className="font-medium text-brand-700 underline underline-offset-2" target="_blank">
-            →
+          {t("consentPrefix")}{" "}
+          <Link
+            href="/privacy"
+            className="font-medium text-brand-700 underline underline-offset-2"
+            target="_blank"
+          >
+            {t("consentLinkText")}
           </Link>
+          .
         </span>
       </label>
       {fieldError("consent")}
