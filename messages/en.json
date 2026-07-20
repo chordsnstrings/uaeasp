@@ -670,5 +670,27 @@
     "title": "E-invoicing resources",
     "subtitle": "The official sources, key legislation and free tools — everything worth bookmarking for UAE e-invoicing, in one place.",
     "note": "External links open official third-party sites. Legislation summaries are provided for orientation only — always rely on the official published texts and take professional advice for decisions."
+  },
+  "landing": {
+    "backToDirectory": "All providers",
+    "providersInCategory": "{count} pre-approved providers in this category",
+    "otherCategories": "Browse other categories",
+    "allProvidersChip": "All providers",
+    "ctaTitle": "Not sure which provider fits?",
+    "ctaBody": "Tell us your systems, invoice volume and budget — we compare every pre-approved provider and introduce you to the best fit, free.",
+    "ctaButton": "Get matched free",
+    "emiratesHubName": "UAE E-Invoicing",
+    "emirateKicker": "UAE e-invoicing mandate",
+    "emirateTitle": "E-invoicing in {name}: providers, deadlines and how to comply",
+    "phaseCol": "Phase",
+    "appointCol": "Appoint an ASP by",
+    "goLiveCol": "Go live by",
+    "faqTitle": "Frequently asked questions",
+    "providersHeading": "Providers serving {name}",
+    "viewAllProviders": "View all {count} providers",
+    "otherEmirates": "E-invoicing by emirate",
+    "emirateCtaTitle": "Get matched with the right provider for your {name} business",
+    "browseByCategory": "Browse providers by category",
+    "browseByEmirate": "E-invoicing guides by emirate"
   }
 }
