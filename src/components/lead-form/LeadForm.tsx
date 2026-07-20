@@ -3,7 +3,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { useSearchParams } from "next/navigation";
 import { m } from "@/components/motion";
 import { EMIRATES } from "@/db/schema";
 import {
@@ -29,7 +28,6 @@ export function LeadForm({
   const locale = useLocale() as "en" | "ar";
   const te = useTranslations("common.emirates");
   const router = useRouter();
-  const searchParams = useSearchParams();
   const renderedAt = useMemo(() => Date.now(), []);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -37,17 +35,19 @@ export function LeadForm({
   const formRef = useRef<HTMLFormElement>(null);
   const [shake, setShake] = useState(0);
 
-  const refSource = searchParams.get("ref");
-  const effectiveSource = refSource ? `${source}:${refSource}` : source;
-
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setGlobalError(null);
     const fd = new FormData(e.currentTarget);
 
+    // Read at submit time so the form itself server-renders (SEO) without
+    // depending on useSearchParams/Suspense.
+    const sp = new URLSearchParams(window.location.search);
+    const refSource = sp.get("ref");
+    const effectiveSource = refSource ? `${source}:${refSource}` : source;
     const utm: Record<string, string> = {};
     for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]) {
-      const v = searchParams.get(key);
+      const v = sp.get(key);
       if (v) utm[key] = v;
     }
 

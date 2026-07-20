@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { pageMetadata } from "@/lib/metadata";
 import type { Locale } from "@/lib/site";
@@ -30,9 +29,7 @@ export default async function AssessmentPage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6">
-      <Suspense>
-        <ReadinessQuiz />
-      </Suspense>
+      <ReadinessQuiz />
     </div>
   );
 }

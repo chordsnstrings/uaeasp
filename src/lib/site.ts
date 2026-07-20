@@ -17,6 +17,9 @@ export const SITE_TAGLINE_EN =
 export const SITE_TAGLINE_AR =
   "الدليل الكامل لمزودي خدمات الفوترة الإلكترونية المعتمدين مبدئياً من وزارة المالية الإماراتية";
 
+/** First mandatory e-invoicing wave (announced for January 2027, UAE time). */
+export const MANDATE_GO_LIVE_ISO = "2027-01-01T00:00:00+04:00";
+
 export const MOF_SOURCE_URL =
   "https://mof.gov.ae/en/about-us/initiatives/einvoicing/pre-approved-einvoicing-service-providers/";
 

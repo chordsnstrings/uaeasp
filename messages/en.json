@@ -110,6 +110,14 @@
       "title": "Get matched with the right e-invoicing provider",
       "subtitle": "Free, fast and with no obligation. Our team knows the UAE ASP landscape inside out.",
       "button": "Start now — it's free"
+    },
+    "countdown": {
+      "title": "Mandatory e-invoicing (first wave) begins in",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "seconds": "Seconds",
+      "note": "January 2027 — don't leave provider selection to the last quarter"
     }
   },
   "providers": {

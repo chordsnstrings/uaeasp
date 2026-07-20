@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
   getPublicProviders,
@@ -77,8 +76,7 @@ export default async function ProvidersPage({
           </p>
         </FadeIn>
         <div className="mt-10">
-          <Suspense>
-            <ProvidersDirectory
+          <ProvidersDirectory
               providers={providers.map((p) => ({
                 id: p.id,
                 slug: p.slug,
@@ -92,7 +90,6 @@ export default async function ProvidersPage({
                 category: p.category,
               }))}
             />
-          </Suspense>
         </div>
       </div>
     </>
