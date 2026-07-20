@@ -8,7 +8,10 @@ const pool =
   globalForDb.pool ??
   new Pool({
     connectionString: process.env.DATABASE_URL,
-    max: 10,
+    // Prerendering runs in several parallel workers, each with its own pool —
+    // keep build-time pools tiny so managed databases with low connection
+    // limits aren't exhausted (which would silently trigger build fallbacks).
+    max: process.env.NEXT_PHASE === "phase-production-build" ? 2 : 10,
     ssl:
       process.env.DATABASE_SSL === "true"
         ? { rejectUnauthorized: false }
