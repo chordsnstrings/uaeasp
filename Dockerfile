@@ -11,8 +11,16 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 # The build prerenders pages from the database and bakes NEXT_PUBLIC_* values
-# into the client bundle — DO App Platform exposes env vars with
-# RUN_AND_BUILD_TIME scope during this step.
+# into the client bundle. DO App Platform passes RUN_AND_BUILD_TIME env vars
+# to Dockerfile builds as build ARGs — they must be declared here to exist.
+ARG DATABASE_URL
+ARG DATABASE_SSL
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_SITE_NAME
+ENV DATABASE_URL=$DATABASE_URL \
+    DATABASE_SSL=$DATABASE_SSL \
+    NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
+    NEXT_PUBLIC_SITE_NAME=$NEXT_PUBLIC_SITE_NAME
 RUN npm run build
 
 # ---- run ----
