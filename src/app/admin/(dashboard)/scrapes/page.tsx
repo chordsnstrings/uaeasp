@@ -2,6 +2,7 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { providers, scrapeChanges, scrapeRuns } from "@/db/schema";
 import { formatDateTime } from "@/components/admin/status";
+import { RefreshDirectoryButton } from "@/components/admin/RefreshDirectoryButton";
 
 export const dynamic = "force-dynamic";
 
@@ -41,18 +42,21 @@ export default async function AdminScrapesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-ink-900">Data refreshes</h1>
-        <p className="mt-1 text-sm text-ink-500">
-          History of automatic and manual refreshes of the provider directory against the
-          official Ministry of Finance list.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-ink-900">Data refreshes</h1>
+          <p className="mt-1 text-sm text-ink-500">
+            History of automatic and manual refreshes of the provider directory against the
+            official Ministry of Finance list.
+          </p>
+        </div>
+        <RefreshDirectoryButton />
       </div>
 
       {runs.length === 0 && (
         <div className="rounded-2xl border border-dashed border-ink-200 p-10 text-center text-sm text-ink-400">
-          No refresh runs yet. The weekly refresh will appear here, or trigger one manually
-          from the GitHub Actions workflow.
+          No refresh runs yet. The nightly refresh will appear here, or use the
+          &ldquo;Refresh now&rdquo; button above.
         </div>
       )}
 
