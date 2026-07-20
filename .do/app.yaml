@@ -81,6 +81,18 @@ services:
       - key: ADMIN_ALERT_EMAIL
         scope: RUN_TIME
         value: admin@CHANGE-ME-your-domain.ae
+      # Optional AI profile drafts for newly discovered providers
+      # (any OpenAI-compatible API: DeepSeek, GLM, …) — leave empty to disable
+      - key: AI_API_BASE_URL
+        scope: RUN_TIME
+        value: ""
+      - key: AI_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: ""
+      - key: AI_MODEL
+        scope: RUN_TIME
+        value: ""
       # Optional integrations — leave empty to disable
       - key: NEXT_PUBLIC_PLAUSIBLE_DOMAIN
         scope: RUN_AND_BUILD_TIME

@@ -1,6 +1,11 @@
 import { NextResponse, after, type NextRequest } from "next/server";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { eq, isNull, inArray, and } from "drizzle-orm";
+import { db } from "@/db";
+import { providers } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { enrichProvider, isEnrichmentConfigured } from "@/lib/ai/enrich";
+import { writeAudit } from "@/lib/audit";
 import { sendEmail, getAdminAlertEmail } from "@/lib/email";
 import { scrapeAlertEmail } from "@/lib/email/templates";
 import {
@@ -101,7 +106,56 @@ export async function POST(req: NextRequest) {
   const result = await reconcileProviders(parsed.data);
 
   if (result.status === "success") {
+    // Bust both the data cache and the page cache so the change is visible
+    // sitewide immediately (counts, titles, registry, profiles, sitemap).
     revalidateTag(PROVIDERS_CACHE_TAG);
+    revalidatePath("/", "layout");
+
+    // Optional AI enrichment: newly added providers arrive from the official
+    // list with only name/website/contacts. Draft a profile (EN + AR +
+    // category) for them — filling NULL fields only, never overwriting
+    // existing or admin-edited content. Skipped when no AI key is configured.
+    if (result.addedNames.length > 0 && isEnrichmentConfigured()) {
+      after(async () => {
+        const blank = await db
+          .select({
+            id: providers.id,
+            name: providers.name,
+            website: providers.website,
+          })
+          .from(providers)
+          .where(
+            and(inArray(providers.name, result.addedNames), isNull(providers.description)),
+          );
+        let enriched = 0;
+        for (const p of blank) {
+          const draft = await enrichProvider({ name: p.name, website: p.website });
+          if (!draft) continue;
+          await db
+            .update(providers)
+            .set({
+              description: draft.description,
+              descriptionAr: draft.descriptionAr,
+              category: draft.category,
+              updatedAt: new Date(),
+            })
+            .where(and(eq(providers.id, p.id), isNull(providers.description)));
+          await writeAudit({
+            userId: null,
+            action: "provider.ai_enrich",
+            entity: "provider",
+            entityId: p.id,
+            diff: { category: draft.category },
+          });
+          enriched++;
+        }
+        if (enriched > 0) {
+          revalidateTag(PROVIDERS_CACHE_TAG);
+          revalidatePath("/", "layout");
+          console.log(`[ai-enrich] drafted ${enriched} new provider profile(s)`);
+        }
+      });
+    }
   }
   notifyAfterRun(result);
 

@@ -77,6 +77,17 @@ lead capture never depends on SMTP availability.
    manually once and review the result in `/admin/scrapes`. The nightly cron takes over
    from there.
 
+### AI profile drafts (optional)
+
+When a **new** provider appears on the official list, it arrives with only a name,
+website and contacts. If `AI_API_BASE_URL`, `AI_API_KEY` and `AI_MODEL` are set on the
+app (any OpenAI-compatible API — DeepSeek `deepseek-chat`, GLM `glm-4-plus`, etc.), the
+refresh auto-drafts a conservative English + Arabic profile and category for it,
+**filling empty fields only** — existing content and admin edits are never touched, and
+every draft is recorded in the audit log. Without a key, new providers show a neutral
+fallback line until an admin writes the profile. All structural updates (new pages,
+counts, registry rows, sitemap, delistings) are deterministic and never involve AI.
+
 ### How the auto-refresh stays safe
 
 - **Sanity gates**: a payload with < 20 providers, < 60% of the last good count, or
