@@ -48,7 +48,7 @@ export default async function AboutPage({
         <div className="mt-10">
           <Link
             href="/get-matched"
-            className="press inline-block rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
+            className="press btn-shine hover-lift inline-block rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
           >
             {tc("nav.getMatched")}
           </Link>

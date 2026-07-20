@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useReducedMotion } from "motion/react";
+import { m, AnimatePresence } from "@/components/motion";
 
 function diffParts(targetMs: number) {
   const delta = Math.max(0, targetMs - Date.now());
@@ -19,6 +21,7 @@ function diffParts(targetMs: number) {
  */
 export function Countdown({ targetIso }: { targetIso: string }) {
   const t = useTranslations("home.countdown");
+  const reduced = useReducedMotion();
   const targetMs = new Date(targetIso).getTime();
   const [parts, setParts] = useState<ReturnType<typeof diffParts> | null>(null);
 
@@ -47,12 +50,24 @@ export function Countdown({ targetIso }: { targetIso: string }) {
             className="min-w-[68px] rounded-2xl bg-white/10 px-3 py-3 text-center ring-1 ring-white/20 backdrop-blur-sm sm:min-w-[84px] sm:px-4"
           >
             <span
-              className={`block text-2xl font-extrabold tabular-nums sm:text-3xl ${
+              className={`relative block h-8 overflow-hidden text-2xl font-extrabold leading-8 tabular-nums sm:h-9 sm:text-3xl sm:leading-9 ${
                 tile.key === "seconds" ? "text-accent-400" : "text-white"
               }`}
               suppressHydrationWarning
             >
-              {tile.value === undefined ? "–" : String(tile.value).padStart(2, "0")}
+              {/* Old value slides out the bottom while the new one drops in. */}
+              <AnimatePresence mode="popLayout" initial={false}>
+                <m.span
+                  key={tile.value ?? "placeholder"}
+                  className="block"
+                  initial={reduced ? false : { y: "-100%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={reduced ? undefined : { y: "100%", opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {tile.value === undefined ? "–" : String(tile.value).padStart(2, "0")}
+                </m.span>
+              </AnimatePresence>
             </span>
             <span className="mt-0.5 block text-[11px] font-medium text-brand-200">
               {t(tile.key)}

@@ -97,7 +97,7 @@ export default async function TrackStatusPage({
             <p className="leading-relaxed text-ink-700">{t("closedNote")}</p>
             <Link
               href="/get-matched"
-              className="press mt-6 inline-block rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
+              className="press btn-shine hover-lift mt-6 inline-block rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
             >
               {tl("newRequest")}
             </Link>

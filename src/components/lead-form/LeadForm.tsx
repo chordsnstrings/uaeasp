@@ -361,7 +361,7 @@ export function LeadForm({
         type="submit"
         disabled={submitting}
         whileTap={{ scale: 0.97 }}
-        className="w-full rounded-xl bg-accent-500 px-6 py-4 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/20 hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
+        className="btn-shine w-full rounded-xl bg-accent-500 px-6 py-4 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/20 hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">

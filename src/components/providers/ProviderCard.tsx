@@ -31,7 +31,7 @@ export function ProviderCard({
       <div className="flex items-start gap-3">
         <span
           aria-hidden
-          className={`grid size-11 shrink-0 place-items-center rounded-xl text-lg font-bold text-white ${color}`}
+          className={`grid size-11 shrink-0 place-items-center rounded-xl text-lg font-bold text-white transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 ${color}`}
         >
           {provider.name.charAt(0)}
         </span>

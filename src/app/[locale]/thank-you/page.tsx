@@ -45,7 +45,7 @@ export default async function ThankYouPage({
       <FadeIn>
         <span
           aria-hidden
-          className="mx-auto grid size-16 place-items-center rounded-full bg-brand-50 text-3xl ring-8 ring-brand-50/50"
+          className="mx-auto grid size-16 animate-pop-in place-items-center rounded-full bg-brand-50 text-3xl ring-8 ring-brand-50/50"
         >
           🎉
         </span>
@@ -83,7 +83,7 @@ export default async function ThankYouPage({
             <p className="mt-1 text-sm text-brand-800/80">{t("trackBody")}</p>
             <Link
               href={`/track/${validToken}`}
-              className="press mt-4 inline-block rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-800"
+              className="press btn-shine hover-lift mt-4 inline-block rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-800"
             >
               {t("trackButton")}
             </Link>
@@ -95,7 +95,7 @@ export default async function ThankYouPage({
         <div className="mt-10 flex flex-wrap justify-center gap-3">
           <Link
             href="/providers"
-            className="press rounded-xl bg-brand-700 px-5 py-3 font-semibold text-white hover:bg-brand-800"
+            className="press btn-shine hover-lift rounded-xl bg-brand-700 px-5 py-3 font-semibold text-white hover:bg-brand-800"
           >
             {t("backHome")}
           </Link>
