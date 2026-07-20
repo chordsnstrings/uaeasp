@@ -37,6 +37,11 @@ export async function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/registry" className="text-ink-600 hover:text-brand-800">
+                  {t("registry")}
+                </Link>
+              </li>
+              <li>
                 <Link href="/get-matched" className="text-ink-600 hover:text-brand-800">
                   {t("getMatchedFree")}
                 </Link>

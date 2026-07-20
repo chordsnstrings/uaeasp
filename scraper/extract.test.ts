@@ -1,43 +1,164 @@
 import { describe, expect, it } from "vitest";
-import { extractFromRows, extractFromTextLines } from "./extract.js";
+import { buildContacts, extractFromRows, extractFromTextLines } from "./extract.js";
 
-describe("extractFromTextLines (PDF / raw text)", () => {
-  it("extracts numbered company lines and ignores page furniture", () => {
+/** Rows shaped exactly like the live MOF table (innerText per cell). */
+const MOF_ROWS = [
+  {
+    cells: ["#", "Company Name", "Company Website", "Contact Person", "Email", "Phone Number"],
+    links: [],
+  },
+  {
+    // Two persons, two emails, two phones → paired by position
+    cells: [
+      "1",
+      "Advintek Consulting Services LLC",
+      "www.einvoice.advintek.ae",
+      "Sajid Hameed\nSanam Wadhwa",
+      "sajid@advintek.ae\nsanam@advintek.ae",
+      "+971557469502\n+971502160782",
+    ],
+    links: ["https://www.einvoice.advintek.ae"],
+  },
+  {
+    // One person, two emails, one phone → everything pooled on the person
+    cells: [
+      "4",
+      "Casim L.L.C-FZ",
+      "www.casim.ae",
+      "Stuart McKechnie",
+      "hello@casim.ae\nstuart.mckechnie@casim.ae",
+      "+971551051174",
+    ],
+    links: ["https://www.casim.ae"],
+  },
+  {
+    // Two persons, ONE shared email, two phones
+    cells: [
+      "7",
+      "Covoro AI – FZCO",
+      "www.covoro.ai/uae",
+      "Paresh Bafna\nDipayan Das",
+      "uae@covoro.ai",
+      "+971 589767230\n+971 55 881 7248",
+    ],
+    links: ["https://www.covoro.ai/uae"],
+  },
+  {
+    // Local-format toll-free phone number
+    cells: [
+      "13",
+      "EDICOM Middle East Services",
+      "www.edicomgroup.com",
+      "Andre Menezes",
+      "amenezes@edicomgroup.com",
+      "8000320420",
+    ],
+    links: ["https://www.edicomgroup.com"],
+  },
+  {
+    // Website only as text token, no link element
+    cells: [
+      "22",
+      "KGRN Chartered Accountants",
+      "www.kgrnaudit.com",
+      "Gopu Rama Naidu",
+      "gopu@kgrnaudit.com",
+      "+971504520648",
+    ],
+    links: [],
+  },
+];
+
+describe("extractFromRows (MOF 6-column table)", () => {
+  const result = extractFromRows(MOF_ROWS);
+
+  it("extracts every provider row and skips the header", () => {
+    expect(result.map((r) => r.name)).toEqual([
+      "Advintek Consulting Services LLC",
+      "Casim L.L.C-FZ",
+      "Covoro AI – FZCO",
+      "EDICOM Middle East Services",
+      "KGRN Chartered Accountants",
+    ]);
+  });
+
+  it("pairs persons with emails/phones by position when counts match", () => {
+    const advintek = result[0];
+    expect(advintek.contacts).toEqual([
+      { name: "Sajid Hameed", emails: ["sajid@advintek.ae"], phones: ["+971557469502"] },
+      { name: "Sanam Wadhwa", emails: ["sanam@advintek.ae"], phones: ["+971502160782"] },
+    ]);
+  });
+
+  it("pools emails/phones on the first contact when counts differ", () => {
+    const casim = result[1];
+    expect(casim.contacts).toEqual([
+      {
+        name: "Stuart McKechnie",
+        emails: ["hello@casim.ae", "stuart.mckechnie@casim.ae"],
+        phones: ["+971551051174"],
+      },
+    ]);
+    // Covoro: shared email pooled on first contact, phones paired per person
+    const covoro = result[2];
+    expect(covoro.contacts![0]).toEqual({
+      name: "Paresh Bafna",
+      emails: ["uae@covoro.ai"],
+      phones: ["+971589767230"],
+    });
+    expect(covoro.contacts![1]).toEqual({
+      name: "Dipayan Das",
+      emails: [],
+      phones: ["+971558817248"],
+    });
+  });
+
+  it("keeps local-format phone numbers and falls back to www tokens for the website", () => {
+    const edicom = result[3];
+    expect(edicom.contacts![0].phones).toEqual(["8000320420"]);
+    const kgrn = result[4];
+    expect(kgrn.website).toBe("https://www.kgrnaudit.com");
+  });
+
+  it("uses the row's external link as the website when present", () => {
+    expect(result[0].website).toBe("https://www.einvoice.advintek.ae");
+  });
+});
+
+describe("buildContacts", () => {
+  it("returns a nameless contact when only emails/phones exist", () => {
+    expect(buildContacts(["sales@x.ae", "+971501234567"])).toEqual([
+      { emails: ["sales@x.ae"], phones: ["+971501234567"] },
+    ]);
+  });
+
+  it("returns empty when there is nothing contact-like", () => {
+    expect(buildContacts(["www.example.ae"])).toEqual([]);
+  });
+});
+
+describe("extractFromTextLines (PDF fallback)", () => {
+  it("extracts numbered company lines and ignores furniture and emails", () => {
     const lines = [
       "Ministry of Finance",
       "Pre-Approved eInvoicing Service Providers",
-      "Last updated: June 2026",
       "1. Comarch Middle East FZ LLC",
-      "2. Cygnet Digital IT Solutions L.L.C",
-      "3. Defmacro Software DMCC",
-      "4. Pagero Gulf FZ-LLC",
-      "5. SAP Middle East & North Africa LLC",
-      "6. Tally Software Solutions FZCO",
-      "7. Zoho Corporation FZ LLC",
-      "8. Flick Network L.L.C",
-      "9. EDICOM Middle East Services",
-      "10. Marmin AI Software Design LLC",
-      "11. Sovos Compliance FZCO",
-      "12. Avalara Middle East Limited",
-      "13. BDO Digital Solutions FZ-LLC",
-      "14. Covoro AI FZCO",
-      "15. Deloitte & Touche (M.E.)  Company",
-      "16. Oxinus Holding Limited",
-      "17. Skill Quotient Technologies",
-      "18. SunTec Business Solutions DMCC",
-      "19. Taxilla Finops 360 FZCO",
-      "20. TronStride FZC",
-      "21. Complyance Electronics L.L.C",
-      "22. Microvista Technologies LLC",
-      "Home | About | Contact",
+      "2. Pagero Gulf FZ-LLC",
+      "3. SAP Middle East & North Africa LLC",
+      "4. Tally Software Solutions FZCO",
+      "5. Defmacro Software DMCC (ClearTax)",
+      "sales@flick.network",
       "Privacy Policy",
       "© 2026 Ministry of Finance",
     ];
     const result = extractFromTextLines(lines);
-    expect(result.length).toBe(22);
-    expect(result[0].name).toBe("Comarch Middle East FZ LLC");
-    expect(result.map((r) => r.name)).not.toContain("Privacy Policy");
-    expect(result.map((r) => r.name)).not.toContain("Ministry of Finance");
+    expect(result.map((r) => r.name)).toEqual([
+      "Comarch Middle East FZ LLC",
+      "Pagero Gulf FZ-LLC",
+      "SAP Middle East & North Africa LLC",
+      "Tally Software Solutions FZCO",
+      "Defmacro Software DMCC (ClearTax)",
+    ]);
   });
 
   it("deduplicates repeated names with different suffix formatting", () => {
@@ -46,47 +167,5 @@ describe("extractFromTextLines (PDF / raw text)", () => {
       "Comarch Middle East L.L.C",
     ]);
     expect(result).toHaveLength(1);
-  });
-});
-
-describe("extractFromRows (HTML tables/cards)", () => {
-  it("extracts name + external website from table rows, skipping headers", () => {
-    const rows = [
-      { cells: ["#", "Provider name", "Website"], links: [] },
-      {
-        cells: ["1", "Comarch Middle East FZ LLC", "comarch.ae"],
-        links: ["https://www.comarch.ae/"],
-      },
-      {
-        cells: ["2", "Pagero Gulf FZ-LLC", "pagero.com"],
-        links: ["https://www.pagero.com/"],
-      },
-      {
-        cells: ["3", "Skill Quotient Technologies", ""],
-        links: ["https://mof.gov.ae/some-internal-link/"],
-      },
-    ];
-    const result = extractFromRows(rows);
-    expect(result.map((r) => r.name)).toEqual([
-      "Comarch Middle East FZ LLC",
-      "Pagero Gulf FZ-LLC",
-      "Skill Quotient Technologies",
-    ]);
-    expect(result[0].website).toBe("https://www.comarch.ae/");
-    // Internal MOF links are never treated as provider websites
-    expect(result[2].website).toBeNull();
-  });
-
-  it("handles card/list layouts where each item is a single cell", () => {
-    const rows = [
-      { cells: ["Tally Software Solutions FZCO"], links: [] },
-      { cells: ["Read more"], links: [] },
-      { cells: ["Zoho Corporation FZ LLC"], links: ["https://www.zoho.com/ae/"] },
-    ];
-    const result = extractFromRows(rows);
-    expect(result.map((r) => r.name)).toEqual([
-      "Tally Software Solutions FZCO",
-      "Zoho Corporation FZ LLC",
-    ]);
   });
 });

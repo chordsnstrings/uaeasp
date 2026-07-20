@@ -47,6 +47,7 @@ export default async function ProviderDetailPage({
 
   const t = await getTranslations("providerDetail");
   const tp = await getTranslations("providers");
+  const tc = await getTranslations("common");
   const name = locale === "ar" && provider.nameAr ? provider.nameAr : provider.name;
   const description =
     (locale === "ar" && provider.descriptionAr
@@ -72,6 +73,18 @@ export default async function ProviderDetailPage({
           url: provider.website ?? undefined,
           description,
           areaServed: "AE",
+          email: provider.contacts[0]?.emails[0],
+          telephone: provider.contacts[0]?.phones[0],
+          contactPoint: provider.contacts
+            .filter((c) => c.emails.length > 0 || c.phones.length > 0)
+            .map((c) => ({
+              "@type": "ContactPoint",
+              contactType: "sales",
+              name: c.name,
+              email: c.emails[0],
+              telephone: c.phones[0],
+              areaServed: "AE",
+            })),
         }}
       />
       <JsonLd
@@ -132,19 +145,26 @@ export default async function ProviderDetailPage({
               <h1 className="text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
                 {name}
               </h1>
-              <span
-                className={`mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
-                  provider.status === "active"
-                    ? "bg-brand-50 text-brand-800 ring-1 ring-brand-200"
-                    : "bg-ink-100 text-ink-600 ring-1 ring-ink-200"
-                }`}
-              >
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span
-                  className={`size-1.5 rounded-full ${provider.status === "active" ? "bg-brand-500" : "bg-ink-400"}`}
-                  aria-hidden
-                />
-                {provider.status === "active" ? t("statusActive") : t("statusDelisted")}
-              </span>
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
+                    provider.status === "active"
+                      ? "bg-brand-50 text-brand-800 ring-1 ring-brand-200"
+                      : "bg-ink-100 text-ink-600 ring-1 ring-ink-200"
+                  }`}
+                >
+                  <span
+                    className={`size-1.5 rounded-full ${provider.status === "active" ? "bg-brand-500" : "bg-ink-400"}`}
+                    aria-hidden
+                  />
+                  {provider.status === "active" ? t("statusActive") : t("statusDelisted")}
+                </span>
+                {provider.category && (
+                  <span className="inline-flex rounded-full bg-accent-500/10 px-3 py-1 text-xs font-semibold text-accent-600 ring-1 ring-accent-500/30">
+                    {tc(`categories.${provider.category}` as Parameters<typeof tc>[0])}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -164,7 +184,8 @@ export default async function ProviderDetailPage({
                     href={provider.website}
                     rel="nofollow noopener"
                     target="_blank"
-                    className="font-medium text-brand-700 underline-offset-2 hover:underline"
+                    dir="ltr"
+                    className="break-all font-medium text-brand-700 underline-offset-2 hover:underline"
                   >
                     {provider.website.replace(/^https?:\/\//, "")}
                   </a>
@@ -177,7 +198,56 @@ export default async function ProviderDetailPage({
               </dt>
               <dd className="mt-1 font-medium text-ink-800">{listedSince}</dd>
             </div>
+            {provider.category && (
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+                  {t("categoryLabel")}
+                </dt>
+                <dd className="mt-1 font-medium text-ink-800">
+                  {tc(`categories.${provider.category}` as Parameters<typeof tc>[0])}
+                </dd>
+              </div>
+            )}
           </dl>
+
+          {/* Official contact details from the MOF list */}
+          {provider.contacts.length > 0 && (
+            <section className="mt-8 rounded-2xl border border-brand-100 bg-white p-6 shadow-sm">
+              <h2 className="text-lg font-bold text-ink-900">{t("officialContacts")}</h2>
+              <p className="mt-1 text-xs text-ink-400">{t("officialContactsNote")}</p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {provider.contacts.map((contact, i) => (
+                  <div key={i} className="rounded-xl bg-ink-50 p-4">
+                    {contact.name && (
+                      <p className="font-semibold text-ink-900">{contact.name}</p>
+                    )}
+                    <div className="mt-1.5 space-y-1 text-sm">
+                      {contact.emails.map((email) => (
+                        <a
+                          key={email}
+                          href={`mailto:${email}`}
+                          dir="ltr"
+                          className="block break-all text-brand-700 underline-offset-2 hover:underline"
+                        >
+                          {email}
+                        </a>
+                      ))}
+                      {contact.phones.map((phone) => (
+                        <a
+                          key={phone}
+                          href={`tel:${phone}`}
+                          dir="ltr"
+                          className="block text-brand-700 underline-offset-2 hover:underline"
+                        >
+                          {phone}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Lead funnel CTA */}
           <section className="mt-10 rounded-3xl bg-gradient-to-br from-brand-800 to-brand-950 p-8 text-white sm:p-10">

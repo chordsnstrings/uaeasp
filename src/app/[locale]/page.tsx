@@ -198,12 +198,20 @@ export default async function HomePage({
                 </h2>
                 <p className="mt-2 text-ink-600">{t("directoryPreview.subtitle")}</p>
               </div>
-              <Link
-                href="/providers"
-                className="press rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800"
-              >
-                {t("directoryPreview.viewAll")}
-              </Link>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href="/providers"
+                  className="press rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800"
+                >
+                  {t("directoryPreview.viewAll")}
+                </Link>
+                <Link
+                  href="/registry"
+                  className="press rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800"
+                >
+                  {t("directoryPreview.registryButton")}
+                </Link>
+              </div>
             </div>
           </FadeIn>
           <StaggerGroup className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

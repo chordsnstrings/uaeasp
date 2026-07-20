@@ -16,33 +16,49 @@ export interface DirectoryProvider {
   description: string | null;
   descriptionAr: string | null;
   status: "active" | "delisted" | "hidden";
+  category: string | null;
 }
+
+const CATEGORIES = [
+  "erp",
+  "tax-tech",
+  "consulting",
+  "edi-network",
+  "enterprise-software",
+  "fintech",
+] as const;
 
 export function ProvidersDirectory({ providers }: { providers: DirectoryProvider[] }) {
   const t = useTranslations("providers");
+  const tc = useTranslations("common");
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const [category, setCategory] = useState(searchParams.get("category") ?? "");
   const deferredQuery = useDeferredValue(query);
 
-  // Keep the search shareable/bookmarkable: reflect it in the address bar
-  // without triggering navigation.
+  // Keep search + filter shareable/bookmarkable: reflect them in the address
+  // bar without triggering navigation.
   useEffect(() => {
     const url = new URL(window.location.href);
     if (query.trim()) url.searchParams.set("q", query.trim());
     else url.searchParams.delete("q");
+    if (category) url.searchParams.set("category", category);
+    else url.searchParams.delete("category");
     window.history.replaceState(null, "", url.toString());
-  }, [query]);
+  }, [query, category]);
 
   const filtered = useMemo(() => {
     const q = deferredQuery.trim().toLowerCase();
-    if (!q) return providers;
-    return providers.filter(
-      (p) =>
+    return providers.filter((p) => {
+      if (category && p.category !== category) return false;
+      if (!q) return true;
+      return (
         p.name.toLowerCase().includes(q) ||
         (p.nameAr ?? "").includes(q) ||
-        (p.description ?? "").toLowerCase().includes(q),
-    );
-  }, [providers, deferredQuery]);
+        (p.description ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [providers, deferredQuery, category]);
 
   const labels = {
     visitWebsite: t("visitWebsite"),
@@ -72,6 +88,37 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
           aria-label={t("searchPlaceholder")}
           className="w-full rounded-xl border border-ink-200 bg-white py-3 pe-4 ps-10 text-sm shadow-sm placeholder:text-ink-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
+      </div>
+
+      {/* Category chips */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setCategory("")}
+          className={`press rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
+            !category
+              ? "bg-ink-900 text-white ring-ink-900"
+              : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"
+          }`}
+          aria-pressed={!category}
+        >
+          {t("categoryAll")}
+        </button>
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            type="button"
+            onClick={() => setCategory(category === cat ? "" : cat)}
+            className={`press rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
+              category === cat
+                ? "bg-brand-700 text-white ring-brand-700"
+                : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"
+            }`}
+            aria-pressed={category === cat}
+          >
+            {tc(`categories.${cat}` as Parameters<typeof tc>[0])}
+          </button>
+        ))}
       </div>
 
       <AnimatePresence mode="popLayout">

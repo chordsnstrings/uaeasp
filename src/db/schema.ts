@@ -41,6 +41,23 @@ export const dataSourceEnum = pgEnum("data_source", [
   "manual",
 ]);
 
+export const PROVIDER_CATEGORIES = [
+  "erp",
+  "tax-tech",
+  "consulting",
+  "edi-network",
+  "enterprise-software",
+  "fintech",
+] as const;
+export type ProviderCategory = (typeof PROVIDER_CATEGORIES)[number];
+
+/** One contact person from the official MOF list (a provider can have several). */
+export interface ProviderContact {
+  name?: string;
+  emails: string[];
+  phones: string[];
+}
+
 export const EMIRATES = [
   "abu-dhabi",
   "dubai",
@@ -82,6 +99,12 @@ export const providers = pgTable(
     logoUrl: text("logo_url"),
     contactEmail: text("contact_email"),
     phone: text("phone"),
+    // Official contact persons from the MOF list
+    contacts: jsonb("contacts")
+      .$type<ProviderContact[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    category: text("category").$type<ProviderCategory>(),
     status: providerStatusEnum("status").notNull().default("active"),
     source: dataSourceEnum("source").notNull().default("seed"),
     mofListedAt: date("mof_listed_at"),

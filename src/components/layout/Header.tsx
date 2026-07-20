@@ -7,10 +7,10 @@ import { m, AnimatePresence } from "@/components/motion";
 
 const NAV_ITEMS = [
   { href: "/providers", key: "providers" },
+  { href: "/registry", key: "registry" },
   { href: "/assessment", key: "assessment" },
   { href: "/faq", key: "faq" },
   { href: "/track", key: "track" },
-  { href: "/about", key: "about" },
 ] as const;
 
 export function Header() {

@@ -1,31 +1,808 @@
 {
-  "_comment": "Hand-compiled from public mirrors of the MOF pre-approved eInvoicing Service Providers list (July 2026, list size ~42). This is best-effort bootstrap data only — the weekly scrape reconciles names, adds missing providers and updates details from the official source. Websites are best-effort and may be corrected by the scrape or by an admin.",
+  "_comment": "Transcribed from the official MOF Pre-Approved eInvoicing Service Providers page (Article 15, Ministerial Decision No. 64 of 2025), as pasted by the site owner on 2026-07-20. 42 providers, alphabetical. The weekly scrape reconciles this against the live page. descriptions are editorial (researched, best-effort) — not from MOF.",
   "providers": [
-    { "name": "Defmacro Software DMCC", "website": "https://www.cleartax.com/ae", "description": "ClearTax's UAE entity, offering e-invoicing compliance, VAT and tax technology for businesses of all sizes." },
-    { "name": "BDO Digital Solutions FZ-LLC", "website": "https://www.bdo.ae", "description": "Digital arm of BDO in the UAE, combining advisory expertise with e-invoicing compliance technology." },
-    { "name": "Comarch Middle East FZ LLC", "website": "https://www.comarch.ae", "description": "Regional entity of Comarch, a global EDI and e-invoicing vendor with Peppol network experience across Europe and the Middle East." },
-    { "name": "Covoro AI FZCO", "website": null, "description": "UAE-based provider focused on AI-driven invoicing and compliance automation." },
-    { "name": "Cygnet Digital IT Solutions L.L.C", "website": "https://www.cygnet.one", "description": "Part of Cygnet.One, providing tax technology, e-invoicing and compliance automation across the GCC and India." },
-    { "name": "Deloitte & Touche (M.E.)", "website": "https://www.deloitte.com/middle-east", "description": "Deloitte Middle East, delivering e-invoicing compliance solutions backed by Big Four tax advisory capabilities." },
-    { "name": "EDICOM Middle East Services", "website": "https://edicomgroup.com", "description": "Middle East entity of EDICOM, a global e-invoicing and EDI platform operating certified solutions in dozens of countries." },
-    { "name": "Flick Network L.L.C", "website": "https://flick.network", "description": "E-invoicing platform with strong GCC focus, known for ZATCA (Saudi Arabia) compliance and Peppol-based invoicing." },
-    { "name": "Marmin AI Software Design LLC", "website": "https://marmin.ai", "description": "GCC e-invoicing specialist offering compliance automation for UAE and Saudi mandates." },
-    { "name": "Oxinus Holding Limited", "website": null, "description": "Technology group providing invoicing and business software solutions in the UAE." },
-    { "name": "Pagero Gulf FZ-LLC", "website": "https://www.pagero.com", "description": "Gulf entity of Pagero (a Thomson Reuters company), one of the world's largest Peppol access point operators." },
-    { "name": "Skill Quotient Technologies", "website": null, "description": "UAE-based technology firm providing data and compliance platforms, including e-invoicing services." },
-    { "name": "SunTec (Xelerate) Business Solutions DMCC", "website": "https://www.suntecgroup.com", "description": "Enterprise revenue-management and billing vendor SunTec, offering e-invoicing compliance through its Xelerate platform." },
-    { "name": "Taxilla Finops 360 FZCO", "website": "https://www.taxilla.com", "description": "Regtech platform for e-invoicing, tax compliance and financial operations automation." },
-    { "name": "Taxlabs.ai", "website": "https://taxlabs.ai", "description": "AI-first tax compliance and e-invoicing platform built for the GCC market." },
-    { "name": "TronStride FZC", "website": null, "description": "UAE free-zone technology company providing e-invoicing services." },
-    { "name": "Complyance Electronics L.L.C", "website": "https://complyance.io", "description": "GCC-focused e-invoicing platform helping enterprises comply with UAE and Saudi mandates." },
-    { "name": "Microvista Technologies LLC", "website": "https://www.microvistatech.com", "description": "Software company delivering ERP integrations and e-invoicing compliance tooling." },
-    { "name": "Orchida Soft Computer Systems LLC", "website": null, "description": "UAE software house providing business management and invoicing systems." },
-    { "name": "SAP Middle East & North Africa LLC", "website": "https://www.sap.com/mena", "description": "Regional entity of SAP, providing e-invoicing compliance through SAP Document and Reporting Compliance." },
-    { "name": "Tally Software Solutions FZCO", "website": "https://tallysolutions.com/mena", "description": "UAE entity of Tally Solutions, the widely used SME accounting software vendor, approved for UAE e-invoicing." },
-    { "name": "Zoho Corporation FZ LLC", "website": "https://www.zoho.com/ae", "description": "UAE entity of Zoho, offering e-invoicing through Zoho Books and the Zoho finance suite." },
-    { "name": "Sovos Compliance FZCO", "website": "https://sovos.com", "description": "Global tax compliance vendor Sovos, covering validation, Peppol exchange, reporting and archiving for the UAE." },
-    { "name": "Avalara Middle East", "website": "https://www.avalara.com", "description": "Global tax automation vendor Avalara, providing e-invoicing and live reporting for multi-country compliance." },
-    { "name": "Casim L.L.C-FZ", "website": null, "description": "UAE free-zone company recently added to the MOF pre-approved e-invoicing service provider list." },
-    { "name": "Dariba Technologies LLC", "website": null, "description": "UAE tax-technology company recently added to the MOF pre-approved e-invoicing service provider list." }
+    {
+      "name": "Advintek Consulting Services LLC",
+      "website": "https://www.einvoice.advintek.ae",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Sajid Hameed",
+          "emails": [
+            "sajid@advintek.ae"
+          ],
+          "phones": [
+            "+971557469502"
+          ]
+        },
+        {
+          "name": "Sanam Wadhwa",
+          "emails": [
+            "sanam@advintek.ae"
+          ],
+          "phones": [
+            "+971502160782"
+          ]
+        }
+      ],
+      "description": "Advintek is a Singapore-headquartered technology firm with entities across Southeast Asia and the UAE, providing e-invoicing compliance platforms in multiple Peppol jurisdictions — it is also an approved e-invoicing provider in Malaysia (LHDN) and Singapore (IRAS InvoiceNow). Its PINT AE-compliant UAE platform integrates with SAP, Oracle, Microsoft Dynamics 365, NetSuite, Odoo, QuickBooks and Zoho, and the company holds ISO 27001:2022 certification.",
+      "descriptionAr": "شركة تقنية مقرها سنغافورة ولها كيانات في جنوب شرق آسيا والإمارات، تقدم منصات امتثال للفوترة الإلكترونية في عدة دول تعتمد شبكة Peppol، وهي مزود معتمد أيضاً في ماليزيا وسنغافورة. تتكامل منصتها المتوافقة مع معيار PINT AE مع SAP وOracle وMicrosoft Dynamics 365 وNetSuite وOdoo وQuickBooks وZoho، وتحمل شهادة ISO 27001."
+    },
+    {
+      "name": "Azentio Software Orion (Middle East) FZ-LLC",
+      "website": "https://www.azentio.com",
+      "category": "erp",
+      "contacts": [
+        {
+          "name": "Hiltrud Jenifer",
+          "emails": [
+            "uae-inv@azentio.com"
+          ],
+          "phones": [
+            "+971588269764"
+          ]
+        },
+        {
+          "name": "Rakesh M",
+          "emails": [
+            "Rakesh.m@azentio.com"
+          ],
+          "phones": [
+            "+971529031749"
+          ]
+        }
+      ],
+      "description": "Azentio Software is a Singapore-headquartered enterprise software company — formed from 3i Infotech's software products business — whose Orion ERP is widely used across the Middle East. Its UAE e-invoicing solution is built into Azentio ERP with Peppol and PINT AE-aligned capabilities, AI-enabled validation and pre-built integrations to Azentio and third-party business systems.",
+      "descriptionAr": "شركة برمجيات مؤسسات مقرها سنغافورة، انبثقت من أعمال منتجات 3i Infotech، ويُستخدم نظامها Orion ERP على نطاق واسع في الشرق الأوسط. حلها للفوترة الإلكترونية في الإمارات مدمج في نظام Azentio ERP بقدرات متوافقة مع Peppol وPINT AE وتحقق مدعوم بالذكاء الاصطناعي وتكاملات جاهزة مع أنظمة خارجية."
+    },
+    {
+      "name": "BDO Digital Solutions FZ-LLC",
+      "website": "https://www.bdo.ae/en-gb/home",
+      "category": "consulting",
+      "contacts": [
+        {
+          "name": "Shivendra Jha",
+          "emails": [
+            "shivendra.jha@bdo.ae"
+          ],
+          "phones": [
+            "+971555720269"
+          ]
+        }
+      ],
+      "description": "The digital arm of BDO in the UAE, part of the global BDO accounting and advisory network. It pairs e-invoicing compliance technology with the firm's tax advisory practice, targeting businesses that want implementation and ongoing compliance support handled by one professional-services provider.",
+      "descriptionAr": "الذراع الرقمية لشركة BDO في الإمارات، وهي جزء من شبكة BDO العالمية للمحاسبة والاستشارات. تجمع بين تقنية الامتثال للفوترة الإلكترونية وخدمات الاستشارات الضريبية للشركة، وتستهدف الشركات التي تريد تنفيذ الفوترة الإلكترونية والامتثال المستمر من مزود خدمات مهنية واحد."
+    },
+    {
+      "name": "Casim L.L.C-FZ",
+      "website": "https://www.casim.ae",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Stuart McKechnie",
+          "emails": [
+            "hello@casim.ae",
+            "stuart.mckechnie@casim.ae"
+          ],
+          "phones": [
+            "+971551051174"
+          ]
+        }
+      ],
+      "description": "Casim is a Dubai-based e-invoicing startup positioning itself as AI-built e-invoicing infrastructure, holding Peppol service provider certification alongside its MoF pre-approval, and partnering with Tickstar (the Peppol infrastructure firm acquired by Xero). Its API accepts invoices in formats from PDF and XML to CSV and images, returning validated PINT AE-compliant e-invoices, with integrations for ERP systems, QuickBooks and Xero.",
+      "descriptionAr": "شركة ناشئة مقرها دبي تقدم بنية تحتية للفوترة الإلكترونية مبنية بالذكاء الاصطناعي، وتحمل اعتماد مزود خدمة Peppol إلى جانب الموافقة المبدئية من وزارة المالية، وتتشارك مع Tickstar التابعة لـXero. تستقبل واجهتها البرمجية الفواتير بصيغ متعددة من PDF وXML إلى CSV والصور وتعيدها فواتير متوافقة مع معيار PINT AE، مع تكاملات لأنظمة تخطيط الموارد وQuickBooks وXero."
+    },
+    {
+      "name": "Comarch Middle East FZ LLC",
+      "website": "https://www.comarch.com/trade-and-services/data-management/e-invoicing",
+      "category": "edi-network",
+      "contacts": [
+        {
+          "name": "Fedaa Khwis",
+          "emails": [
+            "e-invoicingme@comarch.com"
+          ],
+          "phones": [
+            "+971444774172"
+          ]
+        }
+      ],
+      "description": "The Middle East entity of Comarch, a Polish enterprise software group founded in 1993 with one of Europe's longest-established e-invoicing and EDI platforms. Comarch operates certified e-invoicing solutions in dozens of countries, integrates with major ERPs including SAP, and serves large enterprise and multinational clients.",
+      "descriptionAr": "الكيان الشرق أوسطي لمجموعة Comarch البولندية لبرمجيات المؤسسات، التأسست عام 1993 وتملك واحدة من أعرق منصات الفوترة الإلكترونية وتبادل البيانات في أوروبا. تشغل Comarch حلول فوترة إلكترونية معتمدة في عشرات الدول، وتتكامل مع أنظمة تخطيط الموارد الكبرى بما فيها SAP، وتخدم كبرى الشركات والمؤسسات متعددة الجنسيات."
+    },
+    {
+      "name": "Complyance Electronics L.L.C",
+      "website": "https://www.complyance.io",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Harikrishnan",
+          "emails": [
+            "contact@complyance.io"
+          ],
+          "phones": [
+            "+971542928224"
+          ]
+        }
+      ],
+      "description": "Complyance is an e-invoicing compliance SaaS company founded in 2021, US-registered with Indian roots, best known for ZATCA Phase 1 and 2 implementations in Saudi Arabia. Its platform works as middleware between ERP, POS and billing systems and tax authorities, connecting UAE businesses to the FTA via the Peppol network, and it markets a global e-invoicing API covering 100+ countries.",
+      "descriptionAr": "شركة برمجيات امتثال للفوترة الإلكترونية تأسست عام 2021، مسجلة في الولايات المتحدة بجذور هندية، واشتهرت بتطبيقات المرحلتين الأولى والثانية لهيئة الزكاة والضريبة في السعودية. تعمل منصتها وسيطاً بين أنظمة تخطيط الموارد ونقاط البيع والفوترة وبين الجهات الضريبية، وتربط شركات الإمارات بالهيئة الاتحادية للضرائب عبر شبكة Peppol."
+    },
+    {
+      "name": "Covoro AI – FZCO",
+      "website": "https://www.covoro.ai/uae",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Paresh Bafna",
+          "emails": [
+            "uae@covoro.ai"
+          ],
+          "phones": [
+            "+971589767230"
+          ]
+        },
+        {
+          "name": "Dipayan Das",
+          "emails": [],
+          "phones": [
+            "+971558817248"
+          ]
+        }
+      ],
+      "description": "Covoro is a Dubai-headquartered tax-tech and compliance automation platform (a trademark of India's Perennial Systems, established 2017) focused on CFO-office automation, e-invoicing, VAT and digital reporting. The company reports more than 135 million invoices processed annually and 100+ ERP integrations, with experience across both the UAE FTA and Saudi ZATCA mandates.",
+      "descriptionAr": "منصة أتمتة ضريبية وامتثال مقرها دبي (علامة تجارية لشركة Perennial Systems الهندية، تأسست 2017)، تركز على أتمتة مكتب المدير المالي والفوترة الإلكترونية وضريبة القيمة المضافة والتقارير الرقمية. تفيد الشركة بمعالجة أكثر من 135 مليون فاتورة سنوياً وأكثر من 100 تكامل مع أنظمة تخطيط الموارد، مع خبرة في متطلبات الهيئة الاتحادية للضرائب وهيئة الزكاة السعودية."
+    },
+    {
+      "name": "Cygnet Digital IT Solutions L.L.C",
+      "website": "https://www.cygnet.one",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Niraj Hutheesing",
+          "emails": [
+            "niraj@cygnet.one"
+          ],
+          "phones": [
+            "+971528305127"
+          ]
+        },
+        {
+          "name": "Sameer Khan",
+          "emails": [
+            "Sameer.khan@cygnet.one"
+          ],
+          "phones": [
+            "+971505676246"
+          ]
+        }
+      ],
+      "description": "Part of Cygnet.One, an India-headquartered tax technology group with a large e-invoicing and GST compliance footprint in India and a growing GCC presence. Its platform covers invoice generation, validation and reporting with connectors for major ERP and accounting systems.",
+      "descriptionAr": "جزء من مجموعة Cygnet.One لتقنيات الضرائب ومقرها الهند، ولها حضور واسع في الفوترة الإلكترونية والامتثال الضريبي في الهند وحضور متنامٍ في الخليج. تغطي منصتها إنشاء الفواتير والتحقق منها والإبلاغ عنها مع موصلات لأنظمة تخطيط الموارد والمحاسبة الرئيسية."
+    },
+    {
+      "name": "Dariba Technologies LLC",
+      "website": "https://www.daribatech.com",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Zulqarnain Javaid",
+          "emails": [
+            "zul@daribatech.com"
+          ],
+          "phones": [
+            "+971508008901"
+          ]
+        }
+      ],
+      "description": "Dariba Technologies is a UAE-founded tax technology company focused on GCC tax compliance and digital transformation. Its Dariba Control Studio platform handles data validation, PINT AE-compliant invoice creation, ERP integration and transmission over the Peppol network, with digital signatures and full UAE data residency.",
+      "descriptionAr": "شركة تقنيات ضريبية تأسست في الإمارات وتركز على الامتثال الضريبي والتحول الرقمي في دول الخليج. تتولى منصتها Dariba Control Studio التحقق من البيانات وإنشاء فواتير متوافقة مع معيار PINT AE والتكامل مع أنظمة تخطيط الموارد والإرسال عبر شبكة Peppol، مع توقيعات رقمية واستضافة كاملة للبيانات داخل الإمارات."
+    },
+    {
+      "name": "Defmacro Software DMCC (ClearTax)",
+      "website": "https://www.cleartax.com/ae",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Shemeem CK",
+          "emails": [
+            "uae-sales@cleartax.com"
+          ],
+          "phones": [
+            "+97148369538"
+          ]
+        }
+      ],
+      "description": "The UAE entity of ClearTax (Clear), one of the largest tax-technology companies in India, processing billions of invoices for e-invoicing and GST compliance. In the Gulf it is an established ZATCA-compliant provider in Saudi Arabia and offers integrations across SAP, Oracle, Tally and other common ERPs — a strong fit for businesses from SME to enterprise.",
+      "descriptionAr": "الكيان الإماراتي لشركة ClearTax (Clear)، إحدى أكبر شركات تقنيات الضرائب في الهند، التي تعالج مليارات الفواتير في الفوترة الإلكترونية والامتثال الضريبي. وفي الخليج هي مزود راسخ متوافق مع متطلبات هيئة الزكاة والضريبة السعودية، وتقدم تكاملات مع SAP وOracle وTally وغيرها من الأنظمة الشائعة — خيار قوي للشركات من الصغيرة إلى الكبرى."
+    },
+    {
+      "name": "Deloitte & Touche - M E",
+      "website": "https://www.deloitte.com/middle-east",
+      "category": "consulting",
+      "contacts": [
+        {
+          "name": "Lena Johanna Maria van Delft",
+          "emails": [
+            "dmeintax@deloitte.com"
+          ],
+          "phones": [
+            "+971509261880"
+          ]
+        }
+      ],
+      "description": "Deloitte Middle East, part of the global Big Four professional services network. Its e-invoicing offering combines compliance technology with deep tax advisory capacity across the region, aimed at enterprises that want regulatory interpretation, implementation and the technology handled together.",
+      "descriptionAr": "ديلويت الشرق الأوسط، جزء من شبكة الخدمات المهنية العالمية الأربع الكبرى. يجمع عرضها للفوترة الإلكترونية بين تقنية الامتثال وقدرات استشارية ضريبية عميقة في المنطقة، ويستهدف المؤسسات التي تريد التفسير التنظيمي والتنفيذ والتقنية من جهة واحدة."
+    },
+    {
+      "name": "DP World Digital GCC FZE",
+      "website": "https://www.einvoicing.dpworld.com/home",
+      "category": "enterprise-software",
+      "contacts": [
+        {
+          "name": "Mohammed Rashid Alshamsi",
+          "emails": [
+            "DPWDigitalGCC.EInvoicing@dpworld.com"
+          ],
+          "phones": [
+            "+971569912375"
+          ]
+        }
+      ],
+      "description": "The digital services arm of DP World, the Dubai-headquartered global logistics and ports group. Backed by one of the UAE's largest companies, its e-invoicing platform targets businesses across the GCC with the scale and local standing of a major Emirati enterprise behind it.",
+      "descriptionAr": "الذراع الرقمية لمجموعة موانئ دبي العالمية (DP World)، مجموعة الموانئ والخدمات اللوجستية العالمية ومقرها دبي. بدعم من إحدى أكبر شركات الإمارات، تستهدف منصتها للفوترة الإلكترونية الشركات في دول الخليج بقوة وحضور مؤسسة إماراتية كبرى."
+    },
+    {
+      "name": "EDICOM Middle East Services",
+      "website": "https://www.edicomgroup.com",
+      "category": "edi-network",
+      "contacts": [
+        {
+          "name": "Andre Menezes",
+          "emails": [
+            "amenezes@edicomgroup.com"
+          ],
+          "phones": [
+            "8000320420"
+          ]
+        }
+      ],
+      "description": "The Middle East entity of EDICOM, a Spanish e-invoicing and EDI specialist operating since 1995 with certified platforms in more than 80 countries. EDICOM is one of the world's most widely accredited compliance providers, running a global Peppol access point and deep integrations with SAP and other enterprise ERPs.",
+      "descriptionAr": "الكيان الشرق أوسطي لشركة EDICOM الإسبانية المتخصصة في الفوترة الإلكترونية وتبادل البيانات منذ 1995، بمنصات معتمدة في أكثر من 80 دولة. تُعد EDICOM من أكثر مزودي الامتثال اعتماداً في العالم، وتشغل نقطة وصول عالمية لشبكة Peppol مع تكاملات عميقة مع SAP وأنظمة المؤسسات الأخرى."
+    },
+    {
+      "name": "EY Consulting LLC",
+      "website": "https://www.ey.com/en_gl/services/tax/e-invoicing-solution",
+      "category": "consulting",
+      "contacts": [
+        {
+          "name": "Barbie Goel",
+          "emails": [
+            "eygtes@ae.ey.com"
+          ],
+          "phones": [
+            "+97147010070"
+          ]
+        }
+      ],
+      "description": "EY's consulting entity in the UAE, part of the global Big Four network. EY's Global Tax E-invoicing Solution pairs its multi-country compliance platform with the firm's tax advisory practice, suited to enterprises rolling out e-invoicing across several jurisdictions at once.",
+      "descriptionAr": "كيان الاستشارات التابع لشركة EY في الإمارات، جزء من شبكة الأربع الكبرى العالمية. يجمع حل EY العالمي للفوترة الإلكترونية بين منصة امتثال متعددة الدول وخدمات الاستشارات الضريبية للشركة، وهو مناسب للمؤسسات التي تطبق الفوترة الإلكترونية في عدة دول في آن واحد."
+    },
+    {
+      "name": "Flick Network L.L.C",
+      "website": "https://www.flick.network",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Basil M",
+          "emails": [
+            "sales@flick.network"
+          ],
+          "phones": [
+            "+971569775833"
+          ]
+        }
+      ],
+      "description": "Flick Network is an e-invoicing platform company that began in Saudi Arabia in 2021 with ZATCA Phase 2 implementations (including a 50+ store rollout for SPAR supermarkets), now pre-approved for UAE e-invoicing. Its platform connects business systems to the Peppol network and FTA reporting, with stated integrations for SAP S/4HANA, SAP Business One, Oracle Fusion, Oracle E-Business Suite and Microsoft Dynamics 365.",
+      "descriptionAr": "شركة منصة فوترة إلكترونية بدأت في السعودية عام 2021 بتطبيقات المرحلة الثانية لهيئة الزكاة والضريبة (منها تطبيق لأكثر من 50 متجراً لسلسلة SPAR)، وهي الآن معتمدة مبدئياً في الإمارات. تربط منصتها أنظمة الأعمال بشبكة Peppol وإبلاغ الهيئة الاتحادية للضرائب، مع تكاملات معلنة لأنظمة SAP S/4HANA وSAP Business One وOracle Fusion وMicrosoft Dynamics 365."
+    },
+    {
+      "name": "Fynamics Techno Solutions – FZCO",
+      "website": "https://www.fynamicstax.com/uae",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Mohan Mahabala Belma",
+          "emails": [
+            "mohan.mb@fynamics.tech"
+          ],
+          "phones": [
+            "+971505577314"
+          ]
+        }
+      ],
+      "description": "Fynamics is a Bengaluru-based tax compliance software company and approved GST Suvidha Provider in India, reporting over 100 million e-invoices generated for 3,200+ clients in India and Saudi Arabia since 2020. Its FynamicsUAE offering brings that mandate experience to the UAE, and the company is ISO 27001 certified.",
+      "descriptionAr": "شركة برمجيات امتثال ضريبي مقرها بنغالورو ومزود معتمد لخدمات ضريبة السلع والخدمات في الهند، وتفيد بإصدار أكثر من 100 مليون فاتورة إلكترونية لأكثر من 3,200 عميل في الهند والسعودية منذ 2020. يجلب عرضها FynamicsUAE هذه الخبرة إلى الإمارات، والشركة حاصلة على شهادة ISO 27001."
+    },
+    {
+      "name": "Hamt Information Technology L.L.C (EVATRA)",
+      "website": "https://www.hlbhamt.com",
+      "category": "consulting",
+      "contacts": [
+        {
+          "name": "Vimal Rama",
+          "emails": [
+            "einv@hlbhamt.com"
+          ],
+          "phones": [
+            "+971545432365"
+          ]
+        }
+      ],
+      "description": "The IT arm of HLB HAMT, a Dubai-based audit, tax and advisory firm in the HLB International network. Its EVATRA platform is an AI-enabled, cloud-hosted e-invoicing solution built for UAE compliance under Peppol and PINT AE standards, supporting all 16 UAE e-invoicing scenarios with ISO 27001-certified security, UAE data residency and the firm's tax advisory practice behind it.",
+      "descriptionAr": "الذراع التقنية لشركة HLB HAMT، شركة التدقيق والضرائب والاستشارات ومقرها دبي وعضو شبكة HLB الدولية. منصتها EVATRA حل فوترة إلكترونية سحابي مدعوم بالذكاء الاصطناعي مبني للامتثال الإماراتي وفق معايير Peppol وPINT AE، ويدعم جميع سيناريوهات الفوترة الإلكترونية الستة عشر مع أمان معتمد ISO 27001 واستضافة بيانات داخل الإمارات ودعم استشاري ضريبي من الشركة."
+    },
+    {
+      "name": "Infinite IT Solutions FZCO",
+      "website": "https://www.infinite-it.com/en-ae/",
+      "category": "edi-network",
+      "contacts": [
+        {
+          "name": "Ammar Hamednalla",
+          "emails": [
+            "emaratax@infinite-b2b.com"
+          ],
+          "phones": [
+            "+971551740683"
+          ]
+        }
+      ],
+      "description": "Infinite IT Solutions is a Polish technology company headquartered in Lublin with over 20 years of EDI and e-invoicing experience across Europe and more than six years in the GCC. Its Global eInvoicing Platform supports compliance in 30+ countries — including Peppol in the EU, ZATCA in Saudi Arabia and KSeF in Poland — with ERP integration for logistics, finance, retail and manufacturing clients.",
+      "descriptionAr": "شركة تقنية بولندية مقرها لوبلين بخبرة تتجاوز 20 عاماً في تبادل البيانات والفوترة الإلكترونية في أوروبا وأكثر من ستة أعوام في الخليج. تدعم منصتها العالمية للفوترة الإلكترونية الامتثال في أكثر من 30 دولة — منها Peppol في أوروبا وهيئة الزكاة في السعودية وKSeF في بولندا — مع تكامل مع أنظمة تخطيط الموارد لقطاعات اللوجستيات والمال والتجزئة والتصنيع."
+    },
+    {
+      "name": "Information Dynamics LLC",
+      "website": "https://www.infodynamic.net",
+      "category": "enterprise-software",
+      "contacts": [
+        {
+          "name": "Arun Pal Dani",
+          "emails": [
+            "arundani@infodynamic.net"
+          ],
+          "phones": [
+            "+971554525791"
+          ]
+        }
+      ],
+      "description": "Information Dynamics is a software provider established in 1995 serving shipping and logistics, travel, retail and distribution, with offices across the UAE, India, Saudi Arabia and Africa. Its Peppol-aligned e-invoicing solution integrates with SAP, Oracle and Microsoft Dynamics, and the company supports mandates in the UAE, Saudi Arabia, India, Jordan, Egypt and Kenya.",
+      "descriptionAr": "مزود برمجيات تأسس عام 1995 يخدم قطاعات الشحن واللوجستيات والسفر والتجزئة والتوزيع، بمكاتب في الإمارات والهند والسعودية وأفريقيا. يتكامل حله للفوترة الإلكترونية المتوافق مع Peppol مع SAP وOracle وMicrosoft Dynamics، وتدعم الشركة المتطلبات في الإمارات والسعودية والهند والأردن ومصر وكينيا."
+    },
+    {
+      "name": "InvoiceNow biz - F.Z.C",
+      "website": "https://www.invoicenow.biz",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Manjeet Yadav",
+          "emails": [
+            "manjeet.yadav@invoicenow.biz"
+          ],
+          "phones": [
+            "+971554478262"
+          ]
+        }
+      ],
+      "description": "InvoiceNow Biz is a UAE free-zone company operating a dedicated e-invoicing platform providing Peppol-based invoice exchange under the UAE's five-corner model, with FTA reporting and UAE data hosting, sold in tiered plans from starter to enterprise.",
+      "descriptionAr": "شركة منطقة حرة إماراتية تشغل منصة مخصصة للفوترة الإلكترونية توفر تبادل الفواتير عبر شبكة Peppol وفق نموذج الزوايا الخمس الإماراتي، مع الإبلاغ للهيئة الاتحادية للضرائب واستضافة البيانات داخل الإمارات، بباقات متدرجة من الشركات الناشئة إلى المؤسسات."
+    },
+    {
+      "name": "InvoiceQ For Information Technology Limited",
+      "website": "https://www.ae.invoiceq.com",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Malek Mneimne",
+          "emails": [
+            "mmneimne@invoiceq.com"
+          ],
+          "phones": [
+            "+971521784092"
+          ]
+        }
+      ],
+      "description": "InvoiceQ is a SaaS e-invoicing and integration platform founded in 2020 with offices in Jordan and Saudi Arabia, qualified with Saudi Arabia's ZATCA and Jordan's ISTD. Its platform has integrated with more than 60 systems and operates as a Peppol access point for the UAE's five-corner model, serving markets across the GCC and Levant.",
+      "descriptionAr": "منصة فوترة إلكترونية وتكامل سحابية تأسست عام 2020 بمكاتب في الأردن والسعودية، ومؤهلة لدى هيئة الزكاة والضريبة السعودية ودائرة ضريبة الدخل الأردنية. تكاملت منصتها مع أكثر من 60 نظاماً وتعمل نقطة وصول Peppol لنموذج الزوايا الخمس الإماراتي، وتخدم أسواق الخليج وبلاد الشام."
+    },
+    {
+      "name": "KGRN Chartered Accountants",
+      "website": "https://www.kgrnaudit.com",
+      "category": "consulting",
+      "contacts": [
+        {
+          "name": "Gopu Rama Naidu",
+          "emails": [
+            "gopu@kgrnaudit.com"
+          ],
+          "phones": [
+            "+971504520648"
+          ]
+        }
+      ],
+      "description": "KGRN is a Dubai-based chartered accountancy and advisory firm operating in the UAE since 2007, with offices in Dubai, Abu Dhabi, Sharjah and Ras Al Khaimah. It pairs its audit, VAT and corporate tax practice with a certified Peppol access point offering, providing e-invoicing readiness assessments, ERP integration and compliance implementation.",
+      "descriptionAr": "شركة محاسبة قانونية واستشارات مقرها دبي تعمل في الإمارات منذ 2007، بمكاتب في دبي وأبوظبي والشارقة ورأس الخيمة. تجمع بين خدمات التدقيق وضريبة القيمة المضافة وضريبة الشركات وبين نقطة وصول Peppol معتمدة، وتقدم تقييمات جاهزية الفوترة الإلكترونية والتكامل مع الأنظمة والتنفيذ."
+    },
+    {
+      "name": "Marmin AI Software Design LLC",
+      "website": "https://www.marmin.ai",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Sangmesh Hiremath",
+          "emails": [
+            "e-invoicing@marmin.ai"
+          ],
+          "phones": [
+            "+971525390452",
+            "+97145542733"
+          ]
+        }
+      ],
+      "description": "Marmin AI is the e-invoicing platform of AJMS Group, a UAE-headquartered regulatory and technology firm, and was among the first fully accredited service providers in the UAE as well as a certified Peppol access point. It supports compliance regimes in six jurisdictions including UAE FTA, Saudi ZATCA and Malaysia's LHDN, reports 600+ business customers, and offers in-country data residency.",
+      "descriptionAr": "منصة الفوترة الإلكترونية لمجموعة AJMS التنظيمية والتقنية ومقرها الإمارات، وكانت من أوائل مزودي الخدمة المعتمدين بالكامل في الدولة ونقطة وصول Peppol معتمدة. تدعم أنظمة الامتثال في ست دول منها الإمارات والسعودية وماليزيا، وتفيد بأكثر من 600 عميل، مع استضافة البيانات داخل الدولة."
+    },
+    {
+      "name": "Microvista Technologies LLC",
+      "website": "https://www.microvistatech.com/e-invoicing-in-uae",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Malav Dalwadi",
+          "emails": [
+            "uaesales@microvistatech.com"
+          ],
+          "phones": [
+            "+971564529927"
+          ]
+        }
+      ],
+      "description": "Microvista Technologies is a tax and financial compliance software company headquartered in Ahmedabad, India, with a Dubai office, known for its Indian GST compliance products including PowerGST. Its Peppol-certified UAE solution integrates with existing ERP and accounting systems without changing current processes, with compliance experience from India's e-invoicing regime.",
+      "descriptionAr": "شركة برمجيات امتثال ضريبي ومالي مقرها أحمد آباد بالهند ولها مكتب في دبي، معروفة بمنتجات الامتثال الضريبي الهندية ومنها PowerGST. يتكامل حلها الإماراتي المعتمد على Peppol مع أنظمة تخطيط الموارد والمحاسبة القائمة دون تغيير الإجراءات الحالية، بخبرة امتثال من نظام الفوترة الإلكترونية الهندي."
+    },
+    {
+      "name": "Moore JFC Consulting LLC",
+      "website": "https://www.moorejfcgroup.com",
+      "category": "consulting",
+      "contacts": [
+        {
+          "name": "Mago JB Singh",
+          "emails": [
+            "e-invoicing@moorejfcgroup.com"
+          ],
+          "phones": [
+            "+97143697348"
+          ]
+        },
+        {
+          "name": "Gurkaran Singh",
+          "emails": [],
+          "phones": [
+            "+971501990332"
+          ]
+        }
+      ],
+      "description": "Moore JFC is a Dubai-based professional services firm with roughly 45 years of regional history and a member of Moore Global, the international audit and advisory network. It provides audit, tax, legal and advisory services alongside its pre-approved e-invoicing offering — a fit for businesses that want compliance and advisory handled by one firm.",
+      "descriptionAr": "شركة خدمات مهنية مقرها دبي بتاريخ إقليمي يقارب 45 عاماً وعضو في شبكة Moore Global الدولية للتدقيق والاستشارات. تقدم خدمات التدقيق والضرائب والاستشارات القانونية إلى جانب عرضها المعتمد مبدئياً للفوترة الإلكترونية — خيار مناسب لمن يريد الامتثال والاستشارة من جهة واحدة."
+    },
+    {
+      "name": "New Age Software Limited",
+      "website": "https://www.newage-global.com",
+      "category": "erp",
+      "contacts": [
+        {
+          "name": "Srinivasan Madurai Veeran",
+          "emails": [
+            "einvoicing@newage-global.com"
+          ],
+          "phones": [
+            "+971561704629"
+          ]
+        }
+      ],
+      "description": "Newage Software & Solutions is a SaaS company headquartered in Jebel Ali, Dubai, specialising in ERP software for freight forwarding and logistics with 450+ customers in more than 30 countries. Its cloud platform NewageNXT consolidates bookings, documentation, tracking, compliance and invoicing, making its e-invoicing capability a natural fit for logistics businesses.",
+      "descriptionAr": "شركة برمجيات سحابية مقرها جبل علي بدبي متخصصة في أنظمة تخطيط الموارد لقطاع الشحن واللوجستيات، بأكثر من 450 عميلاً في أكثر من 30 دولة. تجمع منصتها السحابية NewageNXT الحجوزات والمستندات والتتبع والامتثال والفوترة، ما يجعل قدرتها في الفوترة الإلكترونية ملائمة بطبيعتها لشركات اللوجستيات."
+    },
+    {
+      "name": "Orchida Soft Computer Systems LLC",
+      "website": "https://www.orchidatax.com/country-compliance/uae/",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Bassem Amer",
+          "emails": [
+            "baamer@orchida-soft.com"
+          ],
+          "phones": [
+            "+971585641323",
+            "+971585643310"
+          ]
+        }
+      ],
+      "description": "Orchida Soft is a software company established in 1997 with branches in Egypt and Saudi Arabia, whose OrchidaTax product connects existing ERP systems to tax authority platforms. It brings mandate experience from Egypt's ETA e-invoicing and Saudi ZATCA Phase 2, citing enterprise clients such as Coca-Cola, Samsung, HSBC and DHL.",
+      "descriptionAr": "شركة برمجيات تأسست عام 1997 ولها فروع في مصر والسعودية، ويربط منتجها OrchidaTax أنظمة تخطيط الموارد القائمة بمنصات الجهات الضريبية. تجلب خبرة من فوترة مصلحة الضرائب المصرية والمرحلة الثانية لهيئة الزكاة السعودية، وتذكر عملاء كباراً مثل كوكاكولا وسامسونج وHSBC وDHL."
+    },
+    {
+      "name": "Oxinus Holding Limited",
+      "website": "https://www.oxinus.holdings",
+      "category": "enterprise-software",
+      "contacts": [
+        {
+          "name": "Filopoimin Chorafas",
+          "emails": [
+            "invoicing@oxinus.holdings"
+          ],
+          "phones": [
+            "+971506731989"
+          ]
+        }
+      ],
+      "description": "Oxinus is a UAE-based technology company under Infinia Technologies, recognised among the first five pre-approved e-invoicing service providers in the UAE. Its e-invoicing capability is powered by Verinvo, a system the company states is already deployed in Europe, and it operates EsalTech, a joint venture with tax advisory firm Dhruva Consultants combining technology with tax expertise.",
+      "descriptionAr": "شركة تقنية إماراتية ضمن مجموعة Infinia Technologies، وكانت من أوائل خمسة مزودين معتمدين مبدئياً للفوترة الإلكترونية في الدولة. تعتمد قدرتها على نظام Verinvo المنشور في أوروبا وفق الشركة، وتدير مشروعاً مشتركاً باسم EsalTech مع شركة الاستشارات الضريبية Dhruva يجمع التقنية بالخبرة الضريبية."
+    },
+    {
+      "name": "Pagero Gulf FZ-LLC",
+      "website": "https://www.pagero.com",
+      "category": "edi-network",
+      "contacts": [
+        {
+          "name": "Luis Ortega Santos",
+          "emails": [
+            "einvoicingsupport@thomsonreuters.com"
+          ],
+          "phones": [
+            "+971581519050"
+          ]
+        }
+      ],
+      "description": "The Gulf entity of Pagero, a Swedish e-invoicing network acquired by Thomson Reuters in 2024. Pagero operates one of the world's largest open business networks and Peppol access points, serving multinationals with compliance coverage across dozens of jurisdictions and certified integrations with SAP, Oracle, Microsoft Dynamics and more.",
+      "descriptionAr": "الكيان الخليجي لشركة Pagero السويدية للفوترة الإلكترونية، التي استحوذت عليها Thomson Reuters عام 2024. تشغل Pagero واحدة من أكبر شبكات الأعمال المفتوحة ونقاط وصول Peppol في العالم، وتخدم الشركات متعددة الجنسيات بتغطية امتثال في عشرات الدول وتكاملات معتمدة مع SAP وOracle وMicrosoft Dynamics وغيرها."
+    },
+    {
+      "name": "SAP Middle East & North Africa LLC",
+      "website": "https://www.sap.com",
+      "category": "erp",
+      "contacts": [
+        {
+          "name": "Marwan Zeineddine",
+          "emails": [
+            "m.zeineddine@sap.com"
+          ],
+          "phones": [
+            "+971528222219",
+            "+97144407222"
+          ]
+        }
+      ],
+      "description": "The regional entity of SAP, the German enterprise software leader whose ERP systems run a large share of UAE enterprises. Its e-invoicing capability is delivered through SAP Document and Reporting Compliance, making it the natural path for businesses already running SAP who want compliance handled natively inside their ERP.",
+      "descriptionAr": "الكيان الإقليمي لشركة SAP الألمانية الرائدة في برمجيات المؤسسات، التي تشغّل أنظمتها لتخطيط الموارد حصة كبيرة من مؤسسات الإمارات. تقدم قدرات الفوترة الإلكترونية عبر SAP Document and Reporting Compliance، ما يجعلها المسار الطبيعي للشركات التي تعمل أصلاً على SAP وتريد الامتثال مدمجاً داخل نظامها."
+    },
+    {
+      "name": "Skill Quotient Technologies",
+      "website": "https://www.skillquotientgroup.com",
+      "category": "enterprise-software",
+      "contacts": [
+        {
+          "name": "Teodora Borikic",
+          "emails": [
+            "teodora.borikic@skillquotientgroup.com"
+          ],
+          "phones": [
+            "+971555035892"
+          ]
+        }
+      ],
+      "description": "Skill Quotient Technologies is an IT company founded in 2016, headquartered in Dubai with offices in India, the USA, Malaysia and Singapore, providing data engineering, AI, cloud and SAP services. Its e-invoicing platform SMARTeIS is built to the UAE Peppol PINT AE standard, covering the full invoice lifecycle from generation and validation to transmission and archival.",
+      "descriptionAr": "شركة تقنية معلومات تأسست عام 2016 ومقرها دبي بمكاتب في الهند والولايات المتحدة وماليزيا وسنغافورة، تقدم خدمات هندسة البيانات والذكاء الاصطناعي والسحابة وSAP. منصتها SMARTeIS مبنية وفق معيار Peppol PINT AE الإماراتي وتغطي دورة حياة الفاتورة كاملة من الإنشاء والتحقق إلى الإرسال والأرشفة."
+    },
+    {
+      "name": "Spendconsole FZ LLC",
+      "website": "https://www.spendconsole.ai",
+      "category": "fintech",
+      "contacts": [
+        {
+          "name": "Haseef Ahmed",
+          "emails": [
+            "haseef.ahmed@spendconsole.ai"
+          ],
+          "phones": [
+            "+971507631906"
+          ]
+        }
+      ],
+      "description": "SpendConsole is an Australian-origin AI-powered accounts payable automation company with offices in Sydney, Melbourne and Dubai. It partners with UAE cybersecurity firm CPX to deliver a sovereign, mandate-ready e-invoicing platform covering invoice capture, validation and Peppol/FTA compliance, integrating with existing ERPs rather than replacing them.",
+      "descriptionAr": "شركة أسترالية المنشأ لأتمتة الذمم الدائنة بالذكاء الاصطناعي بمكاتب في سيدني وملبورن ودبي. تتشارك مع شركة الأمن السيبراني الإماراتية CPX لتقديم منصة فوترة إلكترونية سيادية جاهزة للإلزام تغطي التقاط الفواتير والتحقق والامتثال لـPeppol والهيئة الاتحادية للضرائب، وتتكامل مع أنظمة تخطيط الموارد القائمة بدلاً من استبدالها."
+    },
+    {
+      "name": "SunTec (Xelerate) Business Solutions DMCC",
+      "website": "https://www.suntecgroup.com/suntec-e-invoicing",
+      "category": "enterprise-software",
+      "contacts": [
+        {
+          "name": "Arjun Nandakumar",
+          "emails": [
+            "einvoicing@suntecgroup.com"
+          ],
+          "phones": [
+            "+97143747427",
+            "+971563976197"
+          ]
+        }
+      ],
+      "description": "The Dubai entity of SunTec Business Solutions, an enterprise revenue-management and billing vendor whose Xelerate platform is used widely by banks and telecoms. Its e-invoicing offering targets large organisations with high transaction volumes and complex billing structures, including the region's financial sector.",
+      "descriptionAr": "كيان دبي لشركة SunTec Business Solutions، مزود حلول إدارة الإيرادات والفوترة للمؤسسات، التي تُستخدم منصتها Xelerate على نطاق واسع لدى البنوك وشركات الاتصالات. يستهدف عرضها للفوترة الإلكترونية المؤسسات الكبيرة ذات أحجام المعاملات العالية وهياكل الفوترة المعقدة، بما فيها القطاع المالي في المنطقة."
+    },
+    {
+      "name": "Suntech Business Solutions DMCC",
+      "website": "https://www.suntech-global.com",
+      "category": "erp",
+      "contacts": [
+        {
+          "name": "Tushar Gupta",
+          "emails": [
+            "einvoicing@suntech-global.com"
+          ],
+          "phones": [
+            "+971525695428"
+          ]
+        }
+      ],
+      "description": "Suntech Business Solutions is a Dubai-based software company with origins in 2007, best known for SUNFACET, an ERP for the jewellery and precious-metals industry, with offices in Dubai, Mumbai and Riyadh and customers in more than 30 countries. Its e-invoicing capability is powered by its Dubai-built TaxComplianceAgent platform, with Peppol access point certification and an Odoo integration module. (A distinct company from SunTec Xelerate Business Solutions.)",
+      "descriptionAr": "شركة برمجيات مقرها دبي تعود جذورها إلى 2007، اشتهرت بنظام SUNFACET لتخطيط الموارد لقطاع المجوهرات والمعادن الثمينة، بمكاتب في دبي ومومباي والرياض وعملاء في أكثر من 30 دولة. تعتمد قدرتها في الفوترة الإلكترونية على منصة TaxComplianceAgent المطورة في دبي، مع اعتماد نقطة وصول Peppol ووحدة تكامل مع Odoo. (شركة مختلفة عن SunTec Xelerate.)"
+    },
+    {
+      "name": "Tally Software Solutions FZCO",
+      "website": "https://www.tallysolutions.com",
+      "category": "erp",
+      "contacts": [
+        {
+          "name": "Nandaraja Shetty",
+          "emails": [
+            "einvoicing.uae@tallysolutions.com"
+          ],
+          "phones": [
+            "+97142595065"
+          ]
+        }
+      ],
+      "description": "The UAE entity of Tally Solutions, maker of TallyPrime — one of the most widely used accounting packages among small and mid-sized businesses in the UAE and across the region. For the large base of businesses already invoicing in Tally, its pre-approval offers a direct path to compliance inside the software they use daily.",
+      "descriptionAr": "الكيان الإماراتي لشركة Tally Solutions، مطورة TallyPrime — أحد أكثر برامج المحاسبة استخداماً بين الشركات الصغيرة والمتوسطة في الإمارات والمنطقة. وبالنسبة للقاعدة الكبيرة من الشركات التي تصدر فواتيرها أصلاً عبر Tally، تمنحها الموافقة المبدئية مساراً مباشراً للامتثال داخل البرنامج الذي تستخدمه يومياً."
+    },
+    {
+      "name": "TAXILLA FINOPS 360 – FZCO",
+      "website": "https://www.taxilla.com",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Pravin Sawant",
+          "emails": [
+            "pravin@taxilla.com"
+          ],
+          "phones": [
+            "+971565758046"
+          ]
+        }
+      ],
+      "description": "Taxilla is a regtech and tax compliance automation company of Indian origin operating in the UAE through its free-zone entity, offering e-invoicing, AR/AP automation and regulatory reporting. It is a certified Peppol access point with API-based integration to ERP and POS systems, white-label and reseller models, and prior mandate experience from India's GST e-invoicing regime.",
+      "descriptionAr": "شركة أتمتة امتثال ضريبي وتقنيات تنظيمية هندية المنشأ تعمل في الإمارات عبر كيانها في المنطقة الحرة، وتقدم الفوترة الإلكترونية وأتمتة الذمم والتقارير التنظيمية. وهي نقطة وصول Peppol معتمدة بتكامل برمجي مع أنظمة تخطيط الموارد ونقاط البيع، ونماذج البيع بالعلامة البيضاء وإعادة البيع، وخبرة سابقة من نظام الفوترة الإلكترونية الهندي."
+    },
+    {
+      "name": "Taxlabs.ai",
+      "website": "https://www.taxlab.ai",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Zia Taguinod",
+          "emails": [
+            "talktous@taxlab.ai"
+          ],
+          "phones": [
+            "+971529504772"
+          ]
+        }
+      ],
+      "description": "TaxLab is a UAE-founded tax technology company offering AI-powered compliance workflows for e-invoicing, VAT, excise, corporate tax, transfer pricing and global minimum tax through a modular product suite. It supports ERP, CRM and POS integration with configurable data residency; Andersen in the UAE has publicly chosen TaxLab for UAE e-invoicing.",
+      "descriptionAr": "شركة تقنيات ضريبية تأسست في الإمارات تقدم مسارات امتثال مدعومة بالذكاء الاصطناعي للفوترة الإلكترونية وضريبة القيمة المضافة والضريبة الانتقائية وضريبة الشركات والتسعير التحويلي عبر باقة منتجات معيارية. تدعم التكامل مع أنظمة تخطيط الموارد وإدارة العملاء ونقاط البيع مع استضافة بيانات قابلة للتخصيص؛ وقد اختارتها Andersen الإمارات علناً للفوترة الإلكترونية."
+    },
+    {
+      "name": "Tax Star L.L.C-FZ",
+      "website": "https://www.taxstar.app",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Rayhan Aleem",
+          "emails": [
+            "rayhan@taxstar.app"
+          ],
+          "phones": [
+            "+971556864530"
+          ]
+        }
+      ],
+      "description": "Tax Star is a UAE-based tax automation company covering UAE corporate tax, e-invoicing and Saudi Zakat calculations, aimed at businesses and accounting firms. It maps invoice data to the PINT AE format and connects to accounting systems including Xero, QuickBooks and Zoho Books, with an announced partnership with UAE accounting platform Wafeq.",
+      "descriptionAr": "شركة أتمتة ضريبية إماراتية تغطي ضريبة الشركات الإماراتية والفوترة الإلكترونية وحسابات الزكاة السعودية، وتستهدف الشركات ومكاتب المحاسبة. تحوّل بيانات الفواتير إلى صيغة PINT AE وتتصل بأنظمة المحاسبة ومنها Xero وQuickBooks وZoho Books، مع شراكة معلنة مع منصة المحاسبة الإماراتية Wafeq."
+    },
+    {
+      "name": "Techventures Information Technology Services",
+      "website": "https://www.techventuresglobal.com",
+      "category": "consulting",
+      "contacts": [
+        {
+          "name": "Mehroz Gazdar",
+          "emails": [
+            "mehroz@techventuresglobal.com"
+          ],
+          "phones": [
+            "+971522732467"
+          ]
+        }
+      ],
+      "description": "Tech Ventures Global is a Dubai-based technology consulting firm focused on Microsoft Dynamics, offering a UAE e-invoicing extension that integrates with Dynamics 365 Business Central, Finance & Operations, CRM, NAV and GP, validating invoices against FTA and Peppol PINT AE requirements — a natural fit for businesses running Microsoft ERPs.",
+      "descriptionAr": "شركة استشارات تقنية مقرها دبي تركز على Microsoft Dynamics، وتقدم امتداداً للفوترة الإلكترونية الإماراتية يتكامل مع Dynamics 365 Business Central وFinance & Operations وCRM وNAV وGP، ويتحقق من الفواتير وفق متطلبات الهيئة الاتحادية للضرائب وPeppol PINT AE — خيار طبيعي للشركات العاملة على أنظمة مايكروسوفت."
+    },
+    {
+      "name": "TronStride FZC",
+      "website": "https://www.tronstride.com",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Mohamed Ashik",
+          "emails": [
+            "mohamed@tronstride.com"
+          ],
+          "phones": [
+            "+971529031765",
+            "+971563620275"
+          ]
+        }
+      ],
+      "description": "TronStride is a UAE free-zone company and an OpenPeppol-certified access point provider whose e-invoicing platform is branded Aigentrix, with invoice data hosted on Oracle Cloud Infrastructure in the UAE. The company also reports Saudi ZATCA and Malaysia MyInvois coverage alongside ERP, HR and AI automation services.",
+      "descriptionAr": "شركة منطقة حرة إماراتية ونقطة وصول معتمدة من OpenPeppol، منصتها للفوترة الإلكترونية تحمل اسم Aigentrix وتُستضاف بياناتها على Oracle Cloud داخل الإمارات. كما تفيد الشركة بتغطية متطلبات هيئة الزكاة السعودية وMyInvois الماليزية إلى جانب خدمات تخطيط الموارد والموارد البشرية وأتمتة الذكاء الاصطناعي."
+    },
+    {
+      "name": "Unified SSK Information Technology L.L.C",
+      "website": "https://www.unifiedssk.com",
+      "category": "edi-network",
+      "contacts": [
+        {
+          "name": "Oliver Christof",
+          "emails": [
+            "contact@unifiedssk.com"
+          ],
+          "phones": [
+            "+971568876095"
+          ]
+        }
+      ],
+      "description": "Unified SSK's platform, UniBox, acts as middleware connecting any ERP, billing or accounting system to the UAE's Peppol-based five-corner e-invoicing framework, with audit logging and continuous-transaction-control alignment. The company describes its team as pioneers of European e-invoicing standards now serving the UAE market.",
+      "descriptionAr": "تعمل منصة UniBox من Unified SSK وسيطاً يربط أي نظام تخطيط موارد أو فوترة أو محاسبة بإطار الفوترة الإلكترونية الإماراتي القائم على Peppol بنموذج الزوايا الخمس، مع سجلات تدقيق وتوافق مع الرقابة المستمرة على المعاملات. وتصف الشركة فريقها بأنه من رواد معايير الفوترة الإلكترونية الأوروبية ويخدم الآن السوق الإماراتي."
+    },
+    {
+      "name": "VATit Consultant Gulf Ltd",
+      "website": "https://www.vatit.com",
+      "category": "tax-tech",
+      "contacts": [
+        {
+          "name": "Neall Madden",
+          "emails": [
+            "sales@eezi.io"
+          ],
+          "phones": [
+            "+971585649785"
+          ]
+        }
+      ],
+      "description": "VAT IT is a South Africa-founded global indirect tax technology and VAT recovery group with more than two decades serving multinationals across many jurisdictions. Its e-invoicing product eezi carries the UAE pre-approval and integrates with SAP Concur for combined e-invoicing and expense compliance, backed by cross-border mandate experience in multiple countries.",
+      "descriptionAr": "مجموعة عالمية لتقنيات الضرائب غير المباشرة واسترداد ضريبة القيمة المضافة تأسست في جنوب أفريقيا وتخدم الشركات متعددة الجنسيات منذ أكثر من عقدين. يحمل منتجها eezi الموافقة المبدئية الإماراتية ويتكامل مع SAP Concur لدمج الفوترة الإلكترونية وامتثال المصروفات، بدعم خبرة عابرة للحدود في عدة دول."
+    }
   ]
 }

@@ -1,8 +1,15 @@
 import { z } from "zod";
 
+export const ingestContactSchema = z.object({
+  name: z.string().trim().max(160).optional(),
+  emails: z.array(z.string().trim().max(200)).max(10).default([]),
+  phones: z.array(z.string().trim().max(40)).max(10).default([]),
+});
+
 export const ingestProviderSchema = z.object({
   name: z.string().trim().min(2).max(300),
   website: z.string().trim().max(500).nullish(),
+  contacts: z.array(ingestContactSchema).max(10).optional(),
 });
 
 export const ingestPayloadSchema = z.object({

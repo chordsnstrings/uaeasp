@@ -89,12 +89,23 @@ export async function reconcileProviders(payload: IngestPayload): Promise<Reconc
   const now = new Date();
 
   // Normalize + dedupe incoming rows (a scrape can double-list a provider).
-  const incomingMap = new Map<string, { name: string; website: string | null }>();
+  const incomingMap = new Map<
+    string,
+    {
+      name: string;
+      website: string | null;
+      contacts: { name?: string; emails: string[]; phones: string[] }[] | null;
+    }
+  >();
   for (const p of payload.providers) {
     const key = normalizeName(p.name);
     if (!key) continue;
     if (!incomingMap.has(key)) {
-      incomingMap.set(key, { name: p.name.trim(), website: normalizeWebsite(p.website) });
+      incomingMap.set(key, {
+        name: p.name.trim(),
+        website: normalizeWebsite(p.website),
+        contacts: p.contacts && p.contacts.length > 0 ? p.contacts : null,
+      });
     }
   }
   const found = incomingMap.size;
@@ -233,6 +244,22 @@ export async function reconcileProviders(payload: IngestPayload): Promise<Reconc
       set.website = incoming.website;
       fieldChanged = true;
     }
+    if (
+      incoming.contacts &&
+      !overrides.contacts &&
+      JSON.stringify(incoming.contacts) !== JSON.stringify(p.contacts ?? [])
+    ) {
+      changeRows.push({
+        runId,
+        providerId: p.id,
+        changeType: "updated",
+        field: "contacts",
+        oldValue: JSON.stringify(p.contacts ?? []).slice(0, 1000),
+        newValue: JSON.stringify(incoming.contacts).slice(0, 1000),
+      });
+      set.contacts = incoming.contacts;
+      fieldChanged = true;
+    }
 
     if (p.status === "delisted") {
       set.status = "active";
@@ -274,6 +301,7 @@ export async function reconcileProviders(payload: IngestPayload): Promise<Reconc
         normalizedName: key,
         slug,
         website: incoming.website,
+        contacts: incoming.contacts ?? [],
         source: payload.strategy,
         firstSeenAt: now,
         lastSeenInScrapeAt: now,

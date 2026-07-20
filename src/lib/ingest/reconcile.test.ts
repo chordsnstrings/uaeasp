@@ -184,6 +184,58 @@ describe("reconcileProviders", () => {
     expect(renamed!.slug).toBe(slugify("Old Brand Name LLC"));
   });
 
+  it("updates contacts from a scrape, tracks the change, and respects overrides", async () => {
+    await ingest(makeProviders(25));
+    const key = normalizeName("Provider 2 LLC");
+
+    const withContacts = makeProviders(25).map((p, i) =>
+      i === 1
+        ? {
+            ...p,
+            contacts: [
+              { name: "Jane Doe", emails: ["jane@provider2.example.ae"], phones: ["+971500000002"] },
+            ],
+          }
+        : p,
+    );
+    const result = await ingest(withContacts);
+    expect(result.status).toBe("success");
+
+    let [row] = await db.select().from(providers).where(eq(providers.normalizedName, key));
+    expect(row.contacts).toEqual([
+      { name: "Jane Doe", emails: ["jane@provider2.example.ae"], phones: ["+971500000002"] },
+    ]);
+
+    // Admin locks contacts → scrape must not clobber them
+    await db
+      .update(providers)
+      .set({
+        contacts: [{ name: "Manual Fix", emails: ["fixed@x.ae"], phones: [] }],
+        adminOverrides: { contacts: true },
+      })
+      .where(eq(providers.normalizedName, key));
+    await ingest(withContacts);
+    [row] = await db.select().from(providers).where(eq(providers.normalizedName, key));
+    expect(row.contacts).toEqual([{ name: "Manual Fix", emails: ["fixed@x.ae"], phones: [] }]);
+  });
+
+  it("keeps existing contacts when a payload carries none (PDF fallback)", async () => {
+    await ingest(
+      makeProviders(25).map((p, i) =>
+        i === 0
+          ? { ...p, contacts: [{ name: "Keep Me", emails: ["keep@x.ae"], phones: [] }] }
+          : p,
+      ),
+    );
+    // Second run without any contact data (like the PDF strategy produces)
+    await ingest(makeProviders(25));
+    const [row] = await db
+      .select()
+      .from(providers)
+      .where(eq(providers.normalizedName, normalizeName("Provider 1 LLC")));
+    expect(row.contacts).toEqual([{ name: "Keep Me", emails: ["keep@x.ae"], phones: [] }]);
+  });
+
   it("records failed runs and counts consecutive failures", async () => {
     const first = await recordFailedRun({ error: "boom", triggeredBy: "test" });
     expect(first.consecutiveFailures).toBe(1);
