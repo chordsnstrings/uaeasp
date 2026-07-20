@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useDeferredValue } from "react";
-import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { m, AnimatePresence } from "@/components/motion";
@@ -33,19 +32,33 @@ const PAGE_SIZE = 12;
 export function ProvidersDirectory({ providers }: { providers: DirectoryProvider[] }) {
   const t = useTranslations("providers");
   const tc = useTranslations("common");
-  const searchParams = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get("q") ?? "");
-  const [category, setCategory] = useState(searchParams.get("category") ?? "");
-  const [page, setPage] = useState(() => {
-    const p = Number(searchParams.get("page") ?? 1);
-    return Number.isInteger(p) && p > 0 ? p : 1;
-  });
+  // Defaults render on the server (full first page of cards in the HTML —
+  // important for SEO); URL params are applied after mount.
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("");
+  const [page, setPage] = useState(1);
   const deferredQuery = useDeferredValue(query);
   const listTopRef = useRef<HTMLDivElement>(null);
+  const skippedFirstWrite = useRef(false);
+
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const q = sp.get("q");
+    if (q) setQuery(q);
+    const c = sp.get("category");
+    if (c) setCategory(c);
+    const pg = Number(sp.get("page"));
+    if (Number.isInteger(pg) && pg > 1) setPage(pg);
+  }, []);
 
   // Keep search + filter + page shareable/bookmarkable: reflect them in the
-  // address bar without triggering navigation.
+  // address bar without triggering navigation. The very first run (default
+  // state, before URL params are applied) is skipped so deep links survive.
   useEffect(() => {
+    if (!skippedFirstWrite.current) {
+      skippedFirstWrite.current = true;
+      return;
+    }
     const url = new URL(window.location.href);
     if (query.trim()) url.searchParams.set("q", query.trim());
     else url.searchParams.delete("q");

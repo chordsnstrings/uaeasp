@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { pageMetadata } from "@/lib/metadata";
 import type { Locale } from "@/lib/site";
@@ -68,9 +67,7 @@ export default async function GetMatchedPage({
             <h2 className="text-xl font-bold text-ink-900">{tf("title")}</h2>
             <p className="mt-1 text-sm text-ink-500">{tf("subtitle")}</p>
             <div className="mt-6">
-              <Suspense>
-                <LeadForm source="form" />
-              </Suspense>
+              <LeadForm source="form" />
             </div>
           </div>
         </FadeIn>
