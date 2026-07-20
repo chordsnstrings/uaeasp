@@ -6,39 +6,62 @@ import type { Provider } from "@/db/schema";
 
 export const PROVIDERS_CACHE_TAG = "providers";
 
+/**
+ * During `next build` the database may not be initialized yet (fresh
+ * deployment: migrations/seed run on container START, after the build).
+ * Build-time prerenders therefore fall back to empty data instead of failing
+ * the whole build — the post-boot redeploy/revalidation renders real data.
+ * At RUNTIME errors still propagate, so an outage never caches empty pages.
+ */
+async function buildSafe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+  if (process.env.NEXT_PHASE !== "phase-production-build") return fn();
+  try {
+    return await fn();
+  } catch (err) {
+    console.warn("[build] database unavailable, using empty fallback:", (err as Error).message);
+    return fallback;
+  }
+}
+
 /** All providers that should appear in the public directory. */
 export const getPublicProviders = unstable_cache(
-  async (): Promise<Provider[]> => {
-    return db
-      .select()
-      .from(providers)
-      .where(ne(providers.status, "hidden"))
-      .orderBy(asc(providers.name));
-  },
+  async (): Promise<Provider[]> =>
+    buildSafe(
+      () =>
+        db
+          .select()
+          .from(providers)
+          .where(ne(providers.status, "hidden"))
+          .orderBy(asc(providers.name)),
+      [],
+    ),
   ["public-providers"],
   { revalidate: 3600, tags: [PROVIDERS_CACHE_TAG] },
 );
 
 export const getActiveProviderCount = unstable_cache(
-  async (): Promise<number> => {
-    const [row] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(providers)
-      .where(eq(providers.status, "active"));
-    return row?.count ?? 0;
-  },
+  async (): Promise<number> =>
+    buildSafe(async () => {
+      const [row] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(providers)
+        .where(eq(providers.status, "active"));
+      return row?.count ?? 0;
+    }, 0),
   ["provider-count"],
   { revalidate: 3600, tags: [PROVIDERS_CACHE_TAG] },
 );
 
 export async function getProviderBySlug(slug: string): Promise<Provider | null> {
-  const [row] = await db
-    .select()
-    .from(providers)
-    .where(eq(providers.slug, slug))
-    .limit(1);
-  if (!row || row.status === "hidden") return null;
-  return row;
+  return buildSafe(async () => {
+    const [row] = await db
+      .select()
+      .from(providers)
+      .where(eq(providers.slug, slug))
+      .limit(1);
+    if (!row || row.status === "hidden") return null;
+    return row;
+  }, null);
 }
 
 /**
@@ -49,8 +72,9 @@ export async function getProviderBySlug(slug: string): Promise<Provider | null> 
  * is never exposed.
  */
 export const getDirectoryLastUpdated = unstable_cache(
-  async (): Promise<string> => {
-    const [setting] = await db
+  async (): Promise<string> =>
+    buildSafe(async () => {
+      const [setting] = await db
       .select()
       .from(appSettings)
       .where(eq(appSettings.key, "last_good_run_id"))
@@ -66,15 +90,15 @@ export const getDirectoryLastUpdated = unstable_cache(
         if (run?.finishedAt) return run.finishedAt.toISOString();
       }
     }
-    const [row] = await db
-      .select({
-        latest: sql<
-          string | null
-        >`to_char(max(${providers.updatedAt}) at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')`,
-      })
-      .from(providers);
-    return row?.latest ?? new Date().toISOString();
-  },
+      const [row] = await db
+        .select({
+          latest: sql<
+            string | null
+          >`to_char(max(${providers.updatedAt}) at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')`,
+        })
+        .from(providers);
+      return row?.latest ?? new Date().toISOString();
+    }, new Date().toISOString()),
   ["directory-last-updated"],
   { revalidate: 3600, tags: [PROVIDERS_CACHE_TAG] },
 );
