@@ -218,15 +218,37 @@ export function SettingsForm({ status, ingestUrl }: { status: Status; ingestUrl:
           <h2 className="text-sm font-bold uppercase tracking-wide text-ink-500">
             Data refresh (scraper)
           </h2>
+          <p className="mt-1 text-xs text-ink-400">
+            The refresh reads the official Ministry of Finance list (the source page) and
+            delivers the result to this site&rsquo;s own ingest endpoint. Two different URLs,
+            two different jobs.
+          </p>
           <div className="mt-4 space-y-4">
             <div>
-              <p className="text-sm font-semibold text-ink-800">Ingest URL</p>
-              <p className="mt-1 rounded-xl bg-ink-50 px-4 py-2.5 font-mono text-xs text-ink-700" dir="ltr">
+              <p className="text-sm font-semibold text-ink-800">
+                Source page <span className="font-normal text-ink-400">— what gets read (fixed)</span>
+              </p>
+              <p className="mt-1 break-all rounded-xl bg-ink-50 px-4 py-2.5 font-mono text-xs text-ink-700" dir="ltr">
+                https://mof.gov.ae/en/about-us/initiatives/einvoicing/pre-approved-einvoicing-service-providers/
+              </p>
+              <p className="mt-1 text-xs text-ink-400">
+                The official MoF pre-approved provider list. Both the nightly refresh and the
+                &ldquo;Refresh now&rdquo; button read from here — it is built into the app and
+                needs no configuration.
+              </p>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-ink-800">
+                Ingest URL <span className="font-normal text-ink-400">— where results are delivered</span>
+              </p>
+              <p className="mt-1 break-all rounded-xl bg-ink-50 px-4 py-2.5 font-mono text-xs text-ink-700" dir="ltr">
                 {ingestUrl}
               </p>
               <p className="mt-1 text-xs text-ink-400">
-                Set this as the <code>INGEST_URL</code> secret in GitHub → repo Settings →
-                Secrets → Actions, together with the secret below as <code>INGEST_SECRET</code>.
+                This site&rsquo;s own receiving endpoint — not the MoF page. Set it as the{" "}
+                <code>INGEST_URL</code> secret in GitHub → repo Settings → Secrets → Actions,
+                together with the secret below as <code>INGEST_SECRET</code>, so the nightly
+                workflow can deliver its results here.
               </p>
             </div>
             <Field
