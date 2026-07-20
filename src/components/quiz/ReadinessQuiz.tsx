@@ -1,0 +1,163 @@
+"use client";
+
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { m, AnimatePresence } from "@/components/motion";
+import { LeadForm } from "@/components/lead-form/LeadForm";
+
+const QUESTIONS = ["q1", "q2", "q3", "q4", "q5"] as const;
+const ANSWER_SCORES: Record<string, number> = { a1: 20, a2: 10, a3: 0 };
+
+export function ReadinessQuiz() {
+  const t = useTranslations("quiz");
+  const tf = useTranslations("leadForm");
+  const [started, setStarted] = useState(false);
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const done = step >= QUESTIONS.length;
+
+  const score = Object.values(answers).reduce(
+    (sum, a) => sum + (ANSWER_SCORES[a] ?? 0),
+    0,
+  );
+  const band = score >= 70 ? "high" : score >= 40 ? "medium" : "low";
+
+  function answer(q: string, a: string) {
+    setAnswers((prev) => ({ ...prev, [q]: a }));
+    setStep((s) => s + 1);
+  }
+
+  return (
+    <div className="mx-auto max-w-2xl">
+      {!started ? (
+        <m.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-3xl border border-ink-100 bg-white p-8 text-center shadow-card sm:p-12"
+        >
+          <p aria-hidden className="text-5xl">📋</p>
+          <h2 className="mt-4 text-2xl font-bold text-ink-900">{t("title")}</h2>
+          <p className="mx-auto mt-3 max-w-md text-ink-600">
+            {t("subtitle", { total: QUESTIONS.length })}
+          </p>
+          <m.button
+            type="button"
+            whileTap={{ scale: 0.96 }}
+            onClick={() => setStarted(true)}
+            className="press mt-8 rounded-xl bg-brand-700 px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-brand-700/20 hover:bg-brand-800"
+          >
+            {t("start")}
+          </m.button>
+          <p className="mt-3 text-xs text-ink-400">{t("timeNote")}</p>
+        </m.div>
+      ) : !done ? (
+        <div className="rounded-3xl border border-ink-100 bg-white p-6 shadow-card sm:p-10">
+          {/* Progress bar */}
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+              {t("questionProgress", { current: step + 1, total: QUESTIONS.length })}
+            </p>
+            {step > 0 && (
+              <button
+                type="button"
+                onClick={() => setStep((s) => s - 1)}
+                className="press text-xs font-medium text-ink-500 hover:text-brand-700"
+              >
+                ← {t("back")}
+              </button>
+            )}
+          </div>
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-100">
+            <m.div
+              className="h-full rounded-full bg-brand-600"
+              initial={false}
+              animate={{ width: `${(step / QUESTIONS.length) * 100}%` }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+          </div>
+
+          <AnimatePresence mode="wait">
+            <m.div
+              key={step}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            >
+              <h2 className="mt-8 text-xl font-bold text-ink-900">
+                {t(`questions.${QUESTIONS[step]}.text` as Parameters<typeof t>[0])}
+              </h2>
+              <div className="mt-6 space-y-3">
+                {(["a1", "a2", "a3"] as const).map((a) => (
+                  <m.button
+                    key={a}
+                    type="button"
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => answer(QUESTIONS[step], a)}
+                    className={`w-full rounded-xl border p-4 text-start text-sm font-medium transition-colors ${
+                      answers[QUESTIONS[step]] === a
+                        ? "border-brand-400 bg-brand-50 text-brand-900"
+                        : "border-ink-200 bg-white text-ink-700 hover:border-brand-300 hover:bg-brand-50/50"
+                    }`}
+                  >
+                    {t(`questions.${QUESTIONS[step]}.${a}` as Parameters<typeof t>[0])}
+                  </m.button>
+                ))}
+              </div>
+            </m.div>
+          </AnimatePresence>
+        </div>
+      ) : (
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="rounded-3xl border border-ink-100 bg-white p-8 text-center shadow-card">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+              {t("results.title")}
+            </p>
+            {/* Score dial */}
+            <div className="relative mx-auto mt-6 size-36">
+              <svg viewBox="0 0 120 120" className="size-full -rotate-90">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#f1f5f9" strokeWidth="12" />
+                <m.circle
+                  cx="60"
+                  cy="60"
+                  r="52"
+                  fill="none"
+                  stroke={band === "high" ? "#0d9488" : band === "medium" ? "#f59e0b" : "#f43f5e"}
+                  strokeWidth="12"
+                  strokeLinecap="round"
+                  strokeDasharray={2 * Math.PI * 52}
+                  initial={{ strokeDashoffset: 2 * Math.PI * 52 }}
+                  animate={{ strokeDashoffset: 2 * Math.PI * 52 * (1 - score / 100) }}
+                  transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+                />
+              </svg>
+              <div className="absolute inset-0 grid place-items-center">
+                <span className="text-4xl font-extrabold text-ink-900">{score}</span>
+              </div>
+            </div>
+            <p className="mt-4 text-lg font-bold text-ink-900">
+              {t(`results.${band}.label` as Parameters<typeof t>[0])}
+            </p>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-600">
+              {t(`results.${band}.body` as Parameters<typeof t>[0])}
+            </p>
+          </div>
+
+          <div className="mt-8 rounded-3xl bg-gradient-to-br from-brand-800 to-brand-950 p-6 sm:p-8">
+            <p className="text-center font-semibold text-white">{t("results.cta")}</p>
+            <div className="mt-6 rounded-2xl bg-white p-6 sm:p-8">
+              <h2 className="text-xl font-bold text-ink-900">{tf("title")}</h2>
+              <div className="mt-5">
+                <LeadForm source="quiz" quizAnswers={answers} quizScore={score} />
+              </div>
+            </div>
+          </div>
+        </m.div>
+      )}
+    </div>
+  );
+}

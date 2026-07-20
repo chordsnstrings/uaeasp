@@ -1,0 +1,21 @@
+{
+  "name": "uaeasp-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fetches the official MOF pre-approved e-invoicing service provider list and posts it to the site's ingest endpoint. Runs in GitHub Actions only.",
+  "scripts": {
+    "scrape": "tsx scrape.ts"
+  },
+  "dependencies": {
+    "pdf-parse": "^1.1.1",
+    "playwright": "^1.49.0",
+    "tsx": "^4.19.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/pdf-parse": "^1.1.4",
+    "typescript": "^5"
+  }
+}

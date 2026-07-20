@@ -1,0 +1,100 @@
+# DigitalOcean App Platform spec.
+# Import via: doctl apps create --spec .do/app.yaml
+# or paste in the App Platform UI ("Import from App Spec").
+#
+# After creating the app:
+#   1. Set the SECRET-type env values in the dashboard (they are placeholders here).
+#   2. Add your domain under Settings → Domains and point DNS at the app.
+#   3. Run the first data refresh: GitHub → Actions → "Refresh provider directory" → Run workflow.
+#   4. Create the first admin user from the app console:
+#      node -e "..."  — see README "Bootstrap the first admin".
+name: uae-easp-directory
+region: fra
+features:
+  - buildpack-stack=ubuntu-22
+
+services:
+  - name: web
+    dockerfile_path: Dockerfile
+    source_dir: /
+    github:
+      repo: chordsnstrings/uaeasp
+      branch: main
+      deploy_on_push: true
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: basic-xs
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 20
+      period_seconds: 30
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${db.DATABASE_URL}
+      - key: DATABASE_SSL
+        scope: RUN_AND_BUILD_TIME
+        value: "true"
+      - key: NEXT_PUBLIC_SITE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://CHANGE-ME-your-domain.ae
+      - key: NEXT_PUBLIC_SITE_NAME
+        scope: RUN_AND_BUILD_TIME
+        value: UAE E-Invoicing Providers
+      - key: AUTH_URL
+        scope: RUN_TIME
+        value: https://CHANGE-ME-your-domain.ae
+      - key: AUTH_TRUST_HOST
+        scope: RUN_TIME
+        value: "true"
+      - key: AUTH_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: CHANGE-ME-openssl-rand-base64-32
+      - key: INGEST_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: CHANGE-ME-openssl-rand-base64-32
+      - key: IP_HASH_SALT
+        scope: RUN_TIME
+        type: SECRET
+        value: CHANGE-ME-random-string
+      - key: SMTP_HOST
+        scope: RUN_TIME
+        value: smtp.resend.com
+      - key: SMTP_PORT
+        scope: RUN_TIME
+        value: "587"
+      - key: SMTP_USER
+        scope: RUN_TIME
+        value: resend
+      - key: SMTP_PASS
+        scope: RUN_TIME
+        type: SECRET
+        value: CHANGE-ME-resend-api-key
+      - key: EMAIL_FROM
+        scope: RUN_TIME
+        value: "UAE E-Invoicing Providers <leads@CHANGE-ME-your-domain.ae>"
+      - key: SALES_NOTIFY_EMAILS
+        scope: RUN_TIME
+        value: sales@CHANGE-ME-your-domain.ae
+      - key: ADMIN_ALERT_EMAIL
+        scope: RUN_TIME
+        value: admin@CHANGE-ME-your-domain.ae
+      # Optional integrations — leave empty to disable
+      - key: NEXT_PUBLIC_PLAUSIBLE_DOMAIN
+        scope: RUN_AND_BUILD_TIME
+        value: ""
+      - key: TURNSTILE_SECRET_KEY
+        scope: RUN_TIME
+        value: ""
+      - key: NEXT_PUBLIC_TURNSTILE_SITE_KEY
+        scope: RUN_AND_BUILD_TIME
+        value: ""
+
+databases:
+  - name: db
+    engine: PG
+    version: "16"
+    production: true
+    cluster_name: uae-easp-db

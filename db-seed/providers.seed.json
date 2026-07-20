@@ -1,0 +1,31 @@
+{
+  "_comment": "Hand-compiled from public mirrors of the MOF pre-approved eInvoicing Service Providers list (July 2026, list size ~42). This is best-effort bootstrap data only — the weekly scrape reconciles names, adds missing providers and updates details from the official source. Websites are best-effort and may be corrected by the scrape or by an admin.",
+  "providers": [
+    { "name": "Defmacro Software DMCC", "website": "https://www.cleartax.com/ae", "description": "ClearTax's UAE entity, offering e-invoicing compliance, VAT and tax technology for businesses of all sizes." },
+    { "name": "BDO Digital Solutions FZ-LLC", "website": "https://www.bdo.ae", "description": "Digital arm of BDO in the UAE, combining advisory expertise with e-invoicing compliance technology." },
+    { "name": "Comarch Middle East FZ LLC", "website": "https://www.comarch.ae", "description": "Regional entity of Comarch, a global EDI and e-invoicing vendor with Peppol network experience across Europe and the Middle East." },
+    { "name": "Covoro AI FZCO", "website": null, "description": "UAE-based provider focused on AI-driven invoicing and compliance automation." },
+    { "name": "Cygnet Digital IT Solutions L.L.C", "website": "https://www.cygnet.one", "description": "Part of Cygnet.One, providing tax technology, e-invoicing and compliance automation across the GCC and India." },
+    { "name": "Deloitte & Touche (M.E.)", "website": "https://www.deloitte.com/middle-east", "description": "Deloitte Middle East, delivering e-invoicing compliance solutions backed by Big Four tax advisory capabilities." },
+    { "name": "EDICOM Middle East Services", "website": "https://edicomgroup.com", "description": "Middle East entity of EDICOM, a global e-invoicing and EDI platform operating certified solutions in dozens of countries." },
+    { "name": "Flick Network L.L.C", "website": "https://flick.network", "description": "E-invoicing platform with strong GCC focus, known for ZATCA (Saudi Arabia) compliance and Peppol-based invoicing." },
+    { "name": "Marmin AI Software Design LLC", "website": "https://marmin.ai", "description": "GCC e-invoicing specialist offering compliance automation for UAE and Saudi mandates." },
+    { "name": "Oxinus Holding Limited", "website": null, "description": "Technology group providing invoicing and business software solutions in the UAE." },
+    { "name": "Pagero Gulf FZ-LLC", "website": "https://www.pagero.com", "description": "Gulf entity of Pagero (a Thomson Reuters company), one of the world's largest Peppol access point operators." },
+    { "name": "Skill Quotient Technologies", "website": null, "description": "UAE-based technology firm providing data and compliance platforms, including e-invoicing services." },
+    { "name": "SunTec (Xelerate) Business Solutions DMCC", "website": "https://www.suntecgroup.com", "description": "Enterprise revenue-management and billing vendor SunTec, offering e-invoicing compliance through its Xelerate platform." },
+    { "name": "Taxilla Finops 360 FZCO", "website": "https://www.taxilla.com", "description": "Regtech platform for e-invoicing, tax compliance and financial operations automation." },
+    { "name": "Taxlabs.ai", "website": "https://taxlabs.ai", "description": "AI-first tax compliance and e-invoicing platform built for the GCC market." },
+    { "name": "TronStride FZC", "website": null, "description": "UAE free-zone technology company providing e-invoicing services." },
+    { "name": "Complyance Electronics L.L.C", "website": "https://complyance.io", "description": "GCC-focused e-invoicing platform helping enterprises comply with UAE and Saudi mandates." },
+    { "name": "Microvista Technologies LLC", "website": "https://www.microvistatech.com", "description": "Software company delivering ERP integrations and e-invoicing compliance tooling." },
+    { "name": "Orchida Soft Computer Systems LLC", "website": null, "description": "UAE software house providing business management and invoicing systems." },
+    { "name": "SAP Middle East & North Africa LLC", "website": "https://www.sap.com/mena", "description": "Regional entity of SAP, providing e-invoicing compliance through SAP Document and Reporting Compliance." },
+    { "name": "Tally Software Solutions FZCO", "website": "https://tallysolutions.com/mena", "description": "UAE entity of Tally Solutions, the widely used SME accounting software vendor, approved for UAE e-invoicing." },
+    { "name": "Zoho Corporation FZ LLC", "website": "https://www.zoho.com/ae", "description": "UAE entity of Zoho, offering e-invoicing through Zoho Books and the Zoho finance suite." },
+    { "name": "Sovos Compliance FZCO", "website": "https://sovos.com", "description": "Global tax compliance vendor Sovos, covering validation, Peppol exchange, reporting and archiving for the UAE." },
+    { "name": "Avalara Middle East", "website": "https://www.avalara.com", "description": "Global tax automation vendor Avalara, providing e-invoicing and live reporting for multi-country compliance." },
+    { "name": "Casim L.L.C-FZ", "website": null, "description": "UAE free-zone company recently added to the MOF pre-approved e-invoicing service provider list." },
+    { "name": "Dariba Technologies LLC", "website": null, "description": "UAE tax-technology company recently added to the MOF pre-approved e-invoicing service provider list." }
+  ]
+}

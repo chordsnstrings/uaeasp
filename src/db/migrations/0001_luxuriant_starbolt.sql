@@ -1,0 +1,2 @@
+ALTER TABLE "leads" ADD COLUMN "tracking_token" uuid DEFAULT gen_random_uuid() NOT NULL;--> statement-breakpoint
+ALTER TABLE "leads" ADD CONSTRAINT "leads_tracking_token_unique" UNIQUE("tracking_token");

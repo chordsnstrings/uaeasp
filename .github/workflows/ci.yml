@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: uaeasp
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:ci@127.0.0.1:5432/uaeasp
+      DATABASE_URL_TEST: postgresql://postgres:ci@127.0.0.1:5432/uaeasp_test
+      DATABASE_SSL: "false"
+      AUTH_SECRET: ci-only-secret-ci-only-secret-123
+      AUTH_TRUST_HOST: "true"
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      IP_HASH_SALT: ci-salt
+      INGEST_SECRET: ci-ingest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create test database
+        run: PGPASSWORD=ci psql -h 127.0.0.1 -U postgres -c "CREATE DATABASE uaeasp_test;"
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Migrate + seed
+        run: |
+          npm run db:migrate
+          npm run db:seed
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build

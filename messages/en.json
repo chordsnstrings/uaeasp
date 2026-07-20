@@ -1,0 +1,357 @@
+{
+  "common": {
+    "siteName": "UAE E-Invoicing Providers",
+    "nav": {
+      "home": "Home",
+      "providers": "Providers",
+      "assessment": "Readiness Check",
+      "faq": "FAQ",
+      "about": "About",
+      "getMatched": "Get Matched Free",
+      "track": "Track Request"
+    },
+    "footer": {
+      "tagline": "The complete, always-current directory of UAE Ministry of Finance pre-approved e-invoicing service providers.",
+      "directory": "Directory",
+      "resources": "Resources",
+      "legal": "Legal",
+      "privacy": "Privacy Policy",
+      "disclaimer": "Disclaimer",
+      "aboutUs": "About Us",
+      "allProviders": "All Providers",
+      "readinessCheck": "E-Invoicing Readiness Check",
+      "faqTitle": "E-Invoicing FAQ",
+      "getMatchedFree": "Get Matched with a Provider",
+      "notAffiliated": "This is an independent directory. We are not affiliated with, endorsed by, or connected to the UAE Ministry of Finance or any government entity.",
+      "lastUpdated": "Directory last updated: {date}",
+      "rights": "All rights reserved.",
+      "trackRequest": "Track Your Request"
+    },
+    "cta": {
+      "stickyText": "Not sure which provider fits your business?",
+      "stickyButton": "Get matched free",
+      "talkToUs": "Talk to an expert"
+    },
+    "localeSwitcher": {
+      "label": "Language",
+      "en": "English",
+      "ar": "العربية"
+    },
+    "emirates": {
+      "abu-dhabi": "Abu Dhabi",
+      "dubai": "Dubai",
+      "sharjah": "Sharjah",
+      "ajman": "Ajman",
+      "umm-al-quwain": "Umm Al Quwain",
+      "ras-al-khaimah": "Ras Al Khaimah",
+      "fujairah": "Fujairah"
+    }
+  },
+  "home": {
+    "metaTitle": "UAE E-Invoicing Service Providers — All {count} Pre-Approved ASPs ({year})",
+    "metaDescription": "The complete directory of all {count} UAE Ministry of Finance pre-approved e-invoicing service providers (ASPs). Compare providers, check your readiness, and get matched with the right ASP for your budget — free.",
+    "hero": {
+      "badge": "Updated {date}",
+      "title": "Every pre-approved e-invoicing provider in the UAE. One directory.",
+      "subtitle": "All {count} Accredited Service Providers (ASPs) recognised by the UAE Ministry of Finance — compared in one place. Tell us your budget and requirements, and we'll match you with the right provider. Free for businesses.",
+      "browseButton": "Browse all {count} providers",
+      "matchButton": "Get matched free",
+      "trust1": "Aligned with the official MoF list",
+      "trust2": "Free for businesses",
+      "trust3": "All 7 emirates covered"
+    },
+    "stats": {
+      "providers": "Pre-approved providers",
+      "emirates": "Emirates covered",
+      "cost": "Cost to get matched",
+      "costValue": "Free"
+    },
+    "why": {
+      "title": "E-invoicing is becoming mandatory in the UAE",
+      "subtitle": "The UAE is rolling out mandatory e-invoicing under the Ministry of Finance's Electronic Invoicing System. Businesses must exchange invoices through an Accredited Service Provider (ASP) using the Peppol PINT AE standard.",
+      "point1Title": "Choosing wrong is expensive",
+      "point1Body": "Switching ASPs mid-implementation means re-integrating your ERP, retraining your team and re-testing compliance. Getting it right the first time matters.",
+      "point2Title": "Prices vary wildly",
+      "point2Body": "Provider pricing ranges from affordable SME bundles to enterprise contracts. The right choice depends on your invoice volume, systems and budget.",
+      "point3Title": "We do the matching for you",
+      "point3Body": "Tell us your requirements and budget. Our team compares the pre-approved providers and connects you with the one that fits — at no cost to you."
+    },
+    "directoryPreview": {
+      "title": "The complete pre-approved provider list",
+      "subtitle": "Every provider recognised by the UAE Ministry of Finance, kept current.",
+      "viewAll": "View the full directory"
+    },
+    "how": {
+      "title": "How it works",
+      "step1Title": "Tell us about your business",
+      "step1Body": "Share your company size, invoice volume, current software and budget — takes 2 minutes.",
+      "step2Title": "We compare providers for you",
+      "step2Body": "Our team evaluates the pre-approved ASPs against your requirements and price point.",
+      "step3Title": "Get connected, decide freely",
+      "step3Body": "We introduce you to the best-fit provider. No obligation, no fees for your business."
+    },
+    "faqTeaser": {
+      "title": "New to UAE e-invoicing?",
+      "subtitle": "When does it become mandatory? What is Peppol PINT AE? What does an ASP actually do? We answer everything.",
+      "button": "Read the FAQ"
+    },
+    "finalCta": {
+      "title": "Get matched with the right e-invoicing provider",
+      "subtitle": "Free, fast and with no obligation. Our team knows the UAE ASP landscape inside out.",
+      "button": "Start now — it's free"
+    }
+  },
+  "providers": {
+    "metaTitle": "All {count} UAE Pre-Approved E-Invoicing Service Providers ({year})",
+    "metaDescription": "Browse and filter the full list of {count} UAE Ministry of Finance pre-approved e-invoicing service providers (ASPs). Websites, profiles and free matching.",
+    "title": "UAE Pre-Approved E-Invoicing Service Providers",
+    "subtitle": "All {count} Accredited Service Providers recognised by the UAE Ministry of Finance. Updated {date}.",
+    "searchPlaceholder": "Search providers…",
+    "noResults": "No providers match your search.",
+    "clearSearch": "Clear search",
+    "visitWebsite": "Website",
+    "viewProfile": "View profile",
+    "delistedBadge": "No longer listed",
+    "getMatchedCard": {
+      "title": "Overwhelmed by {count} options?",
+      "body": "Tell us your budget and requirements — we'll shortlist the right providers for you, free.",
+      "button": "Get matched free"
+    }
+  },
+  "providerDetail": {
+    "metaTitle": "{name} — UAE Pre-Approved E-Invoicing Provider",
+    "metaDescription": "{name} is a pre-approved e-invoicing service provider (ASP) in the UAE. Profile, website and how it compares — plus free matching with the right ASP for your business.",
+    "breadcrumbHome": "Home",
+    "breadcrumbProviders": "Providers",
+    "status": "Status",
+    "statusActive": "On the official pre-approved list",
+    "statusDelisted": "No longer on the official pre-approved list",
+    "website": "Website",
+    "about": "About {name}",
+    "noDescription": "{name} is one of the e-invoicing service providers pre-approved under the UAE Ministry of Finance Electronic Invoicing System accreditation framework.",
+    "listedSince": "In directory since",
+    "compareCta": {
+      "title": "Is {name} the right fit for your business?",
+      "body": "Every provider has different pricing, integrations and strengths. Tell us your requirements and budget — our team will tell you honestly whether {name} or another pre-approved ASP is the better match. Free, no obligation.",
+      "button": "Compare my options free"
+    },
+    "othersTitle": "Other pre-approved providers"
+  },
+  "leadForm": {
+    "title": "Get matched with the right provider",
+    "subtitle": "Takes 2 minutes. Free for businesses — no obligation.",
+    "fullName": "Contact person full name",
+    "fullNamePlaceholder": "e.g. Fatima Al Mansouri",
+    "companyName": "Company name",
+    "companyNamePlaceholder": "Your registered company name",
+    "email": "Work email",
+    "emailPlaceholder": "you@company.ae",
+    "phone": "Phone number",
+    "phonePlaceholder": "+971 5x xxx xxxx",
+    "emirate": "Emirate",
+    "emiratePlaceholder": "Select your emirate",
+    "invoiceVolume": "Monthly invoice volume",
+    "invoiceVolumePlaceholder": "Select a range",
+    "invoiceVolumes": {
+      "lt100": "Under 100 invoices",
+      "100-1000": "100 – 1,000 invoices",
+      "1000-10000": "1,000 – 10,000 invoices",
+      "gt10000": "Over 10,000 invoices"
+    },
+    "accountingSoftware": "Current accounting / ERP software",
+    "accountingSoftwarePlaceholder": "e.g. Tally, Zoho Books, SAP, QuickBooks, custom…",
+    "budgetRange": "Budget expectation",
+    "budgetRangePlaceholder": "Select a range",
+    "budgets": {
+      "economy": "Most affordable option",
+      "mid": "Balanced price / features",
+      "premium": "Premium — features first",
+      "unsure": "Not sure yet"
+    },
+    "timeline": "When do you need to be ready?",
+    "timelinePlaceholder": "Select a timeline",
+    "timelines": {
+      "asap": "As soon as possible",
+      "3months": "Within 3 months",
+      "6months": "Within 6 months",
+      "exploring": "Just exploring"
+    },
+    "message": "Anything else we should know? (optional)",
+    "messagePlaceholder": "Specific requirements, integrations, questions…",
+    "consent": "I agree to be contacted about e-invoicing providers and accept the Privacy Policy.",
+    "submit": "Get my free match",
+    "submitting": "Sending…",
+    "errors": {
+      "fullName": "Please enter the contact person's full name",
+      "companyName": "Please enter your company name",
+      "email": "Please enter a valid email address",
+      "phone": "Please enter a valid phone number",
+      "emirate": "Please select your emirate",
+      "consent": "Please accept the privacy policy to continue",
+      "generic": "Something went wrong. Please try again.",
+      "rateLimited": "Too many submissions. Please try again later."
+    }
+  },
+  "quiz": {
+    "metaTitle": "UAE E-Invoicing Readiness Check — Free 2-Minute Assessment",
+    "metaDescription": "Is your business ready for mandatory UAE e-invoicing? Take the free 2-minute readiness assessment and get a personalised action plan plus a free provider match.",
+    "title": "E-Invoicing Readiness Check",
+    "subtitle": "Answer {total} quick questions to see how ready your business is for the UAE e-invoicing mandate — and what to do next.",
+    "start": "Start the check",
+    "timeNote": "Takes about 2 minutes · Free",
+    "questionProgress": "Question {current} of {total}",
+    "back": "Back",
+    "questions": {
+      "q1": {
+        "text": "Does your business currently issue invoices electronically (not PDF-by-email)?",
+        "a1": "Yes, through a structured system",
+        "a2": "Only PDFs or paper",
+        "a3": "A mix of both"
+      },
+      "q2": {
+        "text": "What accounting or ERP system do you use?",
+        "a1": "A major system (SAP, Oracle, Dynamics, Zoho, Tally…)",
+        "a2": "A local or custom-built system",
+        "a3": "Spreadsheets / manual"
+      },
+      "q3": {
+        "text": "Are you registered for VAT / Corporate Tax in the UAE?",
+        "a1": "Yes, both",
+        "a2": "VAT only",
+        "a3": "Not yet / not sure"
+      },
+      "q4": {
+        "text": "Have you heard of the Peppol PINT AE invoice format?",
+        "a1": "Yes, and we know what it requires",
+        "a2": "Heard of it, but unclear on details",
+        "a3": "Never heard of it"
+      },
+      "q5": {
+        "text": "Do you have a budget allocated for e-invoicing compliance?",
+        "a1": "Yes, approved",
+        "a2": "Being discussed",
+        "a3": "Not yet"
+      }
+    },
+    "results": {
+      "title": "Your readiness score",
+      "high": {
+        "label": "Well prepared",
+        "body": "Your business has strong foundations. Your main task now is choosing the right Accredited Service Provider and completing integration and testing before your go-live date."
+      },
+      "medium": {
+        "label": "Getting there",
+        "body": "You have some building blocks in place, but there are gaps to close — most businesses at this stage benefit from an ASP that offers guided onboarding and ERP integration support."
+      },
+      "low": {
+        "label": "Early days",
+        "body": "You're at the start of the journey — and that's fine, but the clock is ticking. The right ASP can handle most of the complexity for you. Start the conversation early."
+      },
+      "cta": "Now tell us your requirements below and we'll match you with the provider that fits your situation and budget — free."
+    }
+  },
+  "faqPage": {
+    "metaTitle": "UAE E-Invoicing FAQ — Mandate, Timeline, ASPs & Peppol PINT AE",
+    "metaDescription": "Everything about mandatory e-invoicing in the UAE: who must comply and when, what Accredited Service Providers do, Peppol PINT AE, penalties, and how to choose an ASP.",
+    "title": "UAE E-Invoicing: Frequently Asked Questions",
+    "subtitle": "Everything you need to know about the UAE e-invoicing mandate, in plain language.",
+    "stillQuestions": "Still have questions?",
+    "stillQuestionsBody": "Our team tracks the UAE e-invoicing rollout closely. Get matched with a provider and get your questions answered along the way — free.",
+    "stillQuestionsButton": "Talk to us"
+  },
+  "getMatched": {
+    "metaTitle": "Get Matched with a UAE E-Invoicing Provider — Free",
+    "metaDescription": "Tell us your requirements and budget, and we'll match you with the right UAE pre-approved e-invoicing service provider. Free for businesses, no obligation.",
+    "title": "Find your e-invoicing provider the easy way",
+    "subtitle": "There are dozens of pre-approved providers with very different pricing and strengths. Skip the research — our team shortlists the right ones for your budget and requirements, free.",
+    "benefit1": "Compare without the sales pitches",
+    "benefit1Body": "We evaluate providers on pricing, integrations and support quality — you get an honest shortlist.",
+    "benefit2": "Free for your business",
+    "benefit2Body": "Our service costs you nothing and you're never obliged to accept a match.",
+    "benefit3": "Fast response",
+    "benefit3Body": "A specialist gets back to you within one business day."
+  },
+  "thankYou": {
+    "metaTitle": "Thank You — We're On It",
+    "title": "Thank you! Your request is in.",
+    "body": "A specialist from our team will review your requirements and get back to you within one business day with a shortlist of providers that fit your budget.",
+    "whatNext": "What happens next",
+    "step1": "We review your requirements and budget",
+    "step2": "We compare the pre-approved providers for your profile",
+    "step3": "We introduce you to the best fit — you decide freely",
+    "backHome": "Back to the directory",
+    "readFaq": "Read the e-invoicing FAQ meanwhile",
+    "trackTitle": "Track your request anytime",
+    "trackBody": "Use your private tracking link to follow the status of your request:",
+    "trackButton": "View my request status"
+  },
+  "about": {
+    "metaTitle": "About Us — UAE E-Invoicing Providers Directory",
+    "metaDescription": "Who is behind the UAE e-invoicing provider directory, what we do, and how our free provider matching works.",
+    "title": "About this directory",
+    "body1": "We maintain the most complete and current independent directory of e-invoicing service providers pre-approved under the UAE Ministry of Finance's Electronic Invoicing System accreditation framework.",
+    "body2": "Choosing an Accredited Service Provider is one of the most consequential compliance decisions a UAE business will make in the coming years. Pricing models, ERP integrations, onboarding quality and support vary enormously between providers — and comparing them one by one takes weeks.",
+    "body3": "That's why we offer free provider matching: tell us your invoice volume, systems and budget, and our team shortlists the providers that genuinely fit. We're independent, we're not owned by any provider, and using our matching service is free for businesses.",
+    "howWeKeepCurrent": "How we keep the directory current",
+    "howWeKeepCurrentBody": "The directory is reviewed and refreshed continuously against official and public sources, and every entry shows when the directory was last updated. If you spot an inaccuracy, tell us and we'll fix it promptly."
+  },
+  "privacy": {
+    "metaTitle": "Privacy Policy",
+    "title": "Privacy Policy"
+  },
+  "disclaimer": {
+    "metaTitle": "Disclaimer",
+    "title": "Disclaimer"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you're looking for doesn't exist or has moved.",
+    "backHome": "Back to home"
+  },
+  "offline": {
+    "title": "You're offline",
+    "body": "This page isn't available offline. Reconnect and try again."
+  },
+  "track": {
+    "metaTitle": "Track Your Request",
+    "title": "Track your request",
+    "subtitle": "Enter the email address and phone number you used when submitting your request, and we'll take you to its live status.",
+    "email": "Email address",
+    "phone": "Phone number",
+    "submit": "Find my request",
+    "searching": "Searching…",
+    "notFound": "No request found for this email and phone combination. Double-check both, or submit a new request.",
+    "rateLimited": "Too many attempts. Please try again later.",
+    "newRequest": "Submit a new request"
+  },
+  "trackStatus": {
+    "metaTitle": "Request Status",
+    "title": "Your request status",
+    "hello": "Request for {company}",
+    "submittedOn": "Submitted {date}",
+    "lastUpdate": "Last update {date}",
+    "specialist": "Your specialist: {name}",
+    "specialistUnassigned": "A specialist will be assigned shortly",
+    "steps": {
+      "received": {
+        "label": "Request received",
+        "body": "Your requirements are with our team."
+      },
+      "review": {
+        "label": "Under review",
+        "body": "A specialist is comparing providers against your requirements and budget."
+      },
+      "matched": {
+        "label": "Provider matched",
+        "body": "We've identified the best-fit provider and are connecting you."
+      },
+      "completed": {
+        "label": "Completed",
+        "body": "Your match is complete. We wish you a smooth e-invoicing rollout!"
+      }
+    },
+    "closedNote": "This request has been closed. If you still need a provider match, you're welcome to submit a new request — it's free.",
+    "keepLink": "Bookmark this page — it's your private tracking link.",
+    "questions": "Questions about your request? Reply to any of our emails or submit an update via a new request."
+  }
+}
