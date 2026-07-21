@@ -128,26 +128,34 @@ export default async function AnalyticsPage() {
       rows<FunnelRow>(sql`
         WITH per_session AS (
           SELECT session_id,
-                 count(*) FILTER (WHERE type = 'pageview') AS pv,
+                 count(DISTINCT path) FILTER (WHERE type = 'pageview') AS distinct_pages,
                  bool_or(type = 'pageview' AND (path LIKE '%/get-matched%' OR path LIKE '%/assessment%')) AS reached,
                  bool_or(type = 'event' AND name IN ('lead_submitted','quiz_completed')) AS converted
           FROM analytics_events WHERE created_at > ${since}
           GROUP BY session_id
         )
         SELECT count(*)::int AS sessions,
-               count(*) FILTER (WHERE pv >= 2)::int AS engaged,
+               count(*) FILTER (WHERE distinct_pages >= 2)::int AS engaged,
                count(*) FILTER (WHERE reached)::int AS reached,
                count(*) FILTER (WHERE converted)::int AS converted
         FROM per_session`),
-      rows<{ visitors: number; sessions: number; pageviews: number; converting: number }>(sql`
-        SELECT count(DISTINCT ${visitorExpr})::int AS visitors,
+      // The visitor hash rotates daily by design, so a cross-window distinct
+      // would count visitor-DAYS. Honest headline: average daily uniques.
+      rows<{ avgDailyVisitors: number; sessions: number; pageviews: number; converting: number }>(sql`
+        WITH daily_uniques AS (
+          SELECT to_char(created_at AT TIME ZONE 'Asia/Dubai', 'YYYY-MM-DD') AS day,
+                 count(DISTINCT ${visitorExpr}) AS uniques
+          FROM analytics_events WHERE created_at > ${since}
+          GROUP BY 1
+        )
+        SELECT coalesce((SELECT round(avg(uniques))::int FROM daily_uniques), 0) AS "avgDailyVisitors",
                count(DISTINCT session_id)::int AS sessions,
                count(*) FILTER (WHERE type = 'pageview')::int AS pageviews,
                count(DISTINCT session_id) FILTER (WHERE type = 'event' AND name IN ('lead_submitted','quiz_completed'))::int AS converting
         FROM analytics_events WHERE created_at > ${since}`),
     ]);
 
-  const t = totals[0] ?? { visitors: 0, sessions: 0, pageviews: 0, converting: 0 };
+  const t = totals[0] ?? { avgDailyVisitors: 0, sessions: 0, pageviews: 0, converting: 0 };
   const f = funnels[0] ?? { sessions: 0, engaged: 0, reached: 0, converted: 0 };
   const convRate = t.sessions > 0 ? ((t.converting / t.sessions) * 100).toFixed(1) : "0.0";
   const viewsPerVisit = t.sessions > 0 ? (t.pageviews / t.sessions).toFixed(1) : "0.0";
@@ -166,15 +174,16 @@ export default async function AnalyticsPage() {
         <h1 className="text-2xl font-bold text-ink-900">Analytics</h1>
         <p className="mt-1 text-sm text-ink-500">
           First-party, cookieless measurement — last {DAYS} days, stored in your own database.
-          Unique visitors use a salted daily hash of IP + browser; no IP is ever stored. Bots
-          and admin pages are excluded.
+          Visitors are counted per day via a salted daily hash of IP + browser; no IP is ever
+          stored, and by design the same person cannot be tracked across days. Bots and admin
+          pages are excluded, and abusive traffic is rate-limited.
         </p>
       </div>
 
       {/* Headline stats */}
       <div className="grid gap-4 sm:grid-cols-5">
         {[
-          { label: "Unique visitors", value: t.visitors },
+          { label: "Daily visitors (avg)", value: t.avgDailyVisitors },
           { label: "Visits (sessions)", value: t.sessions },
           { label: "Pageviews", value: t.pageviews },
           { label: "Pages / visit", value: viewsPerVisit },
