@@ -49,6 +49,7 @@ The authoritative list is published by the Ministry of Finance at mof.gov.ae.
 - [Compliance checklist](${absoluteUrl("/toolkit/checklist")}): 23 steps from scoping to go-live
 - [PINT AE field reference](${absoluteUrl("/resources/pint-ae-reference")}): all 88 invoice fields, document type codes (380, 381, 480, 81) and BTAE-02 transaction flags
 - [Integrations by system](${absoluteUrl("/integrations")}): SAP, Oracle, Dynamics, Tally, Zoho, Odoo, QuickBooks, Sage, Xero, custom systems
+- [E-invoicing glossary](${absoluteUrl("/resources/glossary")}): ASP, PINT AE, Peppol, EmaraTax and 14 more terms defined
 - [Official resources](${absoluteUrl("/resources")}): MoF/FTA sources and key legislation
 
 ## Guides
