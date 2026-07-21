@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { m } from "@/components/motion";
 import { EMIRATES } from "@/db/schema";
+import { track } from "@/lib/analytics";
 import {
   BUDGETS,
   INVOICE_VOLUMES,
@@ -102,6 +103,7 @@ export function LeadForm({
         return;
       }
       const data = (await res.json()) as { trackingToken?: string };
+      track("lead_submitted");
       router.push(
         data.trackingToken
           ? `/thank-you?t=${encodeURIComponent(data.trackingToken)}`

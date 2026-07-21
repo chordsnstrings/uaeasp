@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { m, AnimatePresence } from "@/components/motion";
 import { EMIRATES } from "@/db/schema";
+import { track } from "@/lib/analytics";
 import { leadSchema } from "@/lib/validation/lead";
 
 const QUESTIONS = ["q1", "q2", "q3", "q4", "q5"] as const;
@@ -85,6 +86,7 @@ export function ReadinessQuiz() {
         return;
       }
       const data = (await res.json()) as { trackingToken?: string };
+      track("quiz_completed");
       setTrackingToken(data.trackingToken ?? null);
       setPhase("results");
     } catch {
@@ -122,7 +124,10 @@ export function ReadinessQuiz() {
           <m.button
             type="button"
             whileTap={{ scale: 0.96 }}
-            onClick={() => setPhase("questions")}
+            onClick={() => {
+              track("quiz_started");
+              setPhase("questions");
+            }}
             className="press btn-shine hover-lift mt-8 rounded-xl bg-brand-700 px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-brand-700/20 hover:bg-brand-800"
           >
             {t("start")}
