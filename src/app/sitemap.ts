@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getPublicProviders } from "@/lib/data";
-import { GUIDE_SLUGS } from "@/content/guides";
+import { GUIDE_SLUGS, GUIDE_UPDATED_ISO } from "@/content/guides";
 import { EMIRATES, PROVIDER_CATEGORIES } from "@/db/schema";
 import { absoluteUrl, localePath } from "@/lib/site";
 
@@ -40,7 +40,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/toolkit/checklist", { priority: 0.7, changeFrequency: "monthly" }),
     entry("/guides", { priority: 0.8, changeFrequency: "weekly" }),
     ...GUIDE_SLUGS.map((slug) =>
-      entry(`/guides/${slug}`, { priority: 0.7, changeFrequency: "monthly" }),
+      entry(`/guides/${slug}`, {
+        priority: 0.7,
+        changeFrequency: "monthly",
+        lastModified: new Date(GUIDE_UPDATED_ISO),
+      }),
     ),
     ...PROVIDER_CATEGORIES.map((category) =>
       entry(`/providers/category/${category}`, { priority: 0.7, changeFrequency: "weekly" }),
@@ -51,6 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/integrations", { priority: 0.7, changeFrequency: "monthly" }),
     entry("/resources", { priority: 0.6, changeFrequency: "monthly" }),
     entry("/resources/pint-ae-reference", { priority: 0.7, changeFrequency: "monthly" }),
+    entry("/resources/glossary", { priority: 0.6, changeFrequency: "monthly" }),
     entry("/about", { priority: 0.4, changeFrequency: "monthly" }),
     entry("/privacy", { priority: 0.2, changeFrequency: "yearly" }),
     entry("/disclaimer", { priority: 0.2, changeFrequency: "yearly" }),

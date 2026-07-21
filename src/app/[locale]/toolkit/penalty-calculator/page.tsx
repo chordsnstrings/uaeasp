@@ -46,6 +46,16 @@ export default async function PenaltyCalculatorPage({
           offers: { "@type": "Offer", price: "0", priceCurrency: "AED" },
         }}
       />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Toolkit", item: absoluteUrl(localePath(locale, "/toolkit")) },
+            { "@type": "ListItem", position: 2, name: t("title"), item: absoluteUrl(localePath(locale, "/toolkit/penalty-calculator")) },
+          ],
+        }}
+      />
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <FadeIn>
           <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">

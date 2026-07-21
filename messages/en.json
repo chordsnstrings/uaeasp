@@ -69,7 +69,7 @@
   },
   "home": {
     "metaTitle": "UAE E-Invoicing Service Providers — All {count} Pre-Approved ASPs ({year})",
-    "metaDescription": "The complete directory of all {count} UAE Ministry of Finance pre-approved e-invoicing service providers (ASPs). Compare providers, check your readiness, and get matched with the right ASP for your budget — free.",
+    "metaDescription": "The complete directory of all {count} UAE Ministry of Finance pre-approved e-invoicing service providers (Accredited Service Providers / ASPs). Compare the official MoF ASP list, check your readiness before the 2026–2027 deadlines, and get matched free.",
     "hero": {
       "badge": "Updated {date}",
       "title": "Every pre-approved e-invoicing provider in the UAE. One directory.",
@@ -136,8 +136,8 @@
     }
   },
   "providers": {
-    "metaTitle": "All {count} UAE Pre-Approved E-Invoicing Service Providers ({year})",
-    "metaDescription": "Browse and filter the full list of {count} UAE Ministry of Finance pre-approved e-invoicing service providers (ASPs). Websites, profiles and free matching.",
+    "metaTitle": "UAE E-Invoicing ASP List: All {count} MoF Pre-Approved Providers ({year})",
+    "metaDescription": "Browse and filter the official UAE e-invoicing ASP list — all {count} Ministry of Finance pre-approved Accredited Service Providers. Websites, profiles, categories and free matching.",
     "title": "UAE Pre-Approved E-Invoicing Service Providers",
     "subtitle": "All {count} Accredited Service Providers recognised by the UAE Ministry of Finance. Updated {date}.",
     "searchPlaceholder": "Search providers…",
@@ -316,8 +316,8 @@
     "stillQuestionsButton": "Talk to us"
   },
   "getMatched": {
-    "metaTitle": "Get Matched with a UAE E-Invoicing Provider — Free",
-    "metaDescription": "Tell us your requirements and budget, and we'll match you with the right UAE pre-approved e-invoicing service provider. Free for businesses, no obligation.",
+    "metaTitle": "Find Your UAE E-Invoicing Provider & Software — Free Matching",
+    "metaDescription": "Tell us your systems, invoice volume and budget — we compare every MoF pre-approved e-invoicing provider (ASP) and software option in the UAE and match you free, with no obligation.",
     "title": "Find your e-invoicing provider the easy way",
     "subtitle": "There are dozens of pre-approved providers with very different pricing and strengths. Skip the research — our team shortlists the right ones for your budget and requirements, free.",
     "benefit1": "Compare without the sales pitches",
@@ -411,7 +411,7 @@
     "questions": "Questions about your request? Reply to any of our emails or submit an update via a new request."
   },
   "registry": {
-    "metaTitle": "UAE E-Invoicing ASP Registry — All {count} Pre-Approved Providers & Contact Details ({year})",
+    "metaTitle": "UAE E-Invoicing ASP Registry: {count} MoF Pre-Approved Providers & Contacts ({year})",
     "metaDescription": "The full registry of all {count} UAE Ministry of Finance pre-approved e-invoicing service providers with official contact persons, emails and phone numbers. Updated {date}.",
     "title": "UAE E-Invoicing Service Provider Registry",
     "subtitle": "All {count} pre-approved eInvoicing Service Providers with their official contact details, in alphabetical order. Updated {date}.",
@@ -692,5 +692,15 @@
     "emirateCtaTitle": "Get matched with the right provider for your {name} business",
     "browseByCategory": "Browse providers by category",
     "browseByEmirate": "E-invoicing guides by emirate"
+  },
+  "glossary": {
+    "metaTitle": "UAE E-Invoicing Glossary: ASP, PINT AE, Peppol & 18 Key Terms",
+    "metaDescription": "Every UAE e-invoicing term defined in plain language: ASP, PINT AE, Peppol, five-corner model, EmaraTax, TRN, transaction flags, deadlines and more — in English and Arabic.",
+    "kicker": "Reference",
+    "title": "UAE e-invoicing glossary",
+    "subtitle": "The 18 terms that come up in every e-invoicing conversation, defined in plain language.",
+    "ctaTitle": "Fluent now? Put it to work",
+    "ctaBody": "Tell us your systems and budget and we'll shortlist the right pre-approved provider for you, free.",
+    "ctaButton": "Get matched free"
   }
 }

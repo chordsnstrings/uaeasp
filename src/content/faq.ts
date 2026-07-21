@@ -66,6 +66,26 @@ export const faqContent: Record<"en" | "ar", FaqItem[]> = {
       q: "Is this the official Ministry of Finance list?",
       a: "This directory is independent and is not affiliated with the UAE Ministry of Finance. We track the Ministry's official pre-approved service provider list closely and show the date the directory was last updated. For official confirmation of any provider's status, always refer to the Ministry of Finance's website.",
     },
+    {
+      q: "Do I need e-invoicing if my business is not VAT-registered?",
+      a: "In many cases, yes. The Electronic Invoicing System applies to persons conducting business in the UAE for in-scope transactions — the framework is broader than VAT registration alone, and non-registered businesses can fall within it for B2B and B2G flows. Small businesses get later deadlines, not a blanket exemption; confirm your position with a tax adviser rather than assuming exclusion.",
+    },
+    {
+      q: "Does UAE e-invoicing cover B2C (consumer) sales?",
+      a: "Not initially. Business-to-consumer transactions are outside the current scope of the mandate — but the exclusion is temporary by design: B2C remains out of scope until a future Ministerial decision brings it in. Retailers should build with that extension in mind, especially when choosing a provider whose platform can handle receipt-level volumes later.",
+    },
+    {
+      q: "What is EmaraTax's role in e-invoicing?",
+      a: "EmaraTax is the Federal Tax Authority's tax portal, and it is where businesses record their Accredited Service Provider appointment as part of onboarding. Your ASP guides you through this step. Note that EmaraTax is not the invoicing channel itself — invoices flow through your ASP over the Peppol network, with tax data reported to the FTA automatically.",
+    },
+    {
+      q: "When exactly does e-invoicing start in the UAE?",
+      a: "Voluntary adoption and the pilot began on 1 July 2026. Mandatory dates then arrive in waves: businesses with annual revenue of AED 50 million or more must appoint an Accredited Service Provider by 30 October 2026 and issue e-invoices from 1 January 2027; all other businesses appoint by 31 March 2027 and go live by 1 July 2027; government entities follow by 1 October 2027.",
+    },
+    {
+      q: "Is an XML file required, or can I keep sending PDFs?",
+      a: "A compliant UAE e-invoice is a structured XML document in the PINT AE format, transmitted through your Accredited Service Provider. From your mandatory date, a PDF attached to an email no longer counts as an invoice for in-scope transactions — though human-readable copies can still accompany the structured invoice for convenience.",
+    },
   ],
   ar: [
     {
@@ -123,6 +143,26 @@ export const faqContent: Record<"en" | "ar", FaqItem[]> = {
     {
       q: "هل هذه هي القائمة الرسمية لوزارة المالية؟",
       a: "هذا الدليل مستقل وغير تابع لوزارة المالية الإماراتية. نتابع القائمة الرسمية للمزودين المعتمدين مبدئياً عن قرب ونعرض تاريخ آخر تحديث للدليل. للتأكد الرسمي من حالة أي مزود، ارجع دائماً إلى موقع وزارة المالية.",
+    },
+    {
+      q: "هل أحتاج الفوترة الإلكترونية إذا لم تكن منشأتي مسجلة في ضريبة القيمة المضافة؟",
+      a: "في حالات كثيرة، نعم. يسري نظام الفوترة الإلكترونية على الأشخاص الذين يمارسون الأعمال في الإمارات للمعاملات المشمولة — فالإطار أوسع من التسجيل الضريبي وحده، وقد تقع المنشآت غير المسجلة ضمنه لمعاملات الأعمال والجهات الحكومية. الشركات الصغيرة تحصل على مواعيد لاحقة لا إعفاءً شاملاً؛ فتأكد من وضعك مع مستشار ضريبي بدل افتراض الاستثناء.",
+    },
+    {
+      q: "هل تشمل الفوترة الإلكترونية الإماراتية مبيعات المستهلكين (B2C)؟",
+      a: "ليس مبدئياً. معاملات المستهلكين خارج النطاق الحالي للإلزام — لكن الاستثناء مؤقت بطبيعته: يبقى قطاع B2C خارج النطاق حتى صدور قرار وزاري لاحق يُدخله. وعلى تجار التجزئة البناء مع أخذ هذا التوسع بالحسبان، خاصة عند اختيار مزود تستطيع منصته التعامل لاحقاً مع أحجام الإيصالات.",
+    },
+    {
+      q: "ما دور منصة إمارات تاكس (EmaraTax) في الفوترة الإلكترونية؟",
+      a: "إمارات تاكس هي بوابة الهيئة الاتحادية للضرائب، وفيها تسجل المنشآت تعيين مزود الخدمة المعتمد ضمن خطوات التأهيل، ويرشدك مزودك خلال هذه الخطوة. لكن إمارات تاكس ليست قناة الفوترة نفسها — فالفواتير تمر عبر مزودك على شبكة Peppol، وتُرفع البيانات الضريبية للهيئة تلقائياً.",
+    },
+    {
+      q: "متى تبدأ الفوترة الإلكترونية في الإمارات تحديداً؟",
+      a: "بدأ التبني الطوعي والتجربة في 1 يوليو 2026. ثم تصل التواريخ الإلزامية على موجات: الشركات التي تبلغ إيراداتها السنوية 50 مليون درهم أو أكثر تعيّن مزود خدمة معتمداً بحلول 30 أكتوبر 2026 وتصدر الفواتير الإلكترونية من 1 يناير 2027؛ وتعيّن باقي الشركات بحلول 31 مارس 2027 وتشغّل بحلول 1 يوليو 2027؛ وتتبع الجهات الحكومية بحلول 1 أكتوبر 2027.",
+    },
+    {
+      q: "هل ملف XML مطلوب أم يمكنني مواصلة إرسال PDF؟",
+      a: "الفاتورة الإلكترونية الإماراتية الممتثلة مستند XML منظم بصيغة PINT AE يُرسل عبر مزود الخدمة المعتمد. ومن تاريخك الإلزامي لا يعود ملف PDF المرفق بالبريد فاتورةً للمعاملات المشمولة — وإن جاز أن ترافق النسخُ المقروءة الفاتورةَ المنظمة للتيسير.",
     },
   ],
 };

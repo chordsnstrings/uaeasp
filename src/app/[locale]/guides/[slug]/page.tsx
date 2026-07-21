@@ -7,7 +7,15 @@ import { pageMetadata } from "@/lib/metadata";
 import { absoluteUrl, localePath, SITE_NAME, type Locale } from "@/lib/site";
 import { routing } from "@/i18n/routing";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { MandateFactsTable } from "@/components/seo/MandateFactsTable";
 import { FadeIn } from "@/components/motion";
+
+/** Guides whose topic warrants the phase/deadline facts table up top. */
+const FACTS_TABLE_SLUGS = new Set([
+  "uae-e-invoicing-timeline",
+  "uae-e-invoicing-penalties",
+  "what-is-uae-e-invoicing",
+]);
 
 export const revalidate = 86400;
 export const dynamicParams = false;
@@ -88,6 +96,14 @@ export default async function GuidePage({
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-ink-600">{guide.intro}</p>
         </FadeIn>
+
+        {FACTS_TABLE_SLUGS.has(slug) && (
+          <FadeIn>
+            <div className="mt-8">
+              <MandateFactsTable locale={locale} />
+            </div>
+          </FadeIn>
+        )}
 
         <div className="mt-10 space-y-10">
           {guide.sections.map((section) => (

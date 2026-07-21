@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { pageMetadata } from "@/lib/metadata";
-import type { Locale } from "@/lib/site";
+import { absoluteUrl, localePath, type Locale } from "@/lib/site";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { FadeIn } from "@/components/motion";
 import { ReadinessPlanner } from "@/components/toolkit/ReadinessPlanner";
 
@@ -32,6 +33,17 @@ export default async function ReadinessPlannerPage({
   const t = await getTranslations("toolkit.planner");
 
   return (
+    <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Toolkit", item: absoluteUrl(localePath(locale, "/toolkit")) },
+            { "@type": "ListItem", position: 2, name: t("title"), item: absoluteUrl(localePath(locale, "/toolkit/readiness-planner")) },
+          ],
+        }}
+      />
     <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6">
       <FadeIn>
         <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">
@@ -48,5 +60,6 @@ export default async function ReadinessPlannerPage({
         </div>
       </FadeIn>
     </div>
+    </>
   );
 }

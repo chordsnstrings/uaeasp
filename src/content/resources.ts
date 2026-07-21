@@ -85,6 +85,7 @@ export const resourcesContent: Record<Locale, ResourceGroup[]> = {
         { title: "Compliance checklist", description: "Every step from scoping to go-live, savable in your browser.", href: "/toolkit/checklist", external: false },
         { title: "Readiness assessment", description: "Five questions, instant score, personalised next steps.", href: "/assessment", external: false },
         { title: "PINT AE field reference", description: "Searchable reference of all 88 invoice fields, document type codes and transaction flags.", href: "/resources/pint-ae-reference", external: false },
+        { title: "E-invoicing glossary", description: "18 key terms — ASP, PINT AE, Peppol, EmaraTax and more — in plain language.", href: "/resources/glossary", external: false },
       ],
     },
     {
@@ -163,6 +164,7 @@ export const resourcesContent: Record<Locale, ResourceGroup[]> = {
         { title: "قائمة تحقق الامتثال", description: "كل خطوة من تحديد النطاق إلى التشغيل، تُحفظ في متصفحك.", href: "/toolkit/checklist", external: false },
         { title: "تقييم الجاهزية", description: "خمسة أسئلة ونتيجة فورية وخطوات تالية مخصصة.", href: "/assessment", external: false },
         { title: "مرجع حقول PINT AE", description: "مرجع قابل للبحث لكل حقول الفاتورة الـ88 ورموز أنواع المستندات وأعلام المعاملات.", href: "/resources/pint-ae-reference", external: false },
+        { title: "معجم الفوترة الإلكترونية", description: "18 مصطلحاً رئيسياً — ASP وPINT AE وPeppol وإمارات تاكس وغيرها — بلغة واضحة.", href: "/resources/glossary", external: false },
       ],
     },
     {
