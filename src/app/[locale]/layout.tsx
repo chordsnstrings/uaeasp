@@ -10,6 +10,7 @@ import { Footer } from "@/components/layout/Footer";
 import { StickyCta } from "@/components/layout/StickyCta";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
 import { BackToTop } from "@/components/layout/BackToTop";
+import { Analytics } from "@/components/layout/Analytics";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { SITE_NAME, SITE_URL, absoluteUrl, localePath } from "@/lib/site";
 import "../globals.css";
@@ -77,6 +78,7 @@ export default async function LocaleLayout({
 
   const dir = locale === "ar" ? "rtl" : "ltr";
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
+  const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
   return (
     <html lang={locale} dir={dir} className={`${inter.variable} ${plexArabic.variable}`}>
@@ -87,6 +89,16 @@ export default async function LocaleLayout({
             data-domain={plausibleDomain}
             src="https://plausible.io/js/script.js"
           />
+        )}
+        {gaId && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`,
+              }}
+            />
+          </>
         )}
       </head>
       <body className="min-h-dvh">
@@ -118,6 +130,7 @@ export default async function LocaleLayout({
         />
         <NextIntlClientProvider>
           <MotionProvider>
+            <Analytics />
             <ScrollProgress />
             <Header />
             <main id="main">{children}</main>

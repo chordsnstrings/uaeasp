@@ -233,6 +233,30 @@ export const appSettings = pgTable("app_settings", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/** First-party analytics: pageviews and named conversion events. No cookies,
+ * no IPs stored — a random per-tab session id groups a visit. */
+export const analyticsEvents = pgTable(
+  "analytics_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    type: text("type", { enum: ["pageview", "event"] }).notNull(),
+    name: text("name"),
+    path: text("path").notNull(),
+    locale: text("locale"),
+    sessionId: text("session_id").notNull(),
+    referrerHost: text("referrer_host"),
+    utmSource: text("utm_source"),
+    utmMedium: text("utm_medium"),
+    utmCampaign: text("utm_campaign"),
+    device: text("device", { enum: ["mobile", "desktop"] }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("analytics_events_created_at_idx").on(t.createdAt),
+    index("analytics_events_type_created_idx").on(t.type, t.createdAt),
+  ],
+);
+
 export type User = typeof users.$inferSelect;
 export type Provider = typeof providers.$inferSelect;
 export type NewProvider = typeof providers.$inferInsert;
