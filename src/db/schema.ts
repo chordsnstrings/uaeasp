@@ -244,6 +244,9 @@ export const analyticsEvents = pgTable(
     path: text("path").notNull(),
     locale: text("locale"),
     sessionId: text("session_id").notNull(),
+    /** Salted daily hash of IP + user agent — counts unique visitors without
+     * ever storing the IP. Rotates every day by construction. */
+    visitorId: text("visitor_id"),
     referrerHost: text("referrer_host"),
     utmSource: text("utm_source"),
     utmMedium: text("utm_medium"),
@@ -254,6 +257,7 @@ export const analyticsEvents = pgTable(
   (t) => [
     index("analytics_events_created_at_idx").on(t.createdAt),
     index("analytics_events_type_created_idx").on(t.type, t.createdAt),
+    index("analytics_events_session_created_idx").on(t.sessionId, t.createdAt),
   ],
 );
 

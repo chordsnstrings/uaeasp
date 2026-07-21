@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "@/db";
@@ -20,6 +21,22 @@ const payloadSchema = z.object({
   utmCampaign: z.string().trim().max(120).optional(),
   screenW: z.number().int().min(0).max(20000).optional(),
 });
+
+/** Privacy-safe unique-visitor id: salted hash of IP + UA + Dubai calendar
+ * day. The IP is never stored and the id changes every day by construction,
+ * so it can count uniques but cannot track anyone over time. */
+function visitorId(req: NextRequest, ua: string): string {
+  const ip =
+    req.headers.get("do-connecting-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
+  const day = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Dubai",
+    dateStyle: "short",
+  }).format(new Date());
+  const salt = process.env.IP_HASH_SALT ?? "analytics-default-salt";
+  return createHash("sha256").update(`${salt}|${ip}|${ua}|${day}`).digest("hex").slice(0, 32);
+}
 
 function referrerHost(raw: string | undefined, ownHost: string | null): string | null {
   if (!raw) return null;
@@ -66,6 +83,7 @@ export async function POST(req: NextRequest) {
       path: d.path.split("?")[0].slice(0, 300),
       locale: d.locale ?? null,
       sessionId: d.sessionId,
+      visitorId: visitorId(req, ua),
       referrerHost: referrerHost(d.referrer, ownHost),
       utmSource: d.utmSource?.toLowerCase() ?? null,
       utmMedium: d.utmMedium?.toLowerCase() ?? null,
