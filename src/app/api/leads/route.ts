@@ -93,8 +93,10 @@ export async function POST(req: NextRequest) {
         meta: { ok: result.ok },
       });
     }
-    const confirmation = leadConfirmationEmail(lead);
-    await sendEmail({ to: [lead.email], ...confirmation });
+    if (lead.email) {
+      const confirmation = leadConfirmationEmail(lead);
+      await sendEmail({ to: [lead.email], ...confirmation });
+    }
   });
 
   return NextResponse.json({ ok: true, id: lead.id, trackingToken: lead.trackingToken });

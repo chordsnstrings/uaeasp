@@ -35,6 +35,7 @@ export function LeadForm({
   const [globalError, setGlobalError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [shake, setShake] = useState(0);
+  const [showOptional, setShowOptional] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -63,7 +64,6 @@ export function LeadForm({
       budgetRange: (fd.get("budgetRange") as string) || undefined,
       timeline: (fd.get("timeline") as string) || undefined,
       message: String(fd.get("message") ?? ""),
-      consent: fd.get("consent") === "on",
       locale,
       source: effectiveSource,
       quizAnswers,
@@ -196,24 +196,7 @@ export function LeadForm({
           />
           {fieldError("companyName")}
         </div>
-        <div className={fieldClass}>
-          <label htmlFor="lead-email" className="mb-1.5 block text-sm font-semibold text-ink-800">
-            {t("email")} <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="lead-email"
-            name="email"
-            type="email"
-            dir="ltr"
-            autoComplete="email"
-            placeholder={t("emailPlaceholder")}
-            aria-invalid={!!errors.email}
-            className={inputClass("email")}
-            onFocus={() => setErrors((e) => ({ ...e, email: undefined }))}
-          />
-          {fieldError("email")}
-        </div>
-        <div className={fieldClass}>
+        <div className={fieldClass + " sm:col-span-2"}>
           <label htmlFor="lead-phone" className="mb-1.5 block text-sm font-semibold text-ink-800">
             {t("phone")} <span className="text-red-500">*</span>
           </label>
@@ -232,19 +215,60 @@ export function LeadForm({
         </div>
       </div>
 
-      <div>
-        <label htmlFor="lead-emirate" className="mb-1.5 block text-sm font-semibold text-ink-800">
-          {t("emirate")} <span className="text-red-500">*</span>
-        </label>
-        <select
-          id="lead-emirate"
-          name="emirate"
-          defaultValue=""
-          aria-invalid={!!errors.emirate}
-          className={inputClass("emirate")}
-          onFocus={() => setErrors((e) => ({ ...e, emirate: undefined }))}
+      {/* Progressive disclosure: everything below is optional and hidden
+          behind a toggle so the required ask stays three fields. */}
+      <button
+        type="button"
+        onClick={() => setShowOptional((v) => !v)}
+        aria-expanded={showOptional}
+        className="press flex w-full items-center justify-between rounded-xl border border-dashed border-ink-200 px-4 py-3 text-sm font-semibold text-ink-600 hover:border-brand-300 hover:text-brand-800"
+      >
+        <span>{t("optionalToggle")}</span>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 12 12"
+          fill="none"
+          aria-hidden
+          className="transition-transform duration-200"
+          style={{ transform: showOptional ? "rotate(180deg)" : "none" }}
         >
-          <option value="" disabled>
+          <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      <div className={showOptional ? "space-y-5" : "hidden"}>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className={fieldClass}>
+          <label htmlFor="lead-email" className="mb-1.5 block text-sm font-semibold text-ink-800">
+            {t("email")}
+          </label>
+          <input
+            id="lead-email"
+            name="email"
+            type="email"
+            dir="ltr"
+            autoComplete="email"
+            placeholder={t("emailPlaceholder")}
+            aria-invalid={!!errors.email}
+            className={inputClass("email")}
+            onFocus={() => setErrors((e) => ({ ...e, email: undefined }))}
+          />
+          {fieldError("email")}
+        </div>
+        <div className={fieldClass}>
+          <label htmlFor="lead-emirate" className="mb-1.5 block text-sm font-semibold text-ink-800">
+            {t("emirate")}
+          </label>
+          <select
+            id="lead-emirate"
+            name="emirate"
+            defaultValue=""
+            aria-invalid={!!errors.emirate}
+            className={inputClass("emirate")}
+            onFocus={() => setErrors((e) => ({ ...e, emirate: undefined }))}
+        >
+          <option value="">
             {t("emiratePlaceholder")}
           </option>
           {EMIRATES.map((e) => (
@@ -254,6 +278,7 @@ export function LeadForm({
           ))}
         </select>
         {fieldError("emirate")}
+        </div>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -322,31 +347,7 @@ export function LeadForm({
         />
       </div>
 
-      <label
-        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 text-sm ${
-          errors.consent ? "border-red-300 bg-red-50" : "border-ink-200 bg-ink-50"
-        }`}
-      >
-        <input
-          type="checkbox"
-          name="consent"
-          className="mt-0.5 size-4 accent-brand-700"
-          aria-invalid={!!errors.consent}
-          onChange={() => setErrors((e) => ({ ...e, consent: undefined }))}
-        />
-        <span className="text-ink-600">
-          {t("consentPrefix")}{" "}
-          <Link
-            href="/privacy"
-            className="font-medium text-brand-700 underline underline-offset-2"
-            target="_blank"
-          >
-            {t("consentLinkText")}
-          </Link>
-          .
-        </span>
-      </label>
-      {fieldError("consent")}
+      </div>
 
       {globalError && (
         <m.p
@@ -377,6 +378,17 @@ export function LeadForm({
           t("submit")
         )}
       </m.button>
+      <p className="text-center text-xs leading-relaxed text-ink-400">
+        {t("consentPrefix")}{" "}
+        <Link
+          href="/privacy"
+          className="font-medium text-brand-700 underline underline-offset-2"
+          target="_blank"
+        >
+          {t("consentLinkText")}
+        </Link>
+        . {t("reassurance")}
+      </p>
     </m.form>
   );
 }

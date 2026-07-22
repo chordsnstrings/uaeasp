@@ -240,7 +240,9 @@
       "rateLimited": "Too many submissions. Please try again later."
     },
     "consentPrefix": "I agree to be contacted about e-invoicing providers and accept the",
-    "consentLinkText": "Privacy Policy"
+    "consentLinkText": "Privacy Policy",
+    "optionalToggle": "Add details for a better match (optional)",
+    "reassurance": "Free for businesses · Reply within one business day."
   },
   "quiz": {
     "metaTitle": "UAE E-Invoicing Readiness Check — Free 2-Minute Assessment",
@@ -707,5 +709,21 @@
     "ctaTitle": "Fluent now? Put it to work",
     "ctaBody": "Tell us your systems and budget and we'll shortlist the right pre-approved provider for you, free.",
     "ctaButton": "Get matched free"
+  },
+  "quickForm": {
+    "title": "Get your free provider shortlist — takes 10 seconds",
+    "namePlaceholder": "Your name",
+    "phonePlaceholder": "Phone (05x xxx xxxx)",
+    "companyPlaceholder": "Company name",
+    "submit": "Get matched free →",
+    "note": "No cost, no obligation. By submitting you agree to be contacted about e-invoicing providers."
+  },
+  "enrich": {
+    "title": "Want an even better match? (optional)",
+    "subtitle": "A few more details help us shortlist providers that actually fit — takes 30 seconds, entirely optional.",
+    "submit": "Improve my match",
+    "skipNote": "You can skip this — our team will ask on the call instead.",
+    "doneTitle": "Details saved — thank you!",
+    "doneBody": "Your consultant will use these to prepare a sharper shortlist before contacting you."
   }
 }

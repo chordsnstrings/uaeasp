@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { pageMetadata } from "@/lib/metadata";
 import type { Locale } from "@/lib/site";
 import { FadeIn, StaggerGroup, StaggerItem } from "@/components/motion";
+import { EnrichForm } from "@/components/lead-form/EnrichForm";
 
 export async function generateMetadata({
   params,
@@ -75,6 +76,14 @@ export default async function ThankYouPage({
           </StaggerItem>
         ))}
       </StaggerGroup>
+
+      {validToken && (
+        <FadeIn>
+          <div className="mx-auto mt-10 max-w-xl">
+            <EnrichForm trackingToken={validToken} />
+          </div>
+        </FadeIn>
+      )}
 
       {validToken && (
         <FadeIn>

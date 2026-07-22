@@ -11,6 +11,7 @@ import { pageMetadata } from "@/lib/metadata";
 import { absoluteUrl, localePath, MANDATE_GO_LIVE_ISO, type Locale } from "@/lib/site";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Countdown } from "@/components/home/Countdown";
+import { QuickLeadForm } from "@/components/lead-form/QuickLeadForm";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import {
   FadeIn,
@@ -118,18 +119,23 @@ export default async function HomePage({
             <Countdown targetIso={MANDATE_GO_LIVE_ISO} />
           </FadeIn>
           <FadeIn delay={0.24}>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/get-matched"
-                className="press btn-shine hover-lift rounded-xl bg-accent-500 px-6 py-3.5 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/25 hover:bg-accent-400 hover:shadow-xl hover:shadow-accent-500/30"
-              >
-                {t("hero.matchButton")}
-              </Link>
+            {/* Conversion-first: capture happens right in the hero — three
+                fields, no page change. */}
+            <div className="mt-8 max-w-2xl">
+              <QuickLeadForm source="hero" />
+            </div>
+            <div className="mt-4 flex flex-wrap gap-3">
               <Link
                 href="/providers"
-                className="press hover-lift rounded-xl bg-white/10 px-6 py-3.5 text-base font-semibold text-white ring-1 ring-white/25 hover:bg-white/15 hover:ring-white/40"
+                className="press hover-lift rounded-xl bg-white/10 px-6 py-3 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/15 hover:ring-white/40"
               >
                 {t("hero.browseButton", { count })}
+              </Link>
+              <Link
+                href="/get-matched"
+                className="press rounded-xl px-4 py-3 text-sm font-medium text-brand-200 underline-offset-4 hover:text-white hover:underline"
+              >
+                {t("hero.matchButton")}
               </Link>
             </div>
           </FadeIn>
