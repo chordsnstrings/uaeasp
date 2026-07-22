@@ -37,7 +37,9 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
+  const [searchFocused, setSearchFocused] = useState(false);
   const deferredQuery = useDeferredValue(query);
+  const searchExpanded = searchFocused || query.length > 0;
   const listTopRef = useRef<HTMLDivElement>(null);
   const skippedFirstWrite = useRef(false);
 
@@ -99,9 +101,17 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
 
   return (
     <div>
-      <div className="relative max-w-md">
+      {/* Search grows while you use it, shrinks back out of the way after */}
+      <m.div
+        className="relative"
+        initial={false}
+        animate={{ maxWidth: searchExpanded ? "42rem" : "28rem" }}
+        transition={{ type: "spring", stiffness: 260, damping: 28 }}
+      >
         <svg
-          className="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 text-ink-400"
+          className={`pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
+            searchExpanded ? "text-brand-600" : "text-ink-400"
+          }`}
           width="18"
           height="18"
           viewBox="0 0 20 20"
@@ -115,11 +125,33 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
           type="search"
           value={query}
           onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+          onFocus={() => setSearchFocused(true)}
+          onBlur={() => setSearchFocused(false)}
           placeholder={t("searchPlaceholder")}
           aria-label={t("searchPlaceholder")}
-          className="w-full rounded-xl border border-ink-200 bg-white py-3 pe-4 ps-10 text-sm shadow-sm placeholder:text-ink-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+          className={`w-full rounded-xl border bg-white py-3 pe-10 ps-10 text-sm shadow-sm transition-shadow placeholder:text-ink-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 [&::-webkit-search-cancel-button]:hidden ${
+            searchExpanded ? "border-brand-300 shadow-md" : "border-ink-200"
+          }`}
         />
-      </div>
+        <AnimatePresence>
+          {query.length > 0 && (
+            <m.button
+              type="button"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              whileTap={{ scale: 0.85 }}
+              onClick={() => { setQuery(""); setPage(1); }}
+              aria-label={t("clearSearch")}
+              className="absolute end-2.5 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full bg-ink-100 text-ink-500 hover:bg-brand-100 hover:text-brand-800"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+                <path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </m.button>
+          )}
+        </AnimatePresence>
+      </m.div>
 
       {/* Category chips */}
       <div className="mt-4 flex flex-wrap gap-2">

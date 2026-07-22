@@ -109,7 +109,8 @@ body {
 }
 
 /* Micro-interaction defaults: every interactive element responds to
-   hover/focus/active. Keep transitions on transform/opacity/colors only. */
+   hover/focus/active. Transforms get a springy overshoot curve so presses
+   and lifts feel physical rather than linear. */
 a,
 button,
 [role="button"],
@@ -123,7 +124,22 @@ summary {
     border-color 150ms ease,
     box-shadow 200ms ease,
     opacity 150ms ease,
-    transform 150ms ease;
+    transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Touch devices get no hover — make the press itself unmistakable. */
+@media (hover: none) {
+  a:active,
+  button:active,
+  [role="button"]:active,
+  summary:active {
+    transform: scale(0.96);
+    transition-duration: 80ms;
+  }
+  .press:active,
+  .btn-shine:active {
+    filter: brightness(0.94);
+  }
 }
 
 :focus-visible {
@@ -227,6 +243,65 @@ summary {
 /* Table rows ease their hover tint. */
 tbody tr {
   transition: background-color 150ms ease;
+}
+
+/* Labels light up while their field is focused — guides the eye through
+   forms. Progressive enhancement via :has(). */
+div:has(> input:focus) > label,
+div:has(> select:focus) > label,
+div:has(> textarea:focus) > label {
+  color: var(--color-brand-700);
+}
+
+/* Marker sweep: the accent wash behind emphasised words. The Highlight
+   component animates background-size 0% -> 100% when it scrolls into view. */
+.marker {
+  background-image: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--color-accent-400) 45%, transparent) 0%,
+    color-mix(in oklab, var(--color-accent-400) 45%, transparent) 42%,
+    transparent 42%
+  );
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+[dir="rtl"] .marker {
+  background-position: 100% 100%;
+}
+
+/* Hero variant: gradient ink for the emphasised phrase on dark sections. */
+.hero-em {
+  background-image: linear-gradient(
+    92deg,
+    var(--color-accent-400),
+    #fde68a 55%,
+    var(--color-brand-300)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Inline attention link/word: warms to accent on hover of the surrounding
+   sentence, so the actionable part of a paragraph reveals itself. */
+p:hover .attn,
+li:hover .attn {
+  color: var(--color-brand-700);
+}
+.attn {
+  transition: color 200ms ease;
+  font-weight: 600;
+}
+
+/* Menu dropdown chevron */
+.chev {
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+[data-open="true"] .chev,
+.group\/nav:hover .chev {
+  transform: rotate(180deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
