@@ -36,7 +36,7 @@ export function newLeadEmail(lead: Lead): {
 } {
   const url = `${SITE_URL}/admin/leads/${lead.id}`;
   const flag = lead.flaggedDuplicate ? " [possible duplicate]" : "";
-  const subject = `New lead: ${lead.companyName} (${label(lead.emirate)})${flag}`;
+  const subject = `New lead: ${lead.companyName}${lead.emirate ? ` (${label(lead.emirate)})` : ""}${flag}`;
 
   const html = `
   <div style="font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;max-width:560px;margin:0 auto;padding:24px">
@@ -45,7 +45,7 @@ export function newLeadEmail(lead: Lead): {
     <table style="border-collapse:collapse;width:100%;font-size:14px">
       ${row("Contact", lead.fullName)}
       ${row("Company", lead.companyName)}
-      ${row("Email", `<a href="mailto:${lead.email}">${lead.email}</a>`)}
+      ${row("Email", lead.email ? `<a href="mailto:${lead.email}">${lead.email}</a>` : "— (call or WhatsApp)")}
       ${row("Phone", `<a href="tel:${lead.phone}">${lead.phone}</a>`)}
       ${row("Emirate", label(lead.emirate))}
       ${row("Invoice volume", label(lead.invoiceVolume))}
@@ -64,7 +64,7 @@ export function newLeadEmail(lead: Lead): {
     `New lead${flag} via ${SITE_NAME} (source: ${lead.source})`,
     `Contact: ${lead.fullName}`,
     `Company: ${lead.companyName}`,
-    `Email: ${lead.email}`,
+    `Email: ${lead.email ?? "—"}`,
     `Phone: ${lead.phone}`,
     `Emirate: ${label(lead.emirate)}`,
     `Invoice volume: ${label(lead.invoiceVolume)}`,

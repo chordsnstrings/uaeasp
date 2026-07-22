@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { m, AnimatePresence } from "@/components/motion";
-import { EMIRATES } from "@/db/schema";
 import { track } from "@/lib/analytics";
 import { leadSchema } from "@/lib/validation/lead";
 
@@ -16,7 +15,6 @@ type Phase = "intro" | "questions" | "gate" | "results";
 export function ReadinessQuiz() {
   const t = useTranslations("quiz");
   const tf = useTranslations("leadForm");
-  const te = useTranslations("common.emirates");
   const locale = useLocale() as "en" | "ar";
   const startedAt = useMemo(() => Date.now(), []);
 
@@ -48,10 +46,7 @@ export function ReadinessQuiz() {
     const payload = {
       fullName: String(fd.get("fullName") ?? ""),
       companyName: String(fd.get("companyName") ?? ""),
-      email: String(fd.get("email") ?? ""),
       phone: String(fd.get("phone") ?? ""),
-      emirate: String(fd.get("emirate") ?? ""),
-      consent: fd.get("consent") === "on",
       locale,
       source: "quiz",
       quizAnswers: answers,
@@ -256,22 +251,6 @@ export function ReadinessQuiz() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="quiz-email" className="mb-1.5 block text-sm font-semibold text-ink-800">
-                      {tf("email")} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      id="quiz-email"
-                      name="email"
-                      type="email"
-                      dir="ltr"
-                      autoComplete="email"
-                      placeholder={tf("emailPlaceholder")}
-                      aria-invalid={!!fieldErrors.email}
-                      className={inputClass("email")}
-                      onFocus={() => setFieldErrors((f) => ({ ...f, email: false }))}
-                    />
-                  </div>
-                  <div>
                     <label htmlFor="quiz-phone" className="mb-1.5 block text-sm font-semibold text-ink-800">
                       {tf("phone")} <span className="text-red-500">*</span>
                     </label>
@@ -287,54 +266,8 @@ export function ReadinessQuiz() {
                       onFocus={() => setFieldErrors((f) => ({ ...f, phone: false }))}
                     />
                   </div>
-                  <div className="sm:col-span-2">
-                    <label htmlFor="quiz-emirate" className="mb-1.5 block text-sm font-semibold text-ink-800">
-                      {tf("emirate")} <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      id="quiz-emirate"
-                      name="emirate"
-                      defaultValue=""
-                      aria-invalid={!!fieldErrors.emirate}
-                      className={inputClass("emirate")}
-                      onFocus={() => setFieldErrors((f) => ({ ...f, emirate: false }))}
-                    >
-                      <option value="" disabled>
-                        {tf("emiratePlaceholder")}
-                      </option>
-                      {EMIRATES.map((em) => (
-                        <option key={em} value={em}>
-                          {te(em)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
 
-                <label
-                  className={`mt-4 flex cursor-pointer items-start gap-3 rounded-xl border p-4 text-sm ${
-                    fieldErrors.consent ? "border-red-300 bg-red-50" : "border-ink-200 bg-ink-50"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    name="consent"
-                    className="mt-0.5 size-4 accent-brand-700"
-                    aria-invalid={!!fieldErrors.consent}
-                    onChange={() => setFieldErrors((f) => ({ ...f, consent: false }))}
-                  />
-                  <span className="text-ink-600">
-                    {tf("consentPrefix")}{" "}
-                    <Link
-                      href="/privacy"
-                      className="font-medium text-brand-700 underline underline-offset-2"
-                      target="_blank"
-                    >
-                      {tf("consentLinkText")}
-                    </Link>
-                    .
-                  </span>
-                </label>
 
                 {gateError && (
                   <p className="mt-3 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700" role="alert">

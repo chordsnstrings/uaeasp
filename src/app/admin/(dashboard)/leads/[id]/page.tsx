@@ -65,9 +65,9 @@ export default async function LeadDetailPage({
 
   const facts: [string, string][] = [
     ["Contact person", lead.fullName],
-    ["Email", lead.email],
+    ["Email", lead.email ?? "—"],
     ["Phone", lead.phone],
-    ["Emirate", EMIRATE_LABELS[lead.emirate] ?? lead.emirate],
+    ["Emirate", lead.emirate ? (EMIRATE_LABELS[lead.emirate] ?? lead.emirate) : "—"],
     ["Invoice volume", lead.invoiceVolume ? (VOLUME_LABELS[lead.invoiceVolume] ?? lead.invoiceVolume) : "—"],
     ["Accounting software", lead.accountingSoftware ?? "—"],
     ["Budget", lead.budgetRange ? (BUDGET_LABELS[lead.budgetRange] ?? lead.budgetRange) : "—"],

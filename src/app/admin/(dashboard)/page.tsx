@@ -202,7 +202,7 @@ export default async function AdminDashboard() {
                       )}
                     </p>
                     <p className="truncate text-xs text-ink-500">
-                      {lead.fullName} · {EMIRATE_LABELS[lead.emirate] ?? lead.emirate}
+                      {lead.fullName}{lead.emirate ? ` · ${EMIRATE_LABELS[lead.emirate] ?? lead.emirate}` : ""}
                     </p>
                   </div>
                   <span className={`hidden shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 sm:inline ${meta.badge}`}>

@@ -15,7 +15,7 @@ export async function createLead(
   input: LeadInput,
   meta: { ipHash: string | null },
 ): Promise<Lead> {
-  const email = normalizeEmail(input.email);
+  const email = input.email ? normalizeEmail(input.email) : null;
   const phone = normalizePhone(input.phone);
   const cutoff = new Date(Date.now() - DEDUPE_WINDOW_DAYS * 24 * 3600 * 1000);
 
@@ -24,7 +24,7 @@ export async function createLead(
     .from(leads)
     .where(
       and(
-        or(eq(leads.email, email), eq(leads.phone, phone)),
+        email ? or(eq(leads.email, email), eq(leads.phone, phone)) : eq(leads.phone, phone),
         gt(leads.createdAt, cutoff),
       ),
     )
@@ -38,7 +38,7 @@ export async function createLead(
       companyName: input.companyName,
       email,
       phone,
-      emirate: input.emirate,
+      emirate: input.emirate ?? null,
       invoiceVolume: input.invoiceVolume ?? null,
       accountingSoftware: input.accountingSoftware || null,
       budgetRange: input.budgetRange ?? null,

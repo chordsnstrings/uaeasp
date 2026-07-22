@@ -201,7 +201,7 @@ export default async function AdminLeadsPage({
                     </p>
                   </td>
                   <td className="px-4 py-3 text-ink-600">
-                    {EMIRATE_LABELS[lead.emirate] ?? lead.emirate}
+                    {lead.emirate ? (EMIRATE_LABELS[lead.emirate] ?? lead.emirate) : "—"}
                   </td>
                   <td className="px-4 py-3 text-ink-600">
                     {lead.invoiceVolume ? VOLUME_LABELS[lead.invoiceVolume] : "—"}
