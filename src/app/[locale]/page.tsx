@@ -17,6 +17,7 @@ import {
   StaggerGroup,
   StaggerItem,
   AnimatedNumber,
+  Highlight,
 } from "@/components/motion";
 
 export const revalidate = 3600;
@@ -103,7 +104,9 @@ export default async function HomePage({
           </FadeIn>
           <FadeIn delay={0.08}>
             <h1 className="mt-6 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              {t("hero.title")}
+              {t.rich("hero.title", {
+                hl: (chunks) => <span className="hero-em">{chunks}</span>,
+              })}
             </h1>
           </FadeIn>
           <FadeIn delay={0.16}>
@@ -173,7 +176,7 @@ export default async function HomePage({
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
         <FadeIn>
           <h2 className="max-w-2xl text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">
-            {t("why.title")}
+            {t.rich("why.title", { hl: (chunks) => <Highlight>{chunks}</Highlight> })}
           </h2>
           <p className="mt-4 max-w-3xl text-lg leading-relaxed text-ink-600">
             {t("why.subtitle")}
@@ -355,7 +358,9 @@ export default async function HomePage({
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <FadeIn>
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              {t("finalCta.title")}
+              {t.rich("finalCta.title", {
+                hl: (chunks) => <span className="hero-em">{chunks}</span>,
+              })}
             </h2>
             <p className="mt-4 text-lg text-brand-100">{t("finalCta.subtitle")}</p>
             <Link

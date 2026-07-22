@@ -36,7 +36,12 @@
       "readinessPlanner": "Readiness planner",
       "checklist": "Compliance checklist",
       "guides": "Guides",
-      "integrations": "Integrations"
+      "integrations": "Integrations",
+      "pintReference": "PINT AE field reference",
+      "glossaryLabel": "Glossary",
+      "menuBrowse": "Browse",
+      "menuTools": "Free tools",
+      "menuLearn": "Learn"
     },
     "cta": {
       "stickyText": "Not sure which provider fits your business?",
@@ -72,7 +77,7 @@
     "metaDescription": "The complete directory of all {count} UAE Ministry of Finance pre-approved e-invoicing service providers (Accredited Service Providers / ASPs). Compare the official MoF ASP list, check your readiness before the 2026–2027 deadlines, and get matched free.",
     "hero": {
       "badge": "Updated {date}",
-      "title": "Every pre-approved e-invoicing provider in the UAE. One directory.",
+      "title": "Every pre-approved e-invoicing provider in the UAE. <hl>One directory.</hl>",
       "subtitle": "All {count} Accredited Service Providers (ASPs) recognised by the UAE Ministry of Finance — compared in one place. Tell us your budget and requirements, and we'll match you with the right provider. Free for businesses.",
       "browseButton": "Browse all {count} providers",
       "matchButton": "Get matched free",
@@ -87,7 +92,7 @@
       "costValue": "Free"
     },
     "why": {
-      "title": "E-invoicing is becoming mandatory in the UAE",
+      "title": "E-invoicing is becoming <hl>mandatory</hl> in the UAE",
       "subtitle": "The UAE is rolling out mandatory e-invoicing under the Ministry of Finance's Electronic Invoicing System. Businesses must exchange invoices through an Accredited Service Provider (ASP) using the Peppol PINT AE standard.",
       "point1Title": "Choosing wrong is expensive",
       "point1Body": "Switching ASPs mid-implementation means re-integrating your ERP, retraining your team and re-testing compliance. Getting it right the first time matters.",
@@ -117,7 +122,7 @@
       "button": "Read the FAQ"
     },
     "finalCta": {
-      "title": "Get matched with the right e-invoicing provider",
+      "title": "Get matched with the <hl>right</hl> e-invoicing provider",
       "subtitle": "Free, fast and with no obligation. Our team knows the UAE ASP landscape inside out.",
       "button": "Start now — it's free"
     },

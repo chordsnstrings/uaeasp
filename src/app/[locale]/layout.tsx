@@ -6,6 +6,8 @@ import { Inter, IBM_Plex_Sans_Arabic } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { MotionProvider } from "@/components/motion";
 import { Header } from "@/components/layout/Header";
+import { guidesContent } from "@/content/guides";
+import { PROVIDER_CATEGORIES } from "@/db/schema";
 import { Footer } from "@/components/layout/Footer";
 import { StickyCta } from "@/components/layout/StickyCta";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
@@ -132,7 +134,15 @@ export default async function LocaleLayout({
           <MotionProvider>
             <Analytics />
             <ScrollProgress />
-            <Header />
+            <Header
+              menu={{
+                guides: guidesContent[locale as "en" | "ar"].map((g) => ({
+                  slug: g.slug,
+                  title: g.title,
+                })),
+                categories: [...PROVIDER_CATEGORIES],
+              }}
+            />
             <main id="main">{children}</main>
             <Footer />
             <StickyCta />

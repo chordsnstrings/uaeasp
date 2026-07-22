@@ -94,6 +94,23 @@ export function StaggerItem({
   );
 }
 
+/** Emphasised phrase whose accent marker sweeps in when scrolled into view.
+ * Use inside headings via t.rich: <Highlight>key phrase</Highlight>. */
+export function Highlight({ children }: { children: ReactNode }) {
+  const reduced = useReducedMotion();
+  return (
+    <m.span
+      className="marker"
+      initial={reduced ? { backgroundSize: "100% 100%" } : { backgroundSize: "0% 100%" }}
+      whileInView={{ backgroundSize: "100% 100%" }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </m.span>
+  );
+}
+
 /** Animated count-up number (used for stats). */
 export function AnimatedNumber({
   value,
