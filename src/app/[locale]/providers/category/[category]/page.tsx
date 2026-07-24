@@ -102,9 +102,10 @@ export default async function CategoryPage({
           </p>
         </FadeIn>
         <StaggerGroup className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {providers.map((p) => (
-            <StaggerItem key={p.id} className="relative">
+          {providers.map((p, i) => (
+            <StaggerItem key={p.id} className="relative min-w-0">
               <ProviderCard
+                serial={i + 1}
                 provider={{
                   ...p,
                   description:
@@ -147,7 +148,7 @@ export default async function CategoryPage({
         </FadeIn>
 
         <FadeIn>
-          <div className="mt-12 flex flex-col items-start justify-between gap-6 rounded-3xl bg-gradient-to-br from-brand-800 to-brand-950 p-8 text-white sm:flex-row sm:items-center sm:p-10">
+          <div className="mt-12 flex flex-col items-start justify-between gap-6 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-white sm:flex-row sm:items-center sm:p-10">
             <div>
               <h2 className="text-2xl font-bold">{t("ctaTitle")}</h2>
               <p className="mt-2 max-w-xl text-brand-100">{t("ctaBody")}</p>

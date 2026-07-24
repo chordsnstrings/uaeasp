@@ -99,6 +99,12 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
     delistedBadge: t("delistedBadge"),
   };
 
+  // Registry serials follow the full alphabetical list, not the filtered view.
+  const serialById = useMemo(
+    () => new Map(providers.map((p, i) => [p.id, i + 1])),
+    [providers],
+  );
+
   return (
     <div>
       {/* Search grows while you use it, shrinks back out of the way after */}
@@ -218,14 +224,14 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.97 }}
                 transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.3) }}
-                className="relative"
+                className="relative min-w-0"
               >
-                <ProviderCard provider={p} labels={labels} />
+                <ProviderCard provider={p} labels={labels} serial={serialById.get(p.id)} />
               </m.div>
             ))}
             {/* Get-matched card slots into the grid to keep the funnel present */}
             <m.div layout key="cta" className="relative">
-              <div className="flex h-full flex-col justify-between rounded-2xl bg-gradient-to-br from-brand-800 to-brand-950 p-6 text-white shadow-lg">
+              <div className="flex h-full flex-col justify-between grain relative overflow-hidden rounded-xl bg-brand-950 p-6 text-white shadow-lg">
                 <div>
                   <h3 className="text-lg font-bold">
                     {t("getMatchedCard.title", { count: providers.length })}

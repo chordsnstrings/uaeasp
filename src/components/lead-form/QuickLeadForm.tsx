@@ -84,10 +84,10 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
   }
 
   const inputClass = (field: string) =>
-    `h-12 w-full rounded-xl border bg-white/95 px-4 text-base text-ink-900 shadow-sm placeholder:text-ink-400 focus:ring-2 ${
+    `h-12 w-full rounded-lg border bg-white px-4 text-base text-ink-900 placeholder:text-ink-400 focus:ring-2 ${
       errors[field]
         ? "border-red-400 focus:border-red-400 focus:ring-red-200"
-        : "border-white/20 focus:border-accent-400 focus:ring-accent-400/30"
+        : "border-ink-200 focus:border-brand-500 focus:ring-brand-100"
     }`;
 
   return (
@@ -97,7 +97,7 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
       transition={{ duration: 0.4 }}
       onSubmit={onSubmit}
       noValidate
-      className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/20 backdrop-blur-sm sm:p-5"
+      className="rounded-xl border border-white/15 bg-paper p-4 shadow-[0_3px_0_rgb(2_6_23/0.35)] sm:p-5"
     >
       {/* Honeypot */}
       <div className="absolute -left-[9999px] top-auto" aria-hidden="true">
@@ -107,7 +107,7 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
         </label>
       </div>
 
-      <p className="text-sm font-bold text-white">{t("title")}</p>
+      <p className="font-display text-base font-bold text-ink-900">{t("title")}</p>
       <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
         <input
           name="fullName"
@@ -150,7 +150,7 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
         type="submit"
         disabled={submitting}
         whileTap={{ scale: 0.97 }}
-        className="btn-shine mt-3 w-full rounded-xl bg-accent-500 px-6 py-3.5 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/25 hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
+        className="btn-shine mt-3 w-full rounded-lg bg-accent-500 px-6 py-3.5 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/25 hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">
@@ -164,9 +164,9 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
           t("submit")
         )}
       </m.button>
-      <p className="mt-2 text-center text-[11px] leading-relaxed text-brand-200">
+      <p className="mt-2.5 text-center text-[11px] leading-relaxed text-ink-500">
         {t("note")}{" "}
-        <Link href="/privacy" className="underline underline-offset-2 hover:text-white" target="_blank">
+        <Link href="/privacy" className="underline underline-offset-2 hover:text-ink-900" target="_blank">
           {tf("consentLinkText")}
         </Link>
       </p>

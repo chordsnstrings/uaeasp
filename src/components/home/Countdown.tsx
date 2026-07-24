@@ -40,18 +40,18 @@ export function Countdown({ targetIso }: { targetIso: string }) {
 
   return (
     <div className="mt-8">
-      <p className="text-sm font-semibold uppercase tracking-wide text-brand-200">
+      <p className="num text-xs font-semibold uppercase tracking-[0.18em] text-brand-200">
         {t("title")}
       </p>
       <div dir="ltr" className="mt-3 flex gap-2.5 sm:gap-3">
         {tiles.map((tile) => (
           <div
             key={tile.key}
-            className="min-w-[68px] rounded-2xl bg-white/10 px-3 py-3 text-center ring-1 ring-white/20 backdrop-blur-sm sm:min-w-[84px] sm:px-4"
+            className="min-w-[68px] rounded-lg border border-white/15 bg-paper px-3 py-3 text-center shadow-[0_2px_0_rgb(2_6_23/0.35)] sm:min-w-[84px] sm:px-4"
           >
             <span
-              className={`relative block h-8 overflow-hidden text-2xl font-extrabold leading-8 tabular-nums sm:h-9 sm:text-3xl sm:leading-9 ${
-                tile.key === "seconds" ? "text-accent-400" : "text-white"
+              className={`num relative block h-8 overflow-hidden text-2xl font-semibold leading-8 sm:h-9 sm:text-3xl sm:leading-9 ${
+                tile.key === "seconds" ? "text-accent-600" : "text-ink-900"
               }`}
               suppressHydrationWarning
             >
@@ -69,7 +69,7 @@ export function Countdown({ targetIso }: { targetIso: string }) {
                 </m.span>
               </AnimatePresence>
             </span>
-            <span className="mt-0.5 block text-[11px] font-medium text-brand-200">
+            <span className="num mt-0.5 block text-[10px] font-medium uppercase tracking-[0.14em] text-ink-500">
               {t(tile.key)}
             </span>
           </div>

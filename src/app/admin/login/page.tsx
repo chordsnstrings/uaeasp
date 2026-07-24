@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { LogoMark } from "@/components/icons";
 import { loginAction } from "../actions";
 
 export default function AdminLoginPage() {
@@ -12,9 +13,9 @@ export default function AdminLoginPage() {
         <div className="mb-6 text-center">
           <span
             aria-hidden
-            className="mx-auto grid size-12 place-items-center rounded-2xl bg-brand-700 text-xl font-black text-white"
+            className="mx-auto grid size-12 place-items-center rounded-xl bg-brand-950 text-white"
           >
-            ⚡
+            <LogoMark size={24} />
           </span>
           <h1 className="mt-4 text-xl font-bold text-ink-900">Team sign in</h1>
           <p className="mt-1 text-sm text-ink-500">Lead CRM &amp; directory admin</p>

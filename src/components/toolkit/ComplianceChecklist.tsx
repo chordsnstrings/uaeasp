@@ -71,7 +71,7 @@ export function ComplianceChecklist() {
         </div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-ink-100">
           <m.div
-            className="h-full rounded-full bg-gradient-to-r from-brand-600 to-brand-400"
+            className="h-full rounded-full bg-brand-600"
             initial={false}
             animate={{ width: `${pct}%` }}
             transition={{ duration: 0.4, ease: "easeOut" }}

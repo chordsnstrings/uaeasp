@@ -19,7 +19,7 @@ export function ScrollProgress() {
   return (
     <m.div
       aria-hidden
-      className="fixed inset-x-0 top-0 z-50 h-0.5 origin-left bg-gradient-to-r from-brand-500 via-brand-400 to-accent-400 rtl:origin-right"
+      className="fixed inset-x-0 top-0 z-50 h-0.5 origin-left bg-accent-500 rtl:origin-right"
       style={{ scaleX: reduced ? scrollYProgress : scaleX }}
     />
   );

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { m, AnimatePresence } from "@/components/motion";
+import { LogoMark } from "@/components/icons";
 
 export interface HeaderMenuData {
   guides: { slug: string; title: string }[];
@@ -143,23 +144,23 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
 
   return (
     <header
-      className={`sticky top-0 z-40 border-b bg-white/85 backdrop-blur-md transition-shadow duration-300 ${
+      className={`sticky top-0 z-40 border-b bg-paper/90 backdrop-blur-md transition-shadow duration-300 ${
         scrolled ? "border-ink-100 shadow-[0_4px_20px_-8px_rgb(2_6_23/0.12)]" : "border-transparent"
       }`}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           href="/"
-          className="group flex items-center gap-2 text-lg font-bold tracking-tight text-ink-900"
+          className="group flex min-w-0 flex-1 items-center gap-2 text-base font-bold tracking-tight text-ink-900 sm:flex-none sm:text-lg"
           onClick={() => setOpen(false)}
         >
           <span
             aria-hidden
-            className="grid size-8 place-items-center rounded-lg bg-brand-700 text-sm font-black text-white transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
+            className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-950 text-white transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
           >
-            ⚡
+            <LogoMark size={18} />
           </span>
-          <span className="transition-colors group-hover:text-brand-800">{t("siteName")}</span>
+          <span className="truncate transition-colors group-hover:text-brand-800">{t("siteName")}</span>
         </Link>
 
         {/* Desktop nav with dropdowns */}
@@ -318,7 +319,7 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-ink-100 bg-white md:hidden"
+            className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-ink-100 bg-paper md:hidden"
             aria-label="Mobile"
           >
             <m.div

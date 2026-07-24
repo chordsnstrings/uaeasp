@@ -210,7 +210,7 @@ export function ReadinessPlanner() {
           </p>
         )}
 
-        <div className="mt-8 rounded-3xl bg-gradient-to-br from-brand-800 to-brand-950 p-6 text-center text-white sm:p-8 print:hidden">
+        <div className="mt-8 grain relative overflow-hidden rounded-xl bg-brand-950 p-6 text-center text-white sm:p-8 print:hidden">
           <h3 className="text-xl font-bold">{t("ctaTitle")}</h3>
           <p className="mx-auto mt-2 max-w-md text-sm text-brand-100">{t("ctaBody")}</p>
           <Link

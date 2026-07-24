@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { LogoMark } from "@/components/icons";
 import { logoutAction } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -30,9 +31,9 @@ export default async function DashboardLayout({
         <Link href="/admin" className="flex items-center gap-2 px-5 py-5">
           <span
             aria-hidden
-            className="grid size-8 place-items-center rounded-lg bg-brand-700 text-sm font-black text-white"
+            className="grid size-8 place-items-center rounded-lg bg-brand-950 text-white"
           >
-            ⚡
+            <LogoMark size={16} />
           </span>
           <span className="text-sm font-bold text-ink-900">Team CRM</span>
         </Link>

@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { m, AnimatePresence } from "@/components/motion";
 import { track } from "@/lib/analytics";
 import { leadSchema } from "@/lib/validation/lead";
+import { IconChecklist, IconTarget } from "@/components/icons";
 
 const QUESTIONS = ["q1", "q2", "q3", "q4", "q5"] as const;
 const ANSWER_SCORES: Record<string, number> = { a1: 20, a2: 10, a3: 0 };
@@ -111,7 +112,9 @@ export function ReadinessQuiz() {
           animate={{ opacity: 1, y: 0 }}
           className="rounded-3xl border border-ink-100 bg-white p-8 text-center shadow-card sm:p-12"
         >
-          <p aria-hidden className="text-5xl">📋</p>
+          <span aria-hidden className="mx-auto grid size-14 place-items-center rounded-lg border border-ink-200 text-brand-800">
+            <IconChecklist size={30} />
+          </span>
           <h2 className="mt-4 text-2xl font-bold text-ink-900">{t("title")}</h2>
           <p className="mx-auto mt-3 max-w-md text-ink-600">
             {t("subtitle", { total: QUESTIONS.length })}
@@ -214,7 +217,9 @@ export function ReadinessQuiz() {
                 </div>
 
                 <div className="mt-8 text-center">
-                  <span aria-hidden className="text-4xl">🎯</span>
+                  <span aria-hidden className="mx-auto grid size-12 place-items-center rounded-full border border-ink-200 text-brand-800">
+                    <IconTarget size={26} />
+                  </span>
                   <h2 className="mt-2 text-xl font-bold text-ink-900">{t("gate.title")}</h2>
                   <p className="mx-auto mt-2 max-w-md text-sm text-ink-600">
                     {t("gate.subtitle")}

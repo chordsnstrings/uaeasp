@@ -12,15 +12,15 @@ export async function Footer() {
   const lastUpdated = await getDirectoryLastUpdated();
 
   return (
-    <footer className="border-t border-ink-100 bg-ink-50">
+    <footer className="border-t-2 border-ink-900 bg-paper-dark">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <p className="text-lg font-bold text-ink-900">{SITE_NAME}</p>
+            <p className="font-display text-lg font-bold text-ink-900">{SITE_NAME}</p>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-ink-600">
               {t("tagline")}
             </p>
-            <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-ink-500 ring-1 ring-ink-200">
+            <p className="num mt-4 inline-flex items-center gap-2 border border-ink-300 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-600">
               <span className="size-1.5 animate-pulse-soft rounded-full bg-brand-500" aria-hidden />
               {t("lastUpdated", {
                 date: formatDirectoryDate(lastUpdated, locale),

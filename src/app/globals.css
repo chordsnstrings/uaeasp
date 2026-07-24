@@ -30,13 +30,27 @@
   --color-ink-900: #0f172a;
   --color-ink-950: #020617;
 
+  /* Paper & ink — the page is a document, not an app canvas */
+  --color-paper: #faf8f3;
+  --color-paper-dark: #f3efe6;
+
   --font-sans: var(--font-sans-latin), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-arabic: var(--font-sans-arabic), "IBM Plex Sans Arabic", "Segoe UI",
-    Tahoma, Arial, sans-serif;
+  --font-display: var(--font-display-latin), var(--font-sans-latin), ui-sans-serif,
+    system-ui, sans-serif;
+  --font-arabic: var(--font-sans-arabic), "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
 
-  --shadow-card: 0 1px 2px rgb(2 6 23 / 0.06), 0 8px 24px -12px rgb(2 6 23 / 0.12);
-  --shadow-card-hover: 0 2px 4px rgb(2 6 23 / 0.08), 0 16px 40px -12px rgb(2 6 23 / 0.18);
+  /* Ledger geometry: squarer corners sitewide (overrides Tailwind's scale so
+     every existing rounded-* class re-renders with document-like radii) */
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+  --radius-3xl: 0.75rem;
+
+  /* Hairlines over drop shadows */
+  --shadow-card: 0 1px 0 rgb(2 6 23 / 0.04);
+  --shadow-card-hover: 0 1px 0 rgb(2 6 23 / 0.04), 0 10px 24px -18px rgb(2 6 23 / 0.28);
 
   --animate-fade-up: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-fade-in: fade-in 0.5s ease-out both;
@@ -99,13 +113,69 @@ html {
 }
 
 body {
-  @apply bg-white text-ink-800 antialiased;
+  @apply bg-paper text-ink-800 antialiased;
   font-family: var(--font-sans);
 }
 
+/* Display type for headings — the voice of the site */
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
+}
+
+/* Numbers are content here: every numeral sits in the mono, tabular. */
+.num,
+code,
+kbd {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
 [dir="rtl"] body,
-[lang="ar"] body {
+[lang="ar"] body,
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] .font-display {
   font-family: var(--font-arabic);
+  letter-spacing: 0;
+}
+
+/* Grain: film-like noise for flat dark blocks — kills the "clean gradient"
+   AI look without any image asset. */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Perforation — the tear-line between a document's sections */
+.perforated {
+  border-top: 2px dashed color-mix(in oklab, currentColor 22%, transparent);
+}
+
+/* Rubber stamp — for "PRE-APPROVED" style marks */
+.stamp {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1.5px solid currentColor;
+  border-radius: 4px;
+  padding: 2px 8px;
+  transform: rotate(-2deg);
+  display: inline-block;
 }
 
 /* Micro-interaction defaults: every interactive element responds to
@@ -271,17 +341,10 @@ div:has(> textarea:focus) > label {
   background-position: 100% 100%;
 }
 
-/* Hero variant: gradient ink for the emphasised phrase on dark sections. */
+/* Emphasised phrase on dark blocks: flat highlighter amber — a marker pen,
+   not a gradient. */
 .hero-em {
-  background-image: linear-gradient(
-    92deg,
-    var(--color-accent-400),
-    #fde68a 55%,
-    var(--color-brand-300)
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--color-accent-400);
 }
 
 /* Inline attention link/word: warms to accent on hover of the surrounding
