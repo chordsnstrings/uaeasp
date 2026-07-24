@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 64,
-          background: "linear-gradient(135deg, #042f2e 0%, #115e59 60%, #0f766e 100%)",
+          background: "#042f2e",
+          borderBottom: "10px solid #f59e0b",
           color: "white",
           fontFamily: "sans-serif",
           direction: locale === "ar" ? "rtl" : "ltr",
@@ -35,12 +36,23 @@ export async function GET(req: NextRequest) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 40,
-              fontWeight: 800,
               color: "#042f2e",
             }}
           >
-            ⚡
+            <svg
+              width={38}
+              height={38}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#042f2e"
+              strokeWidth={1.9}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M6 3h12v18l-2-1.4L14 21l-2-1.4L10 21l-2-1.4L6 21V3z" />
+              <path d="M9 7.5h6M9 11h6" />
+              <path d="M9.5 15.5l1.8 1.8 3.2-3.6" />
+            </svg>
           </div>
           <div style={{ fontSize: 32, fontWeight: 700, opacity: 0.95 }}>{SITE_NAME}</div>
         </div>

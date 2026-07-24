@@ -5,6 +5,7 @@ import { pageMetadata } from "@/lib/metadata";
 import type { Locale } from "@/lib/site";
 import { FadeIn, StaggerGroup, StaggerItem } from "@/components/motion";
 import { EnrichForm } from "@/components/lead-form/EnrichForm";
+import { IconSeal } from "@/components/icons";
 
 export async function generateMetadata({
   params,
@@ -46,9 +47,9 @@ export default async function ThankYouPage({
       <FadeIn>
         <span
           aria-hidden
-          className="mx-auto grid size-16 animate-pop-in place-items-center rounded-full bg-brand-50 text-3xl ring-8 ring-brand-50/50"
+          className="mx-auto grid size-16 animate-pop-in place-items-center rounded-full border border-brand-300 bg-brand-50 text-brand-800 ring-8 ring-brand-50/50"
         >
-          🎉
+          <IconSeal size={34} />
         </span>
         <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
           {t("title")}

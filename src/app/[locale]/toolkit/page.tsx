@@ -4,15 +4,22 @@ import { Link } from "@/i18n/navigation";
 import { pageMetadata } from "@/lib/metadata";
 import type { Locale } from "@/lib/site";
 import { FadeIn, StaggerGroup, StaggerItem } from "@/components/motion";
+import {
+  IconCalculator,
+  IconCalendar,
+  IconChecklist,
+  IconGauge,
+  IconMagnifier,
+} from "@/components/icons";
 
 export const revalidate = 86400;
 
 const TOOLS = [
-  { key: "calculator", href: "/toolkit/penalty-calculator", emoji: "🧮" },
-  { key: "planner", href: "/toolkit/readiness-planner", emoji: "🗓️" },
-  { key: "checklist", href: "/toolkit/checklist", emoji: "✅" },
-  { key: "assessment", href: "/assessment", emoji: "📋" },
-  { key: "pint", href: "/resources/pint-ae-reference", emoji: "🔎" },
+  { key: "calculator", href: "/toolkit/penalty-calculator", Icon: IconCalculator },
+  { key: "planner", href: "/toolkit/readiness-planner", Icon: IconCalendar },
+  { key: "checklist", href: "/toolkit/checklist", Icon: IconChecklist },
+  { key: "assessment", href: "/assessment", Icon: IconGauge },
+  { key: "pint", href: "/resources/pint-ae-reference", Icon: IconMagnifier },
 ] as const;
 
 export async function generateMetadata({
@@ -53,13 +60,13 @@ export default async function ToolkitPage({
           <StaggerItem key={tool.key}>
             <Link
               href={tool.href}
-              className="card-hover group flex h-full flex-col rounded-2xl border border-ink-100 bg-white p-6 transition-transform"
+              className="card-hover group flex h-full flex-col rounded-xl border border-ink-200 bg-white p-6 transition-transform hover:border-ink-900"
             >
               <span
                 aria-hidden
-                className="grid size-12 place-items-center rounded-xl bg-brand-50 text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
+                className="grid size-12 place-items-center rounded-lg border border-ink-200 text-brand-800 transition-colors duration-300 group-hover:border-brand-400 group-hover:bg-brand-50"
               >
-                {tool.emoji}
+                <tool.Icon size={24} />
               </span>
               <h2 className="mt-4 text-lg font-bold text-ink-900 group-hover:text-brand-800">
                 {t(`tools.${tool.key}.title` as Parameters<typeof t>[0])}
@@ -82,7 +89,7 @@ export default async function ToolkitPage({
       </StaggerGroup>
 
       <FadeIn>
-        <div className="mt-12 flex flex-col items-start justify-between gap-6 rounded-3xl bg-gradient-to-br from-brand-800 to-brand-950 p-8 text-white sm:flex-row sm:items-center sm:p-10">
+        <div className="mt-12 flex flex-col items-start justify-between gap-6 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-white sm:flex-row sm:items-center sm:p-10">
           <div>
             <h2 className="text-2xl font-bold">{t("ctaTitle")}</h2>
             <p className="mt-2 max-w-xl text-brand-100">{t("ctaBody")}</p>

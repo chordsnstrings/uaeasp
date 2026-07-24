@@ -1,62 +1,50 @@
 import { Link } from "@/i18n/navigation";
 import type { Provider } from "@/db/schema";
 
-const AVATAR_COLORS = [
-  "bg-brand-700",
-  "bg-ink-700",
-  "bg-accent-600",
-  "bg-brand-900",
-  "bg-ink-500",
-];
-
+/** A registry entry, not a "card": serial number, stamped status, hairline
+ * borders — styled like a line item on an official list. */
 export function ProviderCard({
   provider,
   labels,
+  serial,
 }: {
   provider: Pick<
     Provider,
     "slug" | "name" | "nameAr" | "website" | "description" | "descriptionAr" | "status"
   >;
   labels: { visitWebsite: string; viewProfile: string; delistedBadge: string };
+  serial?: number;
 }) {
-  const color =
-    AVATAR_COLORS[
-      Math.abs(
-        provider.slug.split("").reduce((a, c) => a + c.charCodeAt(0), 0),
-      ) % AVATAR_COLORS.length
-    ];
-
   return (
-    <article className="card-hover group flex h-full flex-col rounded-2xl border border-ink-100 bg-white p-5 transition-transform">
-      <div className="flex items-start gap-3">
-        <span
-          aria-hidden
-          className={`grid size-11 shrink-0 place-items-center rounded-xl text-lg font-bold text-white transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 ${color}`}
-        >
-          {provider.name.charAt(0)}
-        </span>
-        <div className="min-w-0">
-          <h3 className="font-semibold leading-snug text-ink-900">
-            <Link
-              href={`/providers/${provider.slug}`}
-              className="after:absolute after:inset-0 group-hover:text-brand-800"
-            >
-              {provider.name}
-            </Link>
-          </h3>
-          {provider.status === "delisted" && (
-            <span className="mt-1 inline-block rounded-full bg-ink-100 px-2 py-0.5 text-[11px] font-medium text-ink-500">
-              {labels.delistedBadge}
-            </span>
-          )}
-        </div>
+    <article className="card-hover group relative flex h-full min-w-0 flex-col rounded-xl border border-ink-200 bg-white p-5 transition-transform hover:border-ink-900">
+      <div className="flex items-start justify-between gap-3">
+        {serial !== undefined && (
+          <span className="num text-xs font-medium text-ink-400" dir="ltr">
+            № {String(serial).padStart(2, "0")}
+          </span>
+        )}
+        {provider.status === "delisted" ? (
+          <span className="stamp text-[9px] text-ink-400">{labels.delistedBadge}</span>
+        ) : (
+          <span className="stamp text-[9px] text-brand-700 opacity-70 transition-opacity group-hover:opacity-100">
+            MoF
+          </span>
+        )}
       </div>
+      <h3 className="mt-2.5 break-words text-lg font-semibold leading-snug text-ink-900">
+        <Link
+          href={`/providers/${provider.slug}`}
+          className="after:absolute after:inset-0 group-hover:text-brand-800"
+        >
+          {provider.name}
+        </Link>
+      </h3>
       {provider.description && (
-        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-ink-600">
+        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink-600">
           {provider.description}
         </p>
       )}
-      <div className="relative mt-auto flex items-center gap-4 pt-4 text-sm font-medium">
+      <div className="relative mt-auto flex items-center justify-between gap-4 border-t border-dashed border-ink-200 pt-3.5 text-sm font-medium">
         <span className="text-brand-700 transition-colors group-hover:text-brand-900">
           {labels.viewProfile}{" "}
           <span
@@ -66,6 +54,11 @@ export function ProviderCard({
             →
           </span>
         </span>
+        {provider.website && (
+          <span className="num max-w-[45%] truncate text-[11px] text-ink-400" dir="ltr">
+            {provider.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+          </span>
+        )}
       </div>
     </article>
   );

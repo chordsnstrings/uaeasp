@@ -250,7 +250,7 @@ export default async function ProviderDetailPage({
           )}
 
           {/* Lead funnel CTA */}
-          <section className="mt-10 rounded-3xl bg-gradient-to-br from-brand-800 to-brand-950 p-8 text-white sm:p-10">
+          <section className="mt-10 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-white sm:p-10">
             <h2 className="text-2xl font-bold">{t("compareCta.title", { name })}</h2>
             <p className="mt-3 max-w-2xl leading-relaxed text-brand-100">
               {t("compareCta.body", { name })}

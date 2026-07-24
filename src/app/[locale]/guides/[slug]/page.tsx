@@ -138,7 +138,7 @@ export default async function GuidePage({
         </div>
 
         <FadeIn>
-          <div className="mt-12 rounded-3xl bg-gradient-to-br from-brand-800 to-brand-950 p-8 text-center text-white">
+          <div className="mt-12 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-center text-white">
             <h2 className="text-2xl font-bold">{t("articleCtaTitle")}</h2>
             <p className="mx-auto mt-2 max-w-md text-brand-100">{t("articleCtaBody")}</p>
             <Link

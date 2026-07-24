@@ -2,7 +2,12 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Inter, IBM_Plex_Sans_Arabic } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  IBM_Plex_Mono,
+  Instrument_Sans,
+  Alexandria,
+} from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { MotionProvider } from "@/components/motion";
 import { Header } from "@/components/layout/Header";
@@ -17,15 +22,29 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { SITE_NAME, SITE_URL, absoluteUrl, localePath } from "@/lib/site";
 import "../globals.css";
 
-const inter = Inter({
+// The Ledger identity: a characterful grotesk for display, a quiet sans for
+// body, real monospace for every numeral/code, and a strong Arabic pairing.
+const display = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-display-latin",
+  display: "swap",
+});
+
+const body = Instrument_Sans({
   subsets: ["latin"],
   variable: "--font-sans-latin",
   display: "swap",
 });
 
-const plexArabic = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic"],
-  weight: ["400", "500", "600", "700"],
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
+const arabic = Alexandria({
+  subsets: ["arabic", "latin"],
   variable: "--font-sans-arabic",
   display: "swap",
 });
@@ -83,7 +102,11 @@ export default async function LocaleLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
   return (
-    <html lang={locale} dir={dir} className={`${inter.variable} ${plexArabic.variable}`}>
+    <html
+      lang={locale}
+      dir={dir}
+      className={`${display.variable} ${body.variable} ${mono.variable} ${arabic.variable}`}
+    >
       <head>
         {plausibleDomain && (
           <script
