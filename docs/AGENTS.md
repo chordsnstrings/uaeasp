@@ -75,15 +75,35 @@ immediately and closes its thread. That list is never cleared.
 
 ### 3. Heartbeat
 
-Add two GitHub repository secrets:
+**Nothing to do — the app keeps its own clock.** `src/instrumentation.ts` arms
+a timer when the server boots that beats every five minutes by calling its own
+`/api/agents/tick` over the loopback interface, authenticated with the
+`INGEST_SECRET` environment variable. Each beat:
 
-- `AGENT_TICK_URL` = `https://uaeasp.ae/api/agents/tick`
-- `INGEST_SECRET` = the same secret the directory refresh uses
+1. runs the **nightly provider-directory refresh** if it is due (this happens
+   whether or not the agents are switched on),
+2. enqueues any periodic agent work that is due,
+3. drains a bounded slice of the queue.
 
-The **Agent heartbeat** workflow then runs every 15 minutes: it recovers stale
-work, enqueues anything due, and drains a bounded slice of the queue. You can
-also press **Run agents now** in `/admin/agents`, which does exactly the same
-thing synchronously.
+Every beat claims a slot in the database first, so concurrent callers can never
+double up. Set `DISABLE_INTERNAL_SCHEDULER=true` to turn the timer off.
+
+Two optional redundancies:
+
+- **GitHub Actions** — add repository secrets `AGENT_TICK_URL` =
+  `https://uaeasp.ae/api/agents/tick` and `INGEST_SECRET`, and the *Agent
+  heartbeat* workflow ticks every 15 minutes as well. Note that GitHub only
+  runs scheduled workflows on the repository's **default branch**.
+- **Manually** — press **Run agents now** in `/admin/agents`, which forces a
+  beat immediately, ignoring the spacing rule.
+
+#### The nightly directory refresh
+
+Independent of the agents entirely. It runs once per Dubai day, no earlier than
+02:00 Dubai, and catches up automatically if more than 26 hours pass without a
+successful run. A failed fetch is not retried for 30 minutes, so a broken
+source cannot hammer itself. The result appears in `/admin/scrapes` exactly as
+the GitHub workflow's runs do, tagged `auto`.
 
 ### 4. Google Places (Prospector)
 
