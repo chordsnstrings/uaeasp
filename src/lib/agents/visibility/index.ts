@@ -11,6 +11,7 @@ import {
 import { chat, extractJson } from "@/lib/ai/chat";
 import { getActiveProviderCount } from "@/lib/data";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { mandateTimelineLines } from "@/content/mandate";
 import { getAgentConfig, type AgentConfig } from "../config";
 import { isSuppressed, normalizeEmail } from "../mailer";
 import { enqueue } from "../queue";
@@ -147,7 +148,10 @@ async function storeCompetitorMentions(hits: SearchHit[], query: string): Promis
 const ARTICLE_SYSTEM = `You write reference pages for ${SITE_NAME} (uaeasp.ae), an independent UAE directory of Ministry of Finance accredited e-invoicing service providers.
 
 Verified facts you may use:
-- E-invoicing is mandatory in the UAE: businesses with turnover ≥ AED 50m from 1 July 2026; all other VAT-registered businesses from 1 January 2027; government entities from October 2027.
+- E-invoicing is mandatory in the UAE on this timeline:
+${mandateTimelineLines()
+  .map((line) => `  - ${line}`)
+  .join("\n")}
 - Invoices must be exchanged through an Accredited Service Provider (ASP) using the PINT AE format on the Peppol 5-corner model.
 - Cabinet Decision No. 106 of 2025 and Ministerial Decision No. 244 of 2025 govern the regime.
 - We list every accredited provider and the directory is free.

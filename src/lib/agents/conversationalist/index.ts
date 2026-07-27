@@ -13,6 +13,7 @@ import {
 import { chat, extractJson } from "@/lib/ai/chat";
 import { getSalesNotifyEmails, sendEmail } from "@/lib/email";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { appointmentDeadlineFor, mandateTimelineLines } from "@/content/mandate";
 import { getAgentConfig, type AgentConfig } from "../config";
 import {
   isSuppressed,
@@ -36,9 +37,10 @@ import type { AgentHandler } from "../types";
 
 const MANDATE_FACTS = `Verified facts you may state (never state anything else as fact):
 - The UAE Ministry of Finance maintains a list of Accredited Service Providers (ASPs) for e-invoicing.
-- Businesses with annual turnover of AED 50 million or more must comply from 1 July 2026.
-- All other VAT-registered businesses must comply from 1 January 2027.
-- Government entities follow from October 2027.
+${mandateTimelineLines()
+  .map((line) => `- ${line}`)
+  .join("\n")}
+- Never claim a deadline has already passed unless the date above says so.
 - E-invoices must be issued through an accredited service provider using the PINT AE format and the Peppol 5-corner model.
 - Our directory at uaeasp.ae lists every accredited provider and is free to use.
 - We are an independent directory. We are not the Ministry of Finance, the FTA, or a provider ourselves.`;
@@ -85,12 +87,13 @@ interface Draft {
 
 function fallbackDraft(prospect: Prospect, config: AgentConfig, step: number): Draft {
   const name = prospect.name;
-  const deadline =
-    prospect.mandateWave === "jul-2026" ? "1 July 2026" : "1 January 2027";
+  // The appointment deadline, not the go-live date: it lands months earlier and
+  // is the one thing the recipient still has to act on.
+  const deadline = appointmentDeadlineFor(prospect.mandateWave);
   if (step === 0) {
     return {
       subject: `E-invoicing provider shortlist for ${name}`,
-      body: `Hello,\n\nUAE e-invoicing becomes mandatory for businesses like ${name} from ${deadline}, and invoices have to be issued through a provider accredited by the Ministry of Finance.\n\nWe maintain the full directory of accredited providers and put together free shortlists. ${config.offerCta}, and we will send back the three that fit ${name} best.\n\nIf this is not your area, please point me to whoever handles finance systems.`,
+      body: `Hello,\n\nUnder the UAE e-invoicing mandate, businesses like ${name} need an accredited service provider appointed by ${deadline}, and invoices then have to be issued through that provider.\n\nWe maintain the full directory of accredited providers and put together free shortlists. ${config.offerCta}, and we will send back the three that fit ${name} best.\n\nIf this is not your area, please point me to whoever handles finance systems.`,
     };
   }
   return {

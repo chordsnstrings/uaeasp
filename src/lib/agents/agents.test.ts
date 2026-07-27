@@ -15,6 +15,13 @@ import { dubaiHour, refreshIsDue } from "./maintenance";
 import { AI_JOBS, pickModel } from "@/lib/ai/models";
 import { certUrlIsTrusted, subscribeUrlIsTrusted } from "./sns";
 import { keywordIntent } from "./conversationalist";
+import {
+  MANDATE_PHASES,
+  VOLUNTARY_START_ISO,
+  appointmentDeadlineFor,
+  formatMandateDate,
+  mandateTimelineLines,
+} from "@/content/mandate";
 
 describe("SES message building", () => {
   it("includes one-click unsubscribe headers when a URL is given", () => {
@@ -394,5 +401,52 @@ describe("html flattening is bounded (audit finding: high)", () => {
   it("caps very large inputs", () => {
     const huge = `<p>${"x".repeat(500_000)}</p>`;
     expect(htmlToText(huge).length).toBeLessThanOrEqual(200_000);
+  });
+});
+
+describe("mandate facts stated to prospects", () => {
+  // These lines go into cold emails and published articles as fact. They were
+  // once hand-typed into three prompts and drifted from the rest of the site,
+  // which quoted deadlines months apart. Derive them, and prove they agree.
+  const lines = mandateTimelineLines();
+  const joined = lines.join("\n");
+
+  it("quotes every phase date from MANDATE_PHASES verbatim", () => {
+    for (const phase of MANDATE_PHASES) {
+      expect(joined).toContain(formatMandateDate(phase.appointDeadlineIso, "en"));
+      expect(joined).toContain(formatMandateDate(phase.goLiveIso, "en"));
+    }
+  });
+
+  it("never states a deadline the site's own timeline does not contain", () => {
+    // The old, wrong copy: "mandatory from 1 July 2026 / 1 January 2027".
+    expect(joined).not.toMatch(/mandatory[^.]*1 July 2026/i);
+    const stated = joined.match(/\d{1,2} \w+ \d{4}/g) ?? [];
+    const allowed = new Set([
+      formatMandateDate(VOLUNTARY_START_ISO, "en"),
+      ...MANDATE_PHASES.flatMap((p) => [
+        formatMandateDate(p.appointDeadlineIso, "en"),
+        formatMandateDate(p.goLiveIso, "en"),
+      ]),
+    ]);
+    for (const date of stated) expect(allowed).toContain(date);
+  });
+
+  it("separates appointing a provider from going live", () => {
+    const large = MANDATE_PHASES.find((p) => p.key === "large")!;
+    expect(formatMandateDate(large.appointDeadlineIso, "en")).not.toBe(
+      formatMandateDate(large.goLiveIso, "en"),
+    );
+    expect(appointmentDeadlineFor("phase-1")).toBe(
+      formatMandateDate(large.appointDeadlineIso, "en"),
+    );
+  });
+
+  it("treats an unknown or missing wave as the later phase-2 deadline", () => {
+    const other = MANDATE_PHASES.find((p) => p.key === "other")!;
+    const expected = formatMandateDate(other.appointDeadlineIso, "en");
+    expect(appointmentDeadlineFor(null)).toBe(expected);
+    expect(appointmentDeadlineFor("unknown")).toBe(expected);
+    expect(appointmentDeadlineFor("phase-2")).toBe(expected);
   });
 });
