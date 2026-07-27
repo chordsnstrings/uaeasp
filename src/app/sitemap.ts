@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getPublicProviders } from "@/lib/data";
+import { getPublishedArticleSlugs } from "@/lib/insights";
 import { GUIDE_SLUGS, GUIDE_UPDATED_ISO } from "@/content/guides";
 import { EMIRATES, PROVIDER_CATEGORIES } from "@/db/schema";
 import { absoluteUrl, localePath } from "@/lib/site";
@@ -25,7 +26,10 @@ function entry(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const providers = await getPublicProviders();
+  const [providers, insights] = await Promise.all([
+    getPublicProviders(),
+    getPublishedArticleSlugs(),
+  ]);
 
   return [
     entry("/", { priority: 1, changeFrequency: "daily" }),
@@ -52,6 +56,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...EMIRATES.map((emirate) =>
       entry(`/e-invoicing/${emirate}`, { priority: 0.8, changeFrequency: "monthly" }),
     ),
+    entry("/insights", { priority: 0.7, changeFrequency: "weekly" }),
+    ...insights
+      .filter((a) => a.locale === "en")
+      .map((a) =>
+        entry(`/insights/${a.slug}`, {
+          priority: 0.6,
+          changeFrequency: "monthly",
+          lastModified: a.updatedAt,
+        }),
+      ),
     entry("/integrations", { priority: 0.7, changeFrequency: "monthly" }),
     entry("/resources", { priority: 0.6, changeFrequency: "monthly" }),
     entry("/resources/pint-ae-reference", { priority: 0.7, changeFrequency: "monthly" }),
