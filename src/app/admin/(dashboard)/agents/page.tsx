@@ -12,6 +12,7 @@ import {
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { agentReadiness, getAgentConfig, AGENT_SECRET_FIELDS } from "@/lib/agents/config";
+import { heartbeatState } from "@/lib/agents/heartbeat";
 import { dailySendCap, sentToday } from "@/lib/agents/mailer";
 import { queueDepth } from "@/lib/agents/queue";
 import { absoluteUrl } from "@/lib/site";
@@ -61,7 +62,7 @@ export default async function AgentsPage() {
   const config = await getAgentConfig();
   const readiness = agentReadiness(config);
 
-  const [depth, runs, counts, cap, used] = await Promise.all([
+  const [depth, runs, counts, cap, used, clock] = await Promise.all([
     queueDepth(),
     db.select().from(agentRuns).orderBy(desc(agentRuns.startedAt)).limit(12),
     Promise.all([
@@ -82,7 +83,20 @@ export default async function AgentsPage() {
     ]),
     dailySendCap(config),
     sentToday(),
+    heartbeatState(),
   ]);
+
+  const fmt = (iso: string | null) =>
+    iso
+      ? new Date(iso).toLocaleString("en-GB", {
+          timeZone: "Asia/Dubai",
+          dateStyle: "medium",
+          timeStyle: "short",
+        })
+      : "never";
+  const beatAgeMin = clock.lastBeatAt
+    ? Math.round((Date.now() - new Date(clock.lastBeatAt).getTime()) / 60000)
+    : null;
 
   const [pendingApproval, prospectCount, draftCount, suppressionCount, targetCount] =
     counts.map((c) => Number(c[0]?.n ?? 0));
@@ -105,6 +119,34 @@ export default async function AgentsPage() {
         </div>
         <TickButton />
       </header>
+
+      {/* The clock: proof the internal scheduler is alive */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-ink-200 bg-white px-5 py-3.5 text-sm">
+        <span
+          className={`num inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] ${
+            beatAgeMin !== null && beatAgeMin <= 15 ? "text-brand-700" : "text-amber-700"
+          }`}
+        >
+          <span
+            aria-hidden
+            className={`size-1.5 rounded-full ${
+              beatAgeMin !== null && beatAgeMin <= 15
+                ? "animate-pulse-soft bg-brand-500"
+                : "bg-amber-500"
+            }`}
+          />
+          {beatAgeMin !== null && beatAgeMin <= 15 ? "clock running" : "clock stalled"}
+        </span>
+        <span className="text-ink-600">
+          Last beat: <span className="num text-ink-900">{fmt(clock.lastBeatAt)}</span>
+          {beatAgeMin !== null && (
+            <span className="num text-ink-400"> ({beatAgeMin}m ago)</span>
+          )}
+        </span>
+        <span className="text-ink-600">
+          Directory refreshed: <span className="num text-ink-900">{fmt(clock.lastRefreshAt)}</span>
+        </span>
+      </div>
 
       {/* Agent status */}
       <div className="grid gap-4 sm:grid-cols-2">

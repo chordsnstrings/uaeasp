@@ -1,5 +1,13 @@
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { appSettings } from "@/db/schema";
 import { getAgentConfig } from "./config";
-import { claimSlot, runDueMaintenance, type MaintenanceOutcome } from "./maintenance";
+import {
+  claimSlot,
+  lastSuccessfulScrape,
+  runDueMaintenance,
+  type MaintenanceOutcome,
+} from "./maintenance";
 import { queueDepth, reclaimStale } from "./queue";
 import { drainQueue } from "./runner";
 import { scheduleDueWork } from "./scheduler";
@@ -21,6 +29,29 @@ export interface HeartbeatResult {
   processed?: number;
   depth?: Record<string, number>;
   ms?: number;
+}
+
+/**
+ * Operational health: when the clock last beat, and when the directory was
+ * last refreshed. Exposed unauthenticated (times only, no data) so the
+ * scheduler can be confirmed alive without logging on every quiet beat.
+ */
+export async function heartbeatState(): Promise<{
+  lastBeatAt: string | null;
+  lastRefreshAt: string | null;
+}> {
+  const [beat, refresh] = await Promise.all([
+    db
+      .select({ at: appSettings.updatedAt })
+      .from(appSettings)
+      .where(eq(appSettings.key, "heartbeat_claim"))
+      .limit(1),
+    lastSuccessfulScrape(),
+  ]);
+  return {
+    lastBeatAt: beat[0]?.at ? new Date(beat[0].at).toISOString() : null,
+    lastRefreshAt: refresh ? refresh.toISOString() : null,
+  };
 }
 
 export async function heartbeat(
