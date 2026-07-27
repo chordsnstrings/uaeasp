@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { outreachMessages, outreachThreads } from "@/db/schema";
 import { verifySnsMessage, type SesNotification, type SnsEnvelope } from "@/lib/agents/sns";
@@ -98,14 +98,12 @@ async function handleInbound(payload: SesNotification) {
 
   let threadId: string | null = null;
   if (candidateIds.length) {
+    // These ids come from headers on inbound mail — i.e. from anyone who can
+    // email us — so they are bound as parameters, never interpolated.
     const [row] = await db
       .select({ threadId: outreachMessages.threadId })
       .from(outreachMessages)
-      .where(
-        sql`${outreachMessages.messageId} = ANY(${sql.raw(
-          `ARRAY[${candidateIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(",")}]::text[]`,
-        )})`,
-      )
+      .where(inArray(outreachMessages.messageId, candidateIds.slice(0, 20)))
       .limit(1);
     threadId = row?.threadId ?? null;
   }

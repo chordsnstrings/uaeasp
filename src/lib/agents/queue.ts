@@ -1,6 +1,6 @@
 import { and, eq, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentTasks, type AgentKey, type AgentTask } from "@/db/schema";
+import { AGENT_KEYS, agentTasks, type AgentKey, type AgentTask } from "@/db/schema";
 
 /**
  * Postgres-backed job queue for the growth agents.
@@ -41,8 +41,11 @@ export async function enqueue(input: EnqueueInput): Promise<string | null> {
 
 /** Claim the next runnable task atomically. Returns null when the queue is dry. */
 export async function claimNext(agents?: AgentKey[]): Promise<AgentTask | null> {
-  const agentFilter = agents?.length
-    ? sql`AND agent = ANY(${sql.raw(`ARRAY[${agents.map((a) => `'${a}'`).join(",")}]::text[]`)})`
+  // Whitelisted against the known agent keys before it can reach the query —
+  // the raw fragment is only ever built from that fixed set.
+  const allowed = (agents ?? []).filter((a) => AGENT_KEYS.includes(a));
+  const agentFilter = allowed.length
+    ? sql`AND agent = ANY(${sql.raw(`ARRAY[${allowed.map((a) => `'${a}'`).join(",")}]::text[]`)})`
     : sql``;
   const { rows } = await db.execute<AgentTask>(sql`
     UPDATE agent_tasks SET
