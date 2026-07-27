@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { getConfig } from "@/lib/settings";
 import { getAgentConfig } from "@/lib/agents/config";
-import { heartbeat } from "@/lib/agents/heartbeat";
+import { heartbeat, heartbeatState } from "@/lib/agents/heartbeat";
 import { queueDepth } from "@/lib/agents/queue";
 
 export const runtime = "nodejs";
@@ -49,6 +49,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-  const [config, depth] = await Promise.all([getAgentConfig(), queueDepth()]);
-  return NextResponse.json({ enabled: config.agentsEnabled, depth });
+  const [config, depth, state] = await Promise.all([
+    getAgentConfig(),
+    queueDepth(),
+    heartbeatState(),
+  ]);
+  return NextResponse.json({ enabled: config.agentsEnabled, depth, ...state });
 }
