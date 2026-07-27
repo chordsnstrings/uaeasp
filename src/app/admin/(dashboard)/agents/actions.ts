@@ -16,6 +16,7 @@ import { heartbeat } from "@/lib/agents/heartbeat";
 import { sendOutreachMessage, suppress } from "@/lib/agents/mailer";
 import { enqueue } from "@/lib/agents/queue";
 import { testSesConnection } from "@/lib/agents/ses";
+import { AI_JOBS, setJobModels, type AiJob } from "@/lib/ai/models";
 
 type ActionState = { ok?: boolean; error?: string; detail?: string } | undefined;
 
@@ -282,4 +283,36 @@ export async function suppressEmailAction(
   });
   revalidatePath("/admin/agents/suppressions");
   return { ok: true, detail: `${email} will never be contacted again.` };
+}
+
+export async function saveModelRoutingAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const admin = await requireAdmin();
+  const updates: Partial<Record<AiJob, string>> = {};
+  for (const job of AI_JOBS) {
+    const raw = formData.get(`model_${job.key}`);
+    if (raw === null) continue;
+    updates[job.key] = String(raw).trim();
+  }
+  try {
+    await setJobModels(updates);
+  } catch {
+    return { error: "Could not save model routing." };
+  }
+  await writeAudit({
+    userId: admin.id,
+    action: "agents.models.update",
+    entity: "ai_models",
+    diff: updates,
+  });
+  revalidatePath("/admin/agents");
+  const named = Object.values(updates).filter(Boolean).length;
+  return {
+    ok: true,
+    detail: named
+      ? `${named} job${named === 1 ? "" : "s"} routed to a specific model; the rest inherit the global one.`
+      : "All jobs inherit the global model.",
+  };
 }

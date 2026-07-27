@@ -10,8 +10,9 @@ export interface AgentResult {
 export interface AgentContext {
   /** Appends to the run's log line — visible in /admin/agents. */
   log: (message: string) => void;
-  /** Accumulates AI usage so a run's true cost is recorded. */
-  addTokens: (tokens: number) => void;
+  /** Accumulates AI usage so a run's true cost is recorded. Passing the model
+   * that answered also records which one the job actually routed to. */
+  addTokens: (tokens: number, model?: string) => void;
 }
 
 export type AgentHandler = (task: AgentTask, ctx: AgentContext) => Promise<AgentResult>;

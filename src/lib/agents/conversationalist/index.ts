@@ -174,7 +174,7 @@ async function writeDraft(
   prospect: Prospect,
   config: AgentConfig,
   step: number,
-  ctx: { addTokens: (n: number) => void },
+  ctx: { addTokens: (n: number, model?: string) => void },
 ): Promise<Draft> {
   const result = await chat(
     [
@@ -192,10 +192,10 @@ async function writeDraft(
         ].join("\n"),
       },
     ],
-    { temperature: 0.4, maxTokens: 700 },
+    { temperature: 0.4, maxTokens: 700, job: "email" },
   );
   if (result) {
-    ctx.addTokens(result.totalTokens);
+    ctx.addTokens(result.totalTokens, result.model);
     const parsed = extractJson<Draft>(result.text);
     if (parsed?.subject && parsed?.body) {
       return { subject: parsed.subject.slice(0, 180), body: parsed.body.slice(0, 4000) };
@@ -327,10 +327,10 @@ export const handleReply: AgentHandler = async (task, ctx) => {
         content: `From: ${message.fromEmail}\nCompany (known): ${prospect?.name ?? "unknown"}\nSubject: ${message.subject ?? ""}\n\n${message.bodyText.slice(0, 4000)}`,
       },
     ],
-    { temperature: 0, maxTokens: 500 },
+    { temperature: 0, maxTokens: 500, job: "classify" },
   );
   if (result) {
-    ctx.addTokens(result.totalTokens);
+    ctx.addTokens(result.totalTokens, result.model);
     classification = extractJson<Classification>(result.text);
   }
 
@@ -452,7 +452,7 @@ async function writeReply(
   replyText: string,
   intent: string,
   config: AgentConfig,
-  ctx: { addTokens: (n: number) => void },
+  ctx: { addTokens: (n: number, model?: string) => void },
 ): Promise<Draft> {
   const history = await db
     .select({
@@ -487,10 +487,10 @@ Keep it under 80 words.`,
         content: `Company: ${prospect?.name ?? "unknown"}\n\nConversation so far:\n${transcript}\n\nTheir latest message:\n${replyText.slice(0, 2000)}`,
       },
     ],
-    { temperature: 0.4, maxTokens: 600 },
+    { temperature: 0.4, maxTokens: 600, job: "email" },
   );
   if (result) {
-    ctx.addTokens(result.totalTokens);
+    ctx.addTokens(result.totalTokens, result.model);
     const parsed = extractJson<Draft>(result.text);
     if (parsed?.body) {
       return {
