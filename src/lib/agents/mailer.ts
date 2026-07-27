@@ -100,18 +100,28 @@ export async function dailySendCap(config: AgentConfig): Promise<number> {
   const ramped = Math.round(
     config.outreachWarmupStartCap * Math.pow(config.outreachWarmupGrowth, days),
   );
+  // A configured cap of zero means "stop sending" and must not be floored to 1.
+  if (config.outreachDailyCap <= 0) return 0;
   return Math.max(1, Math.min(ramped, config.outreachDailyCap));
 }
 
+/**
+ * Everything that has consumed today's budget: delivered messages plus any
+ * currently mid-flight. Counting only "sent" would let concurrent workers each
+ * see the same remaining budget and all send.
+ */
 export async function sentToday(): Promise<number> {
+  const dayStart = dubaiDayStart();
   const [row] = await db
     .select({ count: sql<string>`count(*)` })
     .from(outreachMessages)
     .where(
       and(
         eq(outreachMessages.direction, "outbound"),
-        eq(outreachMessages.status, "sent"),
-        gte(outreachMessages.sentAt, dubaiDayStart()),
+        sql`(
+          (${outreachMessages.status} = 'sent' AND ${outreachMessages.sentAt} >= ${dayStart})
+          OR (${outreachMessages.status} = 'sending' AND ${outreachMessages.claimedAt} >= ${dayStart})
+        )`,
       ),
     );
   return Number(row?.count ?? 0);
@@ -176,6 +186,23 @@ export async function sendOutreachMessage(messageRowId: string): Promise<SendOut
     return { sent: false, reason: "daily cap reached" };
   }
 
+  // Claim the row before touching SES. This single conditional update is what
+  // stops an approval, a queued task and a flush from all transmitting the same
+  // message: exactly one of them can move it out of a sendable state.
+  const claimed = await db
+    .update(outreachMessages)
+    .set({ status: "sending", claimedAt: new Date() })
+    .where(
+      and(
+        eq(outreachMessages.id, message.id),
+        sql`${outreachMessages.status} IN ('scheduled','draft','pending_approval')`,
+      ),
+    )
+    .returning({ id: outreachMessages.id });
+  if (!claimed.length) {
+    return { sent: false, reason: "already claimed by another worker" };
+  }
+
   const senderDomain = emailDomain(config.sesFromEmail) ?? "uaeasp.ae";
   const messageId = message.messageId ?? messageIdFor(senderDomain);
 
@@ -207,11 +234,15 @@ export async function sendOutreachMessage(messageRowId: string): Promise<SendOut
   });
 
   if (!result.ok) {
+    // A permanent rejection is safe to mark failed. Anything else (timeout,
+    // socket error) may have been accepted by SES after we stopped listening,
+    // so the row stays failed rather than re-queued — re-sending a message that
+    // was in fact delivered is worse than making a human retry it.
     await db
       .update(outreachMessages)
       .set({
-        status: result.permanent ? "failed" : "scheduled",
-        error: result.error?.slice(0, 1000),
+        status: "failed",
+        error: `${result.permanent ? "" : "ambiguous: "}${result.error ?? ""}`.slice(0, 1000),
       })
       .where(eq(outreachMessages.id, message.id));
     if (result.permanent) {

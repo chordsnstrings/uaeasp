@@ -462,7 +462,16 @@ export const outreachMessages = pgTable(
       .references(() => outreachThreads.id, { onDelete: "cascade" }),
     direction: text("direction", { enum: ["outbound", "inbound"] }).notNull(),
     status: text("status", {
-      enum: ["draft", "pending_approval", "scheduled", "sent", "failed", "received", "rejected"],
+      enum: [
+        "draft",
+        "pending_approval",
+        "scheduled",
+        "sending",
+        "sent",
+        "failed",
+        "received",
+        "rejected",
+      ],
     }).notNull(),
     stepIndex: integer("step_index"),
     subject: text("subject"),
@@ -477,6 +486,9 @@ export const outreachMessages = pgTable(
     approvedBy: uuid("approved_by").references(() => users.id, { onDelete: "set null" }),
     approvedAt: timestamp("approved_at", { withTimezone: true }),
     scheduledFor: timestamp("scheduled_for", { withTimezone: true }),
+    /** When a worker claimed this row for sending — in-flight messages count
+     *  against the daily cap so concurrent workers cannot overshoot it. */
+    claimedAt: timestamp("claimed_at", { withTimezone: true }),
     sentAt: timestamp("sent_at", { withTimezone: true }),
     receivedAt: timestamp("received_at", { withTimezone: true }),
     error: text("error"),
@@ -603,6 +615,17 @@ export const agentReports = pgTable(
   (t) => [uniqueIndex("agent_reports_period_idx").on(t.kind, t.periodStart)],
 );
 
+/** Replay guard for signed webhooks: one row per provider message id. */
+export const webhookEvents = pgTable(
+  "webhook_events",
+  {
+    id: text("id").primaryKey(),
+    source: text("source").notNull().default("sns"),
+    receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("webhook_events_received_idx").on(t.receivedAt)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Provider = typeof providers.$inferSelect;
 export type NewProvider = typeof providers.$inferInsert;
@@ -623,3 +646,4 @@ export type VisibilityTarget = typeof visibilityTargets.$inferSelect;
 export type SeoKeyword = typeof seoKeywords.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type AgentReport = typeof agentReports.$inferSelect;
+export type WebhookEvent = typeof webhookEvents.$inferSelect;

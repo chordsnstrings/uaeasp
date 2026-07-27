@@ -2,7 +2,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { outreachMessages, outreachThreads } from "@/db/schema";
-import { verifySnsMessage, type SesNotification, type SnsEnvelope } from "@/lib/agents/sns";
+import {
+  subscribeUrlIsTrusted,
+  verifySnsMessage,
+  type SesNotification,
+  type SnsEnvelope,
+} from "@/lib/agents/sns";
+import { getAgentConfig } from "@/lib/agents/config";
+import { webhookEvents } from "@/db/schema";
 import { parseEmail, stripQuotedReply } from "@/lib/agents/mime";
 import { normalizeEmail, suppress } from "@/lib/agents/mailer";
 import { enqueue } from "@/lib/agents/queue";
@@ -31,8 +38,38 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false }, { status: 403 });
   }
 
+  // A valid signature only proves Amazon sent it — not that it was sent for us.
+  // Without this, any AWS customer's topic could drive this endpoint.
+  const { snsTopicArn } = await getAgentConfig();
+  if (snsTopicArn && envelope.TopicArn !== snsTopicArn) {
+    console.warn(`[sns] rejected message from unexpected topic ${envelope.TopicArn}`);
+    return NextResponse.json({ ok: false }, { status: 403 });
+  }
+
+  // Reject anything outside a 15-minute window, then remember the id so a
+  // captured-and-replayed notification cannot be processed twice.
+  const age = Date.now() - new Date(envelope.Timestamp).getTime();
+  if (!Number.isFinite(age) || age > 15 * 60_000 || age < -5 * 60_000) {
+    console.warn("[sns] rejected message outside the freshness window");
+    return NextResponse.json({ ok: false }, { status: 403 });
+  }
+  const fresh = await db
+    .insert(webhookEvents)
+    .values({ id: envelope.MessageId, source: "sns" })
+    .onConflictDoNothing()
+    .returning({ id: webhookEvents.id });
+  if (!fresh.length) {
+    return NextResponse.json({ ok: true, ignored: "replay" });
+  }
+
   // Auto-confirm the subscription so wiring SNS up needs no console clicking.
   if (envelope.Type === "SubscriptionConfirmation" && envelope.SubscribeURL) {
+    // We make this request ourselves, so the host is pinned to SNS to keep the
+    // endpoint from being used as an SSRF primitive.
+    if (!subscribeUrlIsTrusted(envelope.SubscribeURL)) {
+      console.warn("[sns] refused to confirm a subscription with an untrusted URL");
+      return NextResponse.json({ ok: false }, { status: 403 });
+    }
     await fetch(envelope.SubscribeURL, { signal: AbortSignal.timeout(10_000) }).catch(
       (err) => console.error("[sns] subscription confirm failed:", err),
     );

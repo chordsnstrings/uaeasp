@@ -33,8 +33,39 @@ function signingKey(secret: string, date: string, region: string): Buffer {
 /** RFC 2047 encoded-word — keeps non-ASCII subjects and names legal in headers. */
 export function encodeHeaderWord(value: string): string {
   // eslint-disable-next-line no-control-regex
-  if (/^[\x00-\x7F]*$/.test(value)) return value;
-  return `=?UTF-8?B?${Buffer.from(value, "utf8").toString("base64")}?=`;
+  // Control characters — CR and LF above all — must never reach a header.
+  // Company names come from scraped websites and subjects from model output,
+  // so a bare "\r\nBcc: victim@example.com" would otherwise inject a header
+  // and SES would take its envelope recipients from it.
+  // eslint-disable-next-line no-control-regex
+  const clean = value.replace(/[\x00-\x1F\x7F]+/g, " ").trim();
+  // eslint-disable-next-line no-control-regex
+  if (/^[\x20-\x7E]*$/.test(clean)) return clean;
+  // RFC 2047 caps an encoded-word at 75 characters, so long non-ASCII values
+  // are emitted as several space-separated words rather than one illegal one.
+  const bytes = Buffer.from(clean, "utf8");
+  const words: string[] = [];
+  // 45 bytes of input -> 60 base64 chars, comfortably inside the 75 limit.
+  for (let i = 0; i < bytes.length; i += 45) {
+    words.push(`=?UTF-8?B?${bytes.subarray(i, i + 45).toString("base64")}?=`);
+  }
+  return words.join("\r\n ");
+}
+
+/** An address is only ever a single addr-spec — never a header continuation. */
+export function sanitizeAddress(value: string): string {
+  // eslint-disable-next-line no-control-regex
+  const clean = value.replace(/[\x00-\x1F\x7F,;<>]+/g, "").trim();
+  if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(clean)) {
+    throw new Error(`refusing to build a message with an invalid address: ${JSON.stringify(value)}`);
+  }
+  return clean;
+}
+
+/** Header values that are not addresses or encoded words still must not fold. */
+function sanitizeHeaderValue(value: string): string {
+  // eslint-disable-next-line no-control-regex
+  return value.replace(/[\x00-\x1F\x7F]+/g, " ").trim();
 }
 
 function foldBase64(input: string): string {
@@ -59,28 +90,35 @@ export interface RawMessageInput {
 
 /** Build an RFC 5322 message. Multipart/alternative when HTML is supplied. */
 export function buildRawMessage(input: RawMessageInput): string {
-  const boundary = `b_${input.messageId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 24)}`;
+  // Every address is validated, and every free-text header value is stripped
+  // of control characters, before any of it is concatenated into the message.
+  const from = sanitizeAddress(input.from);
+  const to = sanitizeAddress(input.to);
+  const messageId = sanitizeHeaderValue(input.messageId).replace(/[<>\s]/g, "");
+  const boundary = `b_${messageId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 24)}`;
   const fromHeader = input.fromName
-    ? `${encodeHeaderWord(input.fromName)} <${input.from}>`
-    : input.from;
+    ? `${encodeHeaderWord(input.fromName)} <${from}>`
+    : from;
 
   const headers: string[] = [
     `From: ${fromHeader}`,
-    `To: ${input.to}`,
+    `To: ${to}`,
     `Subject: ${encodeHeaderWord(input.subject)}`,
-    `Message-ID: <${input.messageId}>`,
+    `Message-ID: <${messageId}>`,
     `Date: ${new Date().toUTCString()}`,
     "MIME-Version: 1.0",
   ];
-  if (input.replyTo) headers.push(`Reply-To: ${input.replyTo}`);
-  if (input.inReplyTo) headers.push(`In-Reply-To: <${input.inReplyTo}>`);
-  if (input.references) headers.push(`References: ${input.references}`);
+  if (input.replyTo) headers.push(`Reply-To: ${sanitizeAddress(input.replyTo)}`);
+  if (input.inReplyTo) {
+    headers.push(`In-Reply-To: <${sanitizeHeaderValue(input.inReplyTo).replace(/[<>\s]/g, "")}>`);
+  }
+  if (input.references) headers.push(`References: ${sanitizeHeaderValue(input.references)}`);
   if (input.unsubscribeUrl) {
-    headers.push(`List-Unsubscribe: <${input.unsubscribeUrl}>`);
+    headers.push(`List-Unsubscribe: <${sanitizeHeaderValue(input.unsubscribeUrl)}>`);
     headers.push("List-Unsubscribe-Post: List-Unsubscribe=One-Click");
   }
   for (const [key, value] of Object.entries(input.headers ?? {})) {
-    headers.push(`${key}: ${value}`);
+    headers.push(`${sanitizeHeaderValue(key).replace(/[^A-Za-z0-9-]/g, "")}: ${sanitizeHeaderValue(value)}`);
   }
 
   const textPart = foldBase64(Buffer.from(input.text, "utf8").toString("base64"));

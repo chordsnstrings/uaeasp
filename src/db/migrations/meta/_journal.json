@@ -50,6 +50,20 @@
       "when": 1785121708463,
       "tag": "0006_reflective_silver_fox",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1785146630595,
+      "tag": "0007_broken_magneto",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1785146861043,
+      "tag": "0008_blue_corsair",
+      "breakpoints": true
     }
   ]
 }
