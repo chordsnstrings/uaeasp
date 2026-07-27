@@ -110,8 +110,42 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
 
   placesApiKey: "",
   prospectorDailyDiscoveryCap: 150,
-  prospectorSectors:
-    "accounting firm,tax consultant,logistics company,building contractor,trading company,medical clinic,retail chain,manufacturing company",
+  // Swept as "{sector} in {Emirate}, UAE", so each entry has to read like a
+  // business type someone would search for. Three groups, in priority order:
+  //   1. channel partners — an audit firm or ERP implementer has hundreds of
+  //      clients who all need a provider, so one relationship reaches far more
+  //      businesses than one recipient ever does;
+  //   2. sectors where UAE companies routinely clear the AED 50m Phase 1
+  //      threshold and issue B2B invoices in volume — freight, contracting,
+  //      distribution;
+  //   3. general trading and manufacturing, which land in Phase 2.
+  // Consumer-facing sectors are deliberately absent: they invoice individuals,
+  // so a shortlist is worth little to them and they score low anyway.
+  prospectorSectors: [
+    "accounting firm",
+    "audit firm",
+    "tax consultant",
+    "business setup consultant",
+    "corporate services provider",
+    "management consultancy",
+    "ERP implementation company",
+    "IT system integrator",
+    "freight forwarding company",
+    "customs clearance agency",
+    "logistics company",
+    "warehousing company",
+    "general contracting company",
+    "MEP contractor",
+    "interior fit-out company",
+    "facilities management company",
+    "equipment rental company",
+    "manpower supply agency",
+    "foodstuff trading company",
+    "building materials supplier",
+    "trading company",
+    "manufacturing company",
+    "retail chain",
+  ].join(","),
   prospectorEmirates: "dubai,abu-dhabi,sharjah,ajman,ras-al-khaimah,fujairah,umm-al-quwain",
   prospectorMinScore: 55,
 
