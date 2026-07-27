@@ -249,10 +249,10 @@ export const enrich: AgentHandler = async (task, ctx) => {
         ].join("\n"),
       },
     ],
-    { temperature: 0.1, maxTokens: 600 },
+    { temperature: 0.1, maxTokens: 600, job: "scoring" },
   );
   if (result) {
-    ctx.addTokens(result.totalTokens);
+    ctx.addTokens(result.totalTokens, result.model);
     scoring = extractJson<Scoring>(result.text);
   }
 

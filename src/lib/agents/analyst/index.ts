@@ -272,10 +272,10 @@ export const weeklyReport: AgentHandler = async (task, ctx) => {
         content: `${formatMetrics("This week", current)}\n\n${formatMetrics("Previous week", previous)}`,
       },
     ],
-    { temperature: 0.2, maxTokens: 2000 },
+    { temperature: 0.2, maxTokens: 2000, job: "report" },
   );
   if (result) {
-    ctx.addTokens(result.totalTokens);
+    ctx.addTokens(result.totalTokens, result.model);
     const [markdown, jsonPart] = result.text.split("---JSON---");
     narrative = markdown.trim();
     if (jsonPart) {

@@ -1,9 +1,11 @@
 import { getConfig } from "@/lib/settings";
+import { resolveModel, type AiJob } from "./models";
 
 /**
  * Thin chat-completions helper shared by all four growth agents. Uses the same
  * OpenAI-compatible endpoint already configured for provider enrichment
- * (BytePlus Ark by default) — one AI credential for the whole system.
+ * (BytePlus Ark by default) — one AI credential for the whole system, with an
+ * optional per-job model override (see ./models.ts).
  *
  * Returns null rather than throwing when AI is unconfigured or the call fails,
  * so every agent degrades to its non-AI path instead of stalling the queue.
@@ -19,6 +21,8 @@ export interface ChatResult {
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
+  /** The model that actually answered — recorded in the agent run log. */
+  model: string;
 }
 
 export async function isAiConfigured(): Promise<boolean> {
@@ -28,10 +32,17 @@ export async function isAiConfigured(): Promise<boolean> {
 
 export async function chat(
   messages: ChatMessage[],
-  options: { temperature?: number; maxTokens?: number; timeoutMs?: number } = {},
+  options: {
+    temperature?: number;
+    maxTokens?: number;
+    timeoutMs?: number;
+    /** Routes to this job's configured model; falls back to the global one. */
+    job?: AiJob;
+  } = {},
 ): Promise<ChatResult | null> {
   const config = await getConfig();
   if (!(config.aiApiBaseUrl && config.aiApiKey && config.aiModel)) return null;
+  const model = await resolveModel(options.job);
 
   const baseUrl = config.aiApiBaseUrl.replace(/\/$/, "");
   const endpoint = baseUrl.endsWith("/chat/completions")
@@ -46,7 +57,7 @@ export async function chat(
         Authorization: `Bearer ${config.aiApiKey}`,
       },
       body: JSON.stringify({
-        model: config.aiModel,
+        model,
         temperature: options.temperature ?? 0.3,
         max_tokens: options.maxTokens ?? 1500,
         messages,
@@ -54,7 +65,7 @@ export async function chat(
       signal: AbortSignal.timeout(options.timeoutMs ?? 60_000),
     });
     if (!res.ok) {
-      console.error(`[ai-chat] API returned ${res.status}`);
+      console.error(`[ai-chat] API returned ${res.status} for model ${model}`);
       return null;
     }
     const data = (await res.json()) as {
@@ -68,6 +79,7 @@ export async function chat(
       promptTokens: data.usage?.prompt_tokens ?? 0,
       completionTokens: data.usage?.completion_tokens ?? 0,
       totalTokens: data.usage?.total_tokens ?? 0,
+      model,
     };
   } catch (err) {
     console.error("[ai-chat] failed:", err);

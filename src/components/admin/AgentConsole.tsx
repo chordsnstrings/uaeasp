@@ -8,6 +8,7 @@ import {
   rejectMessageAction,
   runTickAction,
   saveAgentConfigAction,
+  saveModelRoutingAction,
   suppressEmailAction,
   testSesAction,
   updateTargetAction,
@@ -544,6 +545,63 @@ export function SuppressForm() {
       <div className="w-full">
         <Status state={state} />
       </div>
+    </form>
+  );
+}
+
+export function ModelRoutingForm({
+  jobs,
+  models,
+  globalModel,
+}: {
+  jobs: readonly { key: string; label: string; where: string; hint: string }[];
+  models: Record<string, string>;
+  globalModel: string;
+}) {
+  const [state, action, pending] = useActionState(saveModelRoutingAction, undefined);
+  return (
+    <form action={action}>
+      <Section title="Model routing">
+        <p className="-mt-1 text-sm text-ink-600">
+          Every AI call belongs to one job. Leave a field empty and it uses the global
+          model{" "}
+          <code className="num rounded bg-paper-dark px-1.5 py-0.5 text-xs">
+            {globalModel || "(not set)"}
+          </code>{" "}
+          from Settings. Name a model here to route that job somewhere else — worth doing
+          where volume is high (scoring) or quality is visible (articles).
+        </p>
+        <div className="space-y-3">
+          {jobs.map((job) => (
+            <div
+              key={job.key}
+              className="grid gap-3 border-t border-dashed border-ink-200 pt-3 sm:grid-cols-[1fr_20rem]"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-ink-800">{job.label}</p>
+                <p className="num mt-0.5 text-[11px] uppercase tracking-[0.1em] text-ink-400">
+                  {job.where}
+                </p>
+                <p className="mt-1 text-xs text-ink-500">{job.hint}</p>
+              </div>
+              <input
+                name={`model_${job.key}`}
+                defaultValue={models[job.key] ?? ""}
+                placeholder={globalModel ? `inherits ${globalModel}` : "inherits global model"}
+                dir="ltr"
+                aria-label={`${job.label} model`}
+                className={`${inputClass} self-start font-mono text-[13px]`}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-3">
+          <button type="submit" disabled={pending} className={buttonClass}>
+            {pending ? "Saving…" : "Save model routing"}
+          </button>
+          <Status state={state} />
+        </div>
+      </Section>
     </form>
   );
 }

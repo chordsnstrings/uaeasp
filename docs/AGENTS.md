@@ -118,6 +118,30 @@ Either [Serper](https://serper.dev) (Google results, ~$50 for 50k queries) or
 Bing Web Search. Without one, the Visibility agent still drafts content and
 tracks citations — it just cannot check live rankings or find link targets.
 
+## Model routing
+
+Every AI call belongs to one of six jobs, and each job can name its own model in
+`/admin/agents` → **Model routing**. An empty field inherits the global model
+from `/admin/settings`, so routing is entirely opt-in.
+
+| Job | Where it runs | Temp | Max tokens |
+| --- | --- | --- | --- |
+| `scoring` | Prospector — fit score, size, mandate wave | 0.1 | 600 |
+| `classify` | Conversationalist — routing an inbound reply | 0.0 | 500 |
+| `email` | Conversationalist — first touch, follow-ups, replies; Visibility — link pitches | 0.4 | 600-700 |
+| `article` | Visibility — pages published to /insights | 0.35 | 3000 |
+| `report` | Analyst — weekly narrative and recommendations | 0.2 | 2000 |
+| `profile` | Directory refresh — bilingual provider profiles | 0.2 | 2000 |
+
+Temperature is fixed per job, not configurable: decisions (`classify`, `scoring`)
+run at or near zero so the same input routes the same way twice, while prose
+jobs sit around 0.4 so two hundred emails do not read identically.
+
+Where routing pays: `scoring` is the highest-volume, simplest job — a cheaper
+model saves the most there. `article` is low-volume, public-facing and
+quality-sensitive — the best place for your strongest model. The model that
+actually answered is recorded on every agent run and shown in the run log.
+
 ## Operating it
 
 **Start manual.** Approval mode `manual` means every email waits in

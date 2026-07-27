@@ -12,6 +12,7 @@ import { buildSweepQueries, parseEmirate } from "./prospector/places";
 import { dubaiDayStart, emailDomain, normalizeEmail } from "./mailer";
 import { findOwnPosition } from "./visibility/search";
 import { dubaiHour, refreshIsDue } from "./maintenance";
+import { AI_JOBS, pickModel } from "@/lib/ai/models";
 
 describe("SES message building", () => {
   it("includes one-click unsubscribe headers when a URL is given", () => {
@@ -246,5 +247,39 @@ describe("nightly refresh scheduling", () => {
   it("reports the Dubai hour as UTC+4", () => {
     expect(dubaiHour(at("2026-07-26T22:30:00Z"))).toBe(2);
     expect(dubaiHour(at("2026-07-27T20:00:00Z"))).toBe(0);
+  });
+});
+
+describe("model routing", () => {
+  const global = "seed-1-6-250615";
+
+  it("inherits the global model when a job has no override", () => {
+    expect(pickModel({}, "scoring", global)).toBe(global);
+    expect(pickModel({ scoring: "" }, "scoring", global)).toBe(global);
+    expect(pickModel({ scoring: "   " }, "scoring", global)).toBe(global);
+  });
+
+  it("routes a job to its own model when one is named", () => {
+    const overrides = { scoring: "cheap-fast-model", article: "strong-model" };
+    expect(pickModel(overrides, "scoring", global)).toBe("cheap-fast-model");
+    expect(pickModel(overrides, "article", global)).toBe("strong-model");
+    // Untouched jobs still inherit.
+    expect(pickModel(overrides, "email", global)).toBe(global);
+  });
+
+  it("trims whitespace around a named model", () => {
+    expect(pickModel({ report: "  spaced-model  " }, "report", global)).toBe("spaced-model");
+  });
+
+  it("uses the global model when no job is given", () => {
+    expect(pickModel({ scoring: "other" }, undefined, global)).toBe(global);
+  });
+
+  it("covers every AI call site with a job key", () => {
+    const keys = AI_JOBS.map((j) => j.key);
+    expect(keys).toEqual(
+      expect.arrayContaining(["scoring", "classify", "email", "article", "report", "profile"]),
+    );
+    expect(new Set(keys).size).toBe(keys.length);
   });
 });

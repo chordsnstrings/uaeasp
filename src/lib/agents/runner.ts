@@ -44,14 +44,16 @@ export async function runTask(task: AgentTask): Promise<AgentResult> {
   if (!handler) throw new Error(`No handler for ${task.agent}/${task.kind}`);
 
   const logs: string[] = [];
+  const models = new Set<string>();
   let tokens = 0;
   const ctx: AgentContext = {
     log: (message) => {
       logs.push(message);
       console.log(`[agent:${task.agent}/${task.kind}] ${message}`);
     },
-    addTokens: (n) => {
+    addTokens: (n, model) => {
       tokens += n;
+      if (model) models.add(model);
     },
   };
 
@@ -69,7 +71,7 @@ export async function runTask(task: AgentTask): Promise<AgentResult> {
         itemsIn: result.itemsIn,
         itemsOut: result.itemsOut,
         aiTokens: tokens,
-        summary: { ...(result.summary ?? {}), logs },
+        summary: { ...(result.summary ?? {}), logs, models: [...models] },
         finishedAt: new Date(),
       })
       .where(eq(agentRuns.id, run.id));
@@ -82,7 +84,7 @@ export async function runTask(task: AgentTask): Promise<AgentResult> {
         status: "failed",
         aiTokens: tokens,
         error: message.slice(0, 2000),
-        summary: { logs },
+        summary: { logs, models: [...models] },
         finishedAt: new Date(),
       })
       .where(eq(agentRuns.id, run.id));

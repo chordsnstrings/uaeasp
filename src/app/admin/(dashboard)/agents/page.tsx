@@ -13,11 +13,14 @@ import {
 import { auth } from "@/lib/auth";
 import { agentReadiness, getAgentConfig, AGENT_SECRET_FIELDS } from "@/lib/agents/config";
 import { heartbeatState } from "@/lib/agents/heartbeat";
+import { AI_JOBS, getJobModels } from "@/lib/ai/models";
+import { getConfig } from "@/lib/settings";
 import { dailySendCap, sentToday } from "@/lib/agents/mailer";
 import { queueDepth } from "@/lib/agents/queue";
 import { absoluteUrl } from "@/lib/site";
 import {
   AgentConfigForm,
+  ModelRoutingForm,
   QueueJobForm,
   TestSesForm,
   TickButton,
@@ -62,7 +65,7 @@ export default async function AgentsPage() {
   const config = await getAgentConfig();
   const readiness = agentReadiness(config);
 
-  const [depth, runs, counts, cap, used, clock] = await Promise.all([
+  const [depth, runs, counts, cap, used, clock, jobModels, appConfig] = await Promise.all([
     queueDepth(),
     db.select().from(agentRuns).orderBy(desc(agentRuns.startedAt)).limit(12),
     Promise.all([
@@ -84,6 +87,8 @@ export default async function AgentsPage() {
     dailySendCap(config),
     sentToday(),
     heartbeatState(),
+    getJobModels(),
+    getConfig(),
   ]);
 
   const fmt = (iso: string | null) =>
@@ -272,6 +277,9 @@ export default async function AgentsPage() {
               <span className="num text-xs text-ink-500">
                 in {run.itemsIn} · out {run.itemsOut}
                 {run.aiTokens > 0 ? ` · ${run.aiTokens} tokens` : ""}
+                {((run.summary as { models?: string[] } | null)?.models ?? []).length > 0
+                  ? ` · ${((run.summary as { models?: string[] }).models ?? []).join(", ")}`
+                  : ""}
               </span>
               <span className="num ms-auto text-xs text-ink-400">
                 {new Date(run.startedAt).toLocaleString("en-GB", { timeZone: "Asia/Dubai" })}
@@ -290,6 +298,12 @@ export default async function AgentsPage() {
       </section>
 
       <AgentConfigForm config={config} secretsSet={secretsSet} />
+
+      <ModelRoutingForm
+        jobs={AI_JOBS}
+        models={jobModels}
+        globalModel={appConfig.aiModel}
+      />
 
       <section className="rounded-xl border border-ink-200 bg-paper-dark p-5">
         <h2 className="num text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-500">

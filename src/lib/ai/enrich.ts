@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { PROVIDER_CATEGORIES, type ProviderCategory } from "@/db/schema";
 import { getConfig } from "@/lib/settings";
+import { resolveModel } from "./models";
 
 /**
  * Optional AI enrichment for providers that appear in a data refresh without
@@ -65,6 +66,7 @@ export async function enrichProvider(input: {
   const config = await getConfig();
   if (!(config.aiApiBaseUrl && config.aiApiKey && config.aiModel)) return null;
 
+  const model = await resolveModel("profile");
   const baseUrl = config.aiApiBaseUrl.replace(/\/$/, "");
   const endpoint = baseUrl.endsWith("/chat/completions")
     ? baseUrl
@@ -77,7 +79,7 @@ export async function enrichProvider(input: {
         Authorization: `Bearer ${config.aiApiKey}`,
       },
       body: JSON.stringify({
-        model: config.aiModel,
+        model,
         temperature: 0.2,
         // Generous budget: some hosted models (e.g. Seed/R1 family) spend
         // completion tokens on reasoning before the JSON answer.

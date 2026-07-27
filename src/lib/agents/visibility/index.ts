@@ -199,10 +199,10 @@ export const draftArticle: AgentHandler = async (_task, ctx) => {
         content: `Target search query: "${gap.phrase}"\nLanguage: ${gap.locale === "ar" ? "Arabic (Modern Standard)" : "English"}\nOur directory currently lists ${providerCount} accredited providers.\nCurrent position for this query: ${gap.lastPosition ?? "not in top 20"}.`,
       },
     ],
-    { temperature: 0.35, maxTokens: 3000 },
+    { temperature: 0.35, maxTokens: 3000, job: "article" },
   );
   if (!result) return { itemsIn: 1, itemsOut: 0, summary: { reason: "AI unavailable" } };
-  ctx.addTokens(result.totalTokens);
+  ctx.addTokens(result.totalTokens, result.model);
 
   const draft = extractJson<ArticleDraft>(result.text);
   if (!draft?.slug || !draft.body_md) {
@@ -348,9 +348,9 @@ export const draftOutreach: AgentHandler = async (_task, ctx) => {
           content: `Their article: "${target.title}"\nURL: ${target.url}\nExcerpt: ${target.snippet ?? ""}\nOur directory: ${absoluteUrl("/providers")}`,
         },
       ],
-      { temperature: 0.4, maxTokens: 600 },
+      { temperature: 0.4, maxTokens: 600, job: "email" },
     );
-    if (result) ctx.addTokens(result.totalTokens);
+    if (result) ctx.addTokens(result.totalTokens, result.model);
     const draft = result
       ? extractJson<{ subject: string; body: string }>(result.text)
       : null;
