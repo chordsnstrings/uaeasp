@@ -97,10 +97,28 @@ export async function failTask(task: AgentTask, error: unknown): Promise<void> {
 /** Re-queue tasks a crashed worker left claimed. Safe to call on boot. */
 export async function reclaimStale(olderThanMinutes = 30): Promise<number> {
   const cutoff = new Date(Date.now() - olderThanMinutes * 60_000);
+  // Bury anything that has already used its attempts — otherwise a task that
+  // crashes the worker every time is resurrected forever.
+  await db
+    .update(agentTasks)
+    .set({ status: "failed", finishedAt: new Date(), error: "abandoned after repeated crashes" })
+    .where(
+      and(
+        eq(agentTasks.status, "running"),
+        lte(agentTasks.startedAt, cutoff),
+        sql`${agentTasks.attempts} >= ${agentTasks.maxAttempts}`,
+      ),
+    );
   const rows = await db
     .update(agentTasks)
     .set({ status: "queued", runAfter: new Date() })
-    .where(and(eq(agentTasks.status, "running"), lte(agentTasks.startedAt, cutoff)))
+    .where(
+      and(
+        eq(agentTasks.status, "running"),
+        lte(agentTasks.startedAt, cutoff),
+        sql`${agentTasks.attempts} < ${agentTasks.maxAttempts}`,
+      ),
+    )
     .returning({ id: agentTasks.id });
   return rows.length;
 }

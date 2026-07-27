@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildRawMessage, encodeHeaderWord } from "./ses";
+import { buildRawMessage, encodeHeaderWord, sanitizeAddress } from "./ses";
 import { decodeQuotedPrintable, htmlToText, parseEmail, stripQuotedReply } from "./mime";
 import {
   isJunkAddress,
@@ -13,6 +13,8 @@ import { dubaiDayStart, emailDomain, normalizeEmail } from "./mailer";
 import { findOwnPosition } from "./visibility/search";
 import { dubaiHour, refreshIsDue } from "./maintenance";
 import { AI_JOBS, pickModel } from "@/lib/ai/models";
+import { certUrlIsTrusted, subscribeUrlIsTrusted } from "./sns";
+import { keywordIntent } from "./conversationalist";
 
 describe("SES message building", () => {
   it("includes one-click unsubscribe headers when a URL is given", () => {
@@ -281,5 +283,116 @@ describe("model routing", () => {
       expect.arrayContaining(["scoring", "classify", "email", "article", "report", "profile"]),
     );
     expect(new Set(keys).size).toBe(keys.length);
+  });
+});
+
+describe("header injection (audit finding: critical)", () => {
+  const base = {
+    from: "hello@send.uaeasp.ae",
+    to: "finance@example.ae",
+    text: "body",
+    messageId: "m1@send.uaeasp.ae",
+  };
+
+  it("strips CRLF from a company name so no header can be injected", () => {
+    const raw = buildRawMessage({
+      ...base,
+      fromName: "Gulf Trading\r\nBcc: victim@example.com",
+      subject: "Hello",
+    });
+    // The guarantee is that no NEW header line appears — the text may survive
+    // harmlessly inside the display name, but it must not start a header.
+    const headerLines = raw.split("\r\n\r\n")[0].split("\r\n");
+    expect(headerLines.some((l) => /^bcc:/i.test(l))).toBe(false);
+    expect(headerLines.filter((l) => /^from:/i.test(l))).toHaveLength(1);
+  });
+
+  it("strips CRLF from a subject line", () => {
+    const raw = buildRawMessage({
+      ...base,
+      subject: "Shortlist\r\nBcc: victim@example.com\r\nX-Evil: 1",
+    });
+    const headerLines = raw.split("\r\n\r\n")[0].split("\r\n");
+    expect(headerLines.some((l) => /^bcc:/i.test(l))).toBe(false);
+    expect(headerLines.some((l) => /^x-evil:/i.test(l))).toBe(false);
+    expect(headerLines.filter((l) => /^subject:/i.test(l))).toHaveLength(1);
+  });
+
+  it("rejects an address carrying a second recipient", () => {
+    expect(() =>
+      buildRawMessage({ ...base, to: "a@b.ae, victim@example.com", subject: "x" }),
+    ).toThrow(/invalid address/);
+    expect(() =>
+      buildRawMessage({ ...base, to: "a@b.ae\r\nBcc: victim@example.com", subject: "x" }),
+    ).toThrow(/invalid address/);
+  });
+
+  it("still encodes legitimate non-ASCII, and folds long encoded words", () => {
+    expect(encodeHeaderWord("الفوترة")).toMatch(/^=\?UTF-8\?B\?/);
+    const long = encodeHeaderWord("الفوترة الإلكترونية ".repeat(12));
+    for (const word of long.split("\r\n ")) {
+      // RFC 2047 caps an encoded-word at 75 characters.
+      expect(word.length).toBeLessThanOrEqual(75);
+    }
+  });
+
+  it("sanitizeAddress accepts a normal address unchanged", () => {
+    expect(sanitizeAddress("  Finance@Example.AE ")).toBe("Finance@Example.AE");
+  });
+});
+
+describe("SNS trust boundaries (audit finding: critical)", () => {
+  it("rejects a signing certificate hosted anywhere but SNS", () => {
+    // The original suffix check accepted any amazonaws.com host, so anyone with
+    // an S3 bucket could sign notifications we would have accepted.
+    expect(certUrlIsTrusted("https://s3.amazonaws.com/evil-bucket/cert.pem")).toBe(false);
+    expect(certUrlIsTrusted("https://evil.amazonaws.com/cert.pem")).toBe(false);
+    expect(certUrlIsTrusted("http://sns.eu-west-1.amazonaws.com/cert.pem")).toBe(false);
+    expect(certUrlIsTrusted("https://sns.eu-west-1.amazonaws.com.evil.com/c.pem")).toBe(false);
+    expect(certUrlIsTrusted("https://sns.eu-west-1.amazonaws.com/SimpleNotification-x.pem")).toBe(true);
+  });
+
+  it("refuses to fetch a SubscribeURL pointing anywhere but SNS", () => {
+    expect(subscribeUrlIsTrusted("http://169.254.169.254/latest/meta-data/")).toBe(false);
+    expect(subscribeUrlIsTrusted("https://attacker.example.com/confirm")).toBe(false);
+    expect(subscribeUrlIsTrusted("https://sns.eu-west-1.amazonaws.com/?Action=Confirm")).toBe(true);
+  });
+});
+
+describe("opt-out handling (audit finding: high)", () => {
+  it("catches opt-out wording the AI classifier would have handled", () => {
+    for (const body of [
+      "Please remove us from your list",
+      "STOP",
+      "we are not interested",
+      "please opt out this address",
+      "take me off your mailing list",
+      "لا ترسل لنا المزيد",
+    ]) {
+      expect(keywordIntent(body)).toBe("unsubscribe");
+    }
+  });
+
+  it("still recognises machine-generated mail", () => {
+    expect(keywordIntent("Automatic reply: out of office until Monday")).toBe("auto_reply");
+    expect(keywordIntent("Delivery Status Notification (Failure)")).toBe("auto_reply");
+  });
+
+  it("treats an ordinary question as a question", () => {
+    expect(keywordIntent("What does this cost and who are you?")).toBe("question");
+  });
+});
+
+describe("html flattening is bounded (audit finding: high)", () => {
+  it("returns promptly on an unterminated style tag", () => {
+    const hostile = `<style>${"a{}".repeat(20_000)}`;
+    const started = Date.now();
+    htmlToText(hostile);
+    expect(Date.now() - started).toBeLessThan(1000);
+  });
+
+  it("caps very large inputs", () => {
+    const huge = `<p>${"x".repeat(500_000)}</p>`;
+    expect(htmlToText(huge).length).toBeLessThanOrEqual(200_000);
   });
 });

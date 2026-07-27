@@ -31,6 +31,9 @@ export interface AgentConfig {
   sesFromName: string;
   /** Optional SES configuration set (event publishing to SNS). */
   sesConfigurationSet: string;
+  /** Expected SNS topic ARN. When set, notifications from any other topic are
+   *  rejected even if Amazon signed them. */
+  snsTopicArn: string;
   /** Address replies come back to; defaults to sesFromEmail. */
   replyToEmail: string;
 
@@ -95,6 +98,7 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   sesFromEmail: "",
   sesFromName: "UAE E-Invoicing Providers",
   sesConfigurationSet: "",
+  snsTopicArn: "",
   replyToEmail: "",
 
   outreachDailyCap: 200,
@@ -136,6 +140,7 @@ const ENV_MAP: Partial<Record<keyof AgentConfig, string>> = {
   sesSecretAccessKey: "SES_SECRET_ACCESS_KEY",
   sesFromEmail: "SES_FROM_EMAIL",
   sesConfigurationSet: "SES_CONFIGURATION_SET",
+  snsTopicArn: "SNS_TOPIC_ARN",
   placesApiKey: "PLACES_API_KEY",
   searchApiKey: "SEARCH_API_KEY",
 };

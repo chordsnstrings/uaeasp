@@ -82,9 +82,11 @@ function decodeBody(body: string, encoding?: string): string {
 }
 
 export function htmlToText(html: string): string {
+  // Inbound mail is attacker-controlled: cap the work before any regex runs.
   return html
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .slice(0, 200_000)
+    .replace(/<style\b[^>]*>[^<]*(?:<(?!\/style)[^<]*)*<\/style>/gi, "")
+    .replace(/<script\b[^>]*>[^<]*(?:<(?!\/script)[^<]*)*<\/script>/gi, "")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(p|div|tr|li|h[1-6])>/gi, "\n")
     .replace(/<[^>]+>/g, "")

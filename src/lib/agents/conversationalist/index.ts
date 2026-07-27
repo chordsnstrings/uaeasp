@@ -259,7 +259,7 @@ export const sendMessage: AgentHandler = async (task, ctx) => {
       kind: "send_message",
       payload: { messageId },
       runAfter: new Date(Date.now() + 6 * 60 * 60 * 1000),
-      dedupeKey: `send:${messageId}:retry:${Date.now()}`,
+      dedupeKey: `send:${messageId}:capretry`,
       priority: 40,
     });
   }
@@ -343,7 +343,16 @@ export const handleReply: AgentHandler = async (task, ctx) => {
 
   if (intent === "unsubscribe" || intent === "hostile") {
     const { suppress } = await import("../mailer");
-    await suppress(message.fromEmail ?? thread.toEmail, "unsubscribe", `reply: ${intent}`);
+    // Suppress BOTH the address that replied and the address the sequence
+    // targets. Someone behind a shared mailbox replies from their own account,
+    // so suppressing only the sender leaves the mailbox that said stop fully
+    // mailable — and suppress() closes live threads by toEmail, so passing it
+    // is also what stops any queued follow-up.
+    for (const address of new Set(
+      [message.fromEmail, thread.toEmail].filter(Boolean) as string[],
+    )) {
+      await suppress(address, "unsubscribe", `reply: ${intent}`);
+    }
     await notifySales(
       `Opt-out from ${prospect?.name ?? thread.toEmail}`,
       `${thread.toEmail} asked to stop being contacted (${intent}). They are now permanently suppressed.\n\n---\n${message.bodyText.slice(0, 1000)}`,
@@ -435,12 +444,26 @@ export const handleReply: AgentHandler = async (task, ctx) => {
   return { itemsIn: 1, itemsOut: 1, summary: { intent, autoSend } };
 };
 
-function keywordIntent(body: string): string {
+/**
+ * Fallback used when the AI classifier is unavailable. It errs heavily towards
+ * catching opt-outs: a missed "stop" is a compliance failure, while a
+ * misclassified question merely waits for a human.
+ */
+export function keywordIntent(body: string): string {
   const lower = body.toLowerCase();
-  if (/\b(unsubscribe|stop|remove me|take me off|do not contact)\b/.test(lower)) {
+  if (
+    /\b(unsubscribe|un-subscribe|stop|remove me|remove us|take me off|take us off|opt out|opt-out|do not contact|don't contact|no longer wish|not interested)\b/.test(
+      lower,
+    ) ||
+    /(إلغاء الاشتراك|توقف عن|لا ترسل|أزلني|إزالة)/.test(lower)
+  ) {
     return "unsubscribe";
   }
-  if (/out of (the )?office|automatic reply|autoreply|on annual leave/.test(lower)) {
+  if (
+    /out of (the )?office|automatic reply|auto-reply|autoreply|on annual leave|currently away|delivery status notification|undeliverable/.test(
+      lower,
+    )
+  ) {
     return "auto_reply";
   }
   return "question";
@@ -568,6 +591,9 @@ export const tick: AgentHandler = async (_task, ctx) => {
     .where(
       and(
         eq(outreachThreads.status, "awaiting_reply"),
+        // Only this agent's own sequences — link-outreach threads belong to
+        // Visibility and must never receive a prospecting follow-up.
+        eq(outreachThreads.agent, "conversationalist"),
         isNotNull(outreachThreads.lastOutboundAt),
         lte(outreachThreads.lastOutboundAt, staleAfter),
         sql`${outreachThreads.stepIndex} < ${config.outreachMaxFollowUps}`,

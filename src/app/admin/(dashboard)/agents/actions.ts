@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, outreachMessages, visibilityTargets } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
@@ -149,7 +149,10 @@ export async function approveMessageAction(
   const editedSubject = String(formData.get("subject") ?? "").trim();
   if (!id) return { error: "Missing message." };
 
-  await db
+  // Only a message that has not yet left may be approved. Without this guard a
+  // second click on a stale page resets a 'sent' row to 'scheduled' and mails
+  // the recipient again.
+  const armed = await db
     .update(outreachMessages)
     .set({
       ...(editedBody ? { bodyText: editedBody } : {}),
@@ -158,7 +161,16 @@ export async function approveMessageAction(
       approvedBy: admin.id,
       approvedAt: new Date(),
     })
-    .where(eq(outreachMessages.id, id));
+    .where(
+      and(
+        eq(outreachMessages.id, id),
+        inArray(outreachMessages.status, ["pending_approval", "draft", "scheduled"]),
+      ),
+    )
+    .returning({ id: outreachMessages.id });
+  if (!armed.length) {
+    return { ok: true, detail: "Already handled — nothing was sent again." };
+  }
 
   const outcome = await sendOutreachMessage(id);
   await writeAudit({
