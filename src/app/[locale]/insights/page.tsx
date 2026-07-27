@@ -35,7 +35,8 @@ export async function generateMetadata({
   return pageMetadata({
     locale,
     path: "/insights",
-    title: `${copy.title} | UAE E-Invoicing Providers`,
+    // The root layout already appends the site name via its title template.
+    title: copy.title,
     description: copy.subtitle,
   });
 }

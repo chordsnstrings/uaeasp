@@ -22,7 +22,7 @@ export async function generateMetadata({
   return pageMetadata({
     locale,
     path: `/insights/${slug}`,
-    title: `${article.title} | ${SITE_NAME}`,
+    title: article.title,
     description: article.summary ?? article.title,
   });
 }
