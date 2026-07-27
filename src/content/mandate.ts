@@ -102,3 +102,36 @@ export function formatMandateDate(iso: string, locale: Locale): string {
     timeZone: "Asia/Dubai",
   }).format(new Date(iso));
 }
+
+/**
+ * The timeline in plain English, for the agents' prompts and outreach copy.
+ *
+ * Derived from MANDATE_PHASES rather than retyped, because it is stated as
+ * fact to strangers who can check it. Every phase has two dates that matter
+ * and are months apart — the deadline to appoint a provider, and the date
+ * invoices must actually flow — and collapsing them into one is how the
+ * agents previously came to quote dates the rest of the site contradicted.
+ */
+export function mandateTimelineLines(): string[] {
+  const d = (iso: string) => formatMandateDate(iso, "en");
+  const phase = (key: MandatePhase["key"]) =>
+    MANDATE_PHASES.find((p) => p.key === key)!;
+  const large = phase("large");
+  const other = phase("other");
+  const government = phase("government");
+  return [
+    `Voluntary early adoption opened on ${d(VOLUNTARY_START_ISO)}; no business was obliged to be live on that date.`,
+    `Phase 1 — businesses with annual revenue of AED 50 million or more: must appoint an Accredited Service Provider by ${d(large.appointDeadlineIso)} and start issuing e-invoices from ${d(large.goLiveIso)}.`,
+    `Phase 2 — all other VAT-registered businesses: must appoint a provider by ${d(other.appointDeadlineIso)} and go live from ${d(other.goLiveIso)}.`,
+    `Phase 3 — government entities: appoint by ${d(government.appointDeadlineIso)}, go live from ${d(government.goLiveIso)}.`,
+  ];
+}
+
+/** The next date that actually binds a prospect in the given phase. */
+export function appointmentDeadlineFor(wave: string | null | undefined): string {
+  const key: MandatePhase["key"] = wave === "phase-1" ? "large" : "other";
+  return formatMandateDate(
+    MANDATE_PHASES.find((p) => p.key === key)!.appointDeadlineIso,
+    "en",
+  );
+}

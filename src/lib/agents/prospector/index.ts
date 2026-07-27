@@ -12,6 +12,7 @@ import { chat, extractJson } from "@/lib/ai/chat";
 import { getAgentConfig } from "../config";
 import { dubaiDayStart, isSuppressed, normalizeEmail } from "../mailer";
 import { enqueue } from "../queue";
+import { mandateTimelineLines } from "@/content/mandate";
 import type { AgentContext, AgentHandler } from "../types";
 import { buildSweepQueries, searchPlaces, type PlaceResult } from "./places";
 import { findContactEmails, registrableDomain, verifyEmail } from "./crawl";
@@ -174,7 +175,11 @@ async function storePlace(
 
 const SCORING_SYSTEM = `You qualify UAE businesses as prospects for a free service that matches companies to Ministry of Finance accredited e-invoicing service providers (ASPs).
 
-UAE e-invoicing is mandatory: large businesses (turnover ≥ AED 50m) from 1 July 2026, other VAT-registered businesses from 1 January 2027, government from October 2027. Every VAT-registered UAE business must eventually issue invoices through an accredited provider.
+UAE e-invoicing timeline:
+${mandateTimelineLines()
+  .map((line) => `- ${line}`)
+  .join("\n")}
+Every VAT-registered UAE business must eventually issue invoices through an accredited provider.
 
 Score 0-100 for how useful our free shortlist service is to them:
 - 80-100: mid-size or larger UAE company issuing many B2B invoices (trading, logistics, contracting, manufacturing, distribution, professional services).
@@ -182,7 +187,7 @@ Score 0-100 for how useful our free shortlist service is to them:
 - 20-54: micro business, consumer-facing with few B2B invoices, or unclear.
 - 0-19: not a UAE business, a competitor (they ARE an e-invoicing/ERP/tax software vendor or an accredited provider), a government entity, or otherwise irrelevant.
 
-Also estimate: size_hint (micro|small|mid|large), mandate_wave (jul-2026|jan-2027|unknown).
+Also estimate: size_hint (micro|small|mid|large), mandate_wave (phase-1|phase-2|unknown) — phase-1 only if annual revenue plausibly reaches AED 50 million.
 
 Respond with ONLY JSON: {"score": 0-100, "size_hint": "...", "mandate_wave": "...", "reason": "one short sentence"}`;
 
