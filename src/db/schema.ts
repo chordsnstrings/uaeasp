@@ -261,6 +261,348 @@ export const analyticsEvents = pgTable(
   ],
 );
 
+/* ------------------------------------------------------------------ *
+ * Growth agents
+ *
+ * Four autonomous agents share one runway: a Postgres job queue drained
+ * by a worker process. Everything they do is recorded (agent_runs), every
+ * outbound email is threaded (outreach_*), and every address that ever
+ * opts out is remembered forever (suppression).
+ * ------------------------------------------------------------------ */
+
+export const AGENT_KEYS = [
+  "visibility",
+  "prospector",
+  "conversationalist",
+  "analyst",
+] as const;
+export type AgentKey = (typeof AGENT_KEYS)[number];
+
+/** Work queue. Claimed with FOR UPDATE SKIP LOCKED so many workers are safe. */
+export const agentTasks = pgTable(
+  "agent_tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    agent: text("agent", { enum: AGENT_KEYS }).notNull(),
+    kind: text("kind").notNull(),
+    payload: jsonb("payload").notNull().default(sql`'{}'::jsonb`),
+    status: text("status", {
+      enum: ["queued", "running", "done", "failed", "canceled"],
+    })
+      .notNull()
+      .default("queued"),
+    priority: integer("priority").notNull().default(100),
+    attempts: integer("attempts").notNull().default(0),
+    maxAttempts: integer("max_attempts").notNull().default(3),
+    /** Not eligible to run before this instant — powers retries and schedules. */
+    runAfter: timestamp("run_after", { withTimezone: true }).notNull().defaultNow(),
+    /** Optional idempotency key: re-enqueueing the same key is a no-op. */
+    dedupeKey: text("dedupe_key"),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    error: text("error"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("agent_tasks_claim_idx").on(t.status, t.runAfter, t.priority),
+    uniqueIndex("agent_tasks_dedupe_idx").on(t.dedupeKey),
+  ],
+);
+
+/** One execution of an agent step: what it consumed, produced and cost. */
+export const agentRuns = pgTable(
+  "agent_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    agent: text("agent", { enum: AGENT_KEYS }).notNull(),
+    kind: text("kind").notNull(),
+    taskId: uuid("task_id"),
+    status: text("status", { enum: ["running", "success", "failed"] })
+      .notNull()
+      .default("running"),
+    itemsIn: integer("items_in").notNull().default(0),
+    itemsOut: integer("items_out").notNull().default(0),
+    aiTokens: integer("ai_tokens").notNull().default(0),
+    /** Cost in US cents ×100 (millicents) — integer maths, no float drift. */
+    costMillicents: integer("cost_millicents").notNull().default(0),
+    summary: jsonb("summary"),
+    error: text("error"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+  },
+  (t) => [index("agent_runs_agent_started_idx").on(t.agent, t.startedAt)],
+);
+
+export const PROSPECT_STATUSES = [
+  "discovered",
+  "enriched",
+  "contactable",
+  "sequenced",
+  "replied",
+  "converted",
+  "rejected",
+  "suppressed",
+] as const;
+
+/** A UAE business the Prospector found and may reach out to. */
+export const prospects = pgTable(
+  "prospects",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    website: text("website"),
+    /** Registrable domain, lowercased — the natural dedupe key. */
+    domain: text("domain"),
+    placeId: text("place_id"),
+    phone: text("phone"),
+    address: text("address"),
+    city: text("city"),
+    emirate: text("emirate"),
+    /** Search category that surfaced it, e.g. "accounting", "logistics". */
+    sector: text("sector"),
+    sizeHint: text("size_hint"),
+    /** Which mandate wave they most likely fall into, from Cabinet Decision phasing. */
+    mandateWave: text("mandate_wave"),
+    /** 0-100 fit score from the AI qualification pass. */
+    score: integer("score"),
+    scoreReason: text("score_reason"),
+    status: text("status", { enum: PROSPECT_STATUSES }).notNull().default("discovered"),
+    source: text("source").notNull().default("places"),
+    raw: jsonb("raw"),
+    /** Set once outreach converts them into a CRM lead. */
+    leadId: uuid("lead_id").references(() => leads.id, { onDelete: "set null" }),
+    lastCrawledAt: timestamp("last_crawled_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("prospects_domain_idx").on(t.domain),
+    uniqueIndex("prospects_place_idx").on(t.placeId),
+    index("prospects_status_score_idx").on(t.status, t.score),
+  ],
+);
+
+/** An address discovered on a prospect's site, with how much we trust it. */
+export const prospectContacts = pgTable(
+  "prospect_contacts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    prospectId: uuid("prospect_id")
+      .notNull()
+      .references(() => prospects.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    name: text("name"),
+    role: text("role"),
+    /** info@/sales@ style shared mailbox — deprioritised, never removed. */
+    isRoleAccount: boolean("is_role_account").notNull().default(false),
+    verification: text("verification", {
+      enum: ["unknown", "syntax_ok", "mx_ok", "invalid", "risky"],
+    })
+      .notNull()
+      .default("unknown"),
+    verifiedAt: timestamp("verified_at", { withTimezone: true }),
+    sourceUrl: text("source_url"),
+    priority: integer("priority").notNull().default(100),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("prospect_contacts_email_idx").on(t.prospectId, t.email)],
+);
+
+/** One ongoing email conversation with one contact. */
+export const outreachThreads = pgTable(
+  "outreach_threads",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    prospectId: uuid("prospect_id").references(() => prospects.id, {
+      onDelete: "cascade",
+    }),
+    contactId: uuid("contact_id").references(() => prospectContacts.id, {
+      onDelete: "set null",
+    }),
+    /** Which agent owns this thread: outreach vs link-building. */
+    agent: text("agent", { enum: AGENT_KEYS }).notNull().default("conversationalist"),
+    campaign: text("campaign").notNull().default("default"),
+    toEmail: text("to_email").notNull(),
+    subject: text("subject"),
+    status: text("status", {
+      enum: [
+        "active",
+        "awaiting_reply",
+        "replied",
+        "converted",
+        "closed",
+        "bounced",
+        "unsubscribed",
+      ],
+    })
+      .notNull()
+      .default("active"),
+    stepIndex: integer("step_index").notNull().default(0),
+    nextActionAt: timestamp("next_action_at", { withTimezone: true }),
+    lastOutboundAt: timestamp("last_outbound_at", { withTimezone: true }),
+    lastInboundAt: timestamp("last_inbound_at", { withTimezone: true }),
+    leadId: uuid("lead_id").references(() => leads.id, { onDelete: "set null" }),
+    /** Signed token embedded in links so replies and clicks map back here. */
+    token: uuid("token").notNull().defaultRandom().unique(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("outreach_threads_next_action_idx").on(t.status, t.nextActionAt),
+    index("outreach_threads_email_idx").on(t.toEmail),
+  ],
+);
+
+export const outreachMessages = pgTable(
+  "outreach_messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    threadId: uuid("thread_id")
+      .notNull()
+      .references(() => outreachThreads.id, { onDelete: "cascade" }),
+    direction: text("direction", { enum: ["outbound", "inbound"] }).notNull(),
+    status: text("status", {
+      enum: ["draft", "pending_approval", "scheduled", "sent", "failed", "received", "rejected"],
+    }).notNull(),
+    stepIndex: integer("step_index"),
+    subject: text("subject"),
+    bodyText: text("body_text").notNull(),
+    bodyHtml: text("body_html"),
+    fromEmail: text("from_email"),
+    toEmail: text("to_email"),
+    /** RFC 5322 Message-ID, used to thread replies correctly. */
+    messageId: text("message_id"),
+    inReplyTo: text("in_reply_to"),
+    providerMessageId: text("provider_message_id"),
+    approvedBy: uuid("approved_by").references(() => users.id, { onDelete: "set null" }),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    scheduledFor: timestamp("scheduled_for", { withTimezone: true }),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    receivedAt: timestamp("received_at", { withTimezone: true }),
+    error: text("error"),
+    aiMeta: jsonb("ai_meta"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("outreach_messages_thread_idx").on(t.threadId, t.createdAt),
+    index("outreach_messages_status_idx").on(t.status, t.scheduledFor),
+  ],
+);
+
+/** Permanent do-not-contact list. Checked before every single send. */
+export const suppressions = pgTable(
+  "suppressions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    email: text("email").notNull(),
+    domain: text("domain"),
+    reason: text("reason", {
+      enum: ["unsubscribe", "bounce", "complaint", "manual", "invalid"],
+    }).notNull(),
+    detail: text("detail"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("suppressions_email_idx").on(t.email),
+    index("suppressions_domain_idx").on(t.domain),
+  ],
+);
+
+/** Targets the Visibility agent works: citations, mentions, link prospects. */
+export const visibilityTargets = pgTable(
+  "visibility_targets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    kind: text("kind", { enum: ["citation", "mention", "link"] }).notNull(),
+    url: text("url").notNull(),
+    domain: text("domain"),
+    title: text("title"),
+    snippet: text("snippet"),
+    query: text("query"),
+    status: text("status", {
+      enum: ["discovered", "queued", "drafted", "actioned", "won", "skipped"],
+    })
+      .notNull()
+      .default("discovered"),
+    /** Human-facing note or the draft the agent produced for approval. */
+    draft: text("draft"),
+    notes: text("notes"),
+    meta: jsonb("meta"),
+    actionedAt: timestamp("actioned_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("visibility_targets_url_idx").on(t.kind, t.url),
+    index("visibility_targets_status_idx").on(t.status),
+  ],
+);
+
+/** Keywords we want to own, with the last observed position. */
+export const seoKeywords = pgTable(
+  "seo_keywords",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    phrase: text("phrase").notNull(),
+    locale: text("locale").notNull().default("en"),
+    priority: integer("priority").notNull().default(100),
+    lastPosition: integer("last_position"),
+    lastCheckedAt: timestamp("last_checked_at", { withTimezone: true }),
+    /** True when we have no page targeting it — the content agent's queue. */
+    hasGap: boolean("has_gap").notNull().default(false),
+    coveredByPath: text("covered_by_path"),
+    source: text("source").notNull().default("seed"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("seo_keywords_phrase_idx").on(t.phrase, t.locale)],
+);
+
+/** Agent-drafted articles published at /insights/<slug> once approved. */
+export const articles = pgTable(
+  "articles",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull(),
+    locale: text("locale").notNull().default("en"),
+    title: text("title").notNull(),
+    summary: text("summary"),
+    bodyMd: text("body_md").notNull(),
+    keywords: text("keywords")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+    status: text("status", { enum: ["draft", "approved", "published", "archived"] })
+      .notNull()
+      .default("draft"),
+    agentGenerated: boolean("agent_generated").notNull().default(true),
+    approvedBy: uuid("approved_by").references(() => users.id, { onDelete: "set null" }),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("articles_slug_locale_idx").on(t.slug, t.locale),
+    index("articles_status_idx").on(t.status, t.publishedAt),
+  ],
+);
+
+/** Analyst output: one row per reporting period. */
+export const agentReports = pgTable(
+  "agent_reports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    kind: text("kind").notNull().default("weekly"),
+    periodStart: date("period_start").notNull(),
+    periodEnd: date("period_end").notNull(),
+    metrics: jsonb("metrics").notNull(),
+    narrativeMd: text("narrative_md"),
+    recommendations: jsonb("recommendations"),
+    emailedAt: timestamp("emailed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("agent_reports_period_idx").on(t.kind, t.periodStart)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Provider = typeof providers.$inferSelect;
 export type NewProvider = typeof providers.$inferInsert;
@@ -269,3 +611,15 @@ export type NewLead = typeof leads.$inferInsert;
 export type LeadActivity = typeof leadActivities.$inferSelect;
 export type ScrapeRun = typeof scrapeRuns.$inferSelect;
 export type ScrapeChange = typeof scrapeChanges.$inferSelect;
+export type AgentTask = typeof agentTasks.$inferSelect;
+export type AgentRun = typeof agentRuns.$inferSelect;
+export type Prospect = typeof prospects.$inferSelect;
+export type NewProspect = typeof prospects.$inferInsert;
+export type ProspectContact = typeof prospectContacts.$inferSelect;
+export type OutreachThread = typeof outreachThreads.$inferSelect;
+export type OutreachMessage = typeof outreachMessages.$inferSelect;
+export type Suppression = typeof suppressions.$inferSelect;
+export type VisibilityTarget = typeof visibilityTargets.$inferSelect;
+export type SeoKeyword = typeof seoKeywords.$inferSelect;
+export type Article = typeof articles.$inferSelect;
+export type AgentReport = typeof agentReports.$inferSelect;

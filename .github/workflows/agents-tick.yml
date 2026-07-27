@@ -1,0 +1,51 @@
+name: Agent heartbeat
+
+# Drives the growth agents: every tick schedules any due periodic work and
+# drains a slice of the job queue. Safe to run as often as you like — all
+# scheduled work is deduplicated, and each tick is bounded.
+#
+# Requires repository secrets:
+#   AGENT_TICK_URL    https://uaeasp.ae/api/agents/tick
+#   INGEST_SECRET     the same shared secret used by the directory refresh
+
+on:
+  schedule:
+    # Every 15 minutes. Outreach pacing and daily caps are enforced server-side,
+    # so a missed or delayed tick only slows the system, never overruns it.
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max tasks to process this tick"
+        required: false
+        default: "25"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agents-tick
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Tick
+        env:
+          AGENT_TICK_URL: ${{ secrets.AGENT_TICK_URL }}
+          INGEST_SECRET: ${{ secrets.INGEST_SECRET }}
+          LIMIT: ${{ github.event.inputs.limit || '15' }}
+        run: |
+          if [ -z "$AGENT_TICK_URL" ] || [ -z "$INGEST_SECRET" ]; then
+            echo "AGENT_TICK_URL or INGEST_SECRET not configured — skipping."
+            exit 0
+          fi
+          response=$(curl -sS -X POST \
+            -H "Authorization: Bearer $INGEST_SECRET" \
+            -H "Content-Type: application/json" \
+            --max-time 300 \
+            "$AGENT_TICK_URL?limit=$LIMIT")
+          echo "$response"
+          echo "$response" | grep -q '"ok":true' || { echo "Tick failed"; exit 1; }
