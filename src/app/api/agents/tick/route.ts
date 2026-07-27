@@ -2,9 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { getConfig } from "@/lib/settings";
 import { getAgentConfig } from "@/lib/agents/config";
-import { drainQueue } from "@/lib/agents/runner";
-import { queueDepth, reclaimStale } from "@/lib/agents/queue";
-import { scheduleDueWork } from "@/lib/agents/scheduler";
+import { heartbeat } from "@/lib/agents/heartbeat";
+import { queueDepth } from "@/lib/agents/queue";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,14 +12,20 @@ export const maxDuration = 300;
 /**
  * The agent heartbeat.
  *
- * Called on a schedule (GitHub Actions cron) or by hand from the admin
- * console. Each tick: recover anything a crashed run left claimed, enqueue any
- * periodic work that is due, then drain a bounded slice of the queue. Bounded
- * on purpose — a tick that never ends is a tick that cannot be reasoned about.
+ * An external entry point to the same beat the app runs internally every few
+ * minutes: nightly directory refresh, then periodic agent work and a bounded
+ * slice of the queue. Bounded on purpose — a tick that never ends is a tick
+ * that cannot be reasoned about. Redundant with the internal timer by design;
+ * the slot claim stops them doubling up.
  */
 
 async function isAuthorized(req: NextRequest): Promise<boolean> {
   const bearer = req.headers.get("authorization");
+  // The deployment secret is accepted directly as well as the effective
+  // (possibly admin-overridden) one, so the app's own scheduler keeps working
+  // after someone rotates the value in /admin/settings.
+  const envSecret = process.env.INGEST_SECRET;
+  if (envSecret && bearer === `Bearer ${envSecret}`) return true;
   const { ingestSecret } = await getConfig();
   if (ingestSecret && bearer === `Bearer ${ingestSecret}`) return true;
   const session = await auth();
@@ -32,30 +37,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const config = await getAgentConfig();
-  if (!config.agentsEnabled) {
-    return NextResponse.json({ ok: true, skipped: "agents disabled" });
-  }
-
   const limit = Math.min(
     Math.max(Number(req.nextUrl.searchParams.get("limit") ?? 15), 1),
     50,
   );
 
-  const started = Date.now();
-  const reclaimed = await reclaimStale();
-  const scheduled = await scheduleDueWork();
-  const processed = await drainQueue(limit);
-  const depth = await queueDepth();
-
-  return NextResponse.json({
-    ok: true,
-    reclaimed,
-    scheduled,
-    processed,
-    depth,
-    ms: Date.now() - started,
-  });
+  // The app beats its own clock too, so a short gap keeps an external cron
+  // from doubling up on work the internal timer just did.
+  const result = await heartbeat({ limit, minGapSeconds: 45 });
+  return NextResponse.json({ ok: true, ...result });
 }
 
 export async function GET() {

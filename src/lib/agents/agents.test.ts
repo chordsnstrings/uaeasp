@@ -11,6 +11,7 @@ import {
 import { buildSweepQueries, parseEmirate } from "./prospector/places";
 import { dubaiDayStart, emailDomain, normalizeEmail } from "./mailer";
 import { findOwnPosition } from "./visibility/search";
+import { dubaiHour, refreshIsDue } from "./maintenance";
 
 describe("SES message building", () => {
   it("includes one-click unsubscribe headers when a URL is given", () => {
@@ -211,5 +212,39 @@ describe("rank detection", () => {
     ];
     expect(findOwnPosition(hits)).toBe(4);
     expect(findOwnPosition(hits.slice(0, 1))).toBeNull();
+  });
+});
+
+describe("nightly refresh scheduling", () => {
+  const at = (iso: string) => new Date(iso);
+
+  it("runs when the directory has never been refreshed", () => {
+    expect(refreshIsDue(null, at("2026-07-27T00:30:00Z"))).toBe(true);
+  });
+
+  it("waits until the nightly window on a normal day", () => {
+    // Last run 2026-07-26 22:10 Dubai (18:10Z). "Now" is 00:30 Dubai on the
+    // 27th — a new Dubai day, but before the 02:00 window.
+    const lastRun = at("2026-07-26T18:10:00Z");
+    expect(refreshIsDue(lastRun, at("2026-07-26T20:30:00Z"))).toBe(false);
+    // 02:30 Dubai — window open, no run yet today.
+    expect(refreshIsDue(lastRun, at("2026-07-26T22:30:00Z"))).toBe(true);
+  });
+
+  it("does not run twice in the same Dubai day", () => {
+    // Ran at 02:05 Dubai; later the same Dubai day it must not run again.
+    const lastRun = at("2026-07-26T22:05:00Z");
+    expect(refreshIsDue(lastRun, at("2026-07-27T10:00:00Z"))).toBe(false);
+  });
+
+  it("catches up when a run has been missed for over a day", () => {
+    const lastRun = at("2026-07-25T22:05:00Z");
+    // 27 hours later, regardless of the hour of day.
+    expect(refreshIsDue(lastRun, at("2026-07-27T01:05:00Z"))).toBe(true);
+  });
+
+  it("reports the Dubai hour as UTC+4", () => {
+    expect(dubaiHour(at("2026-07-26T22:30:00Z"))).toBe(2);
+    expect(dubaiHour(at("2026-07-27T20:00:00Z"))).toBe(0);
   });
 });

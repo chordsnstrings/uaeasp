@@ -264,10 +264,10 @@ export default async function AgentsPage() {
             complaints and inbound replies. The endpoint self-confirms the subscription.
           </li>
           <li>
-            3. Add GitHub secrets <code className="num text-xs">AGENT_TICK_URL</code> ={" "}
-            <code className="num text-xs">{absoluteUrl("/api/agents/tick")}</code> and{" "}
-            <code className="num text-xs">INGEST_SECRET</code> so the heartbeat runs every 15
-            minutes.
+            3. Nothing to schedule — the app beats its own clock every five minutes and
+            refreshes the provider directory nightly. Adding GitHub secrets{" "}
+            <code className="num text-xs">AGENT_TICK_URL</code> and{" "}
+            <code className="num text-xs">INGEST_SECRET</code> adds a redundant external tick.
           </li>
           <li>4. Fill in the offer copy below — the agent will not invent a sender identity.</li>
           <li>5. Start in manual approval mode and read the first twenty emails yourself.</li>

@@ -12,10 +12,9 @@ import {
   setAgentConfig,
   type AgentConfig,
 } from "@/lib/agents/config";
+import { heartbeat } from "@/lib/agents/heartbeat";
 import { sendOutreachMessage, suppress } from "@/lib/agents/mailer";
-import { enqueue, queueDepth, reclaimStale } from "@/lib/agents/queue";
-import { drainQueue } from "@/lib/agents/runner";
-import { scheduleDueWork } from "@/lib/agents/scheduler";
+import { enqueue } from "@/lib/agents/queue";
 import { testSesConnection } from "@/lib/agents/ses";
 
 type ActionState = { ok?: boolean; error?: string; detail?: string } | undefined;
@@ -87,25 +86,32 @@ export async function runTickAction(
   _formData: FormData,
 ): Promise<ActionState> {
   const admin = await requireAdmin();
-  await reclaimStale();
-  const scheduled = await scheduleDueWork();
-  const processed = await drainQueue(15);
-  const depth = await queueDepth();
+  // minGapSeconds 0: an admin pressing the button means "now", not "if due".
+  const result = await heartbeat({ limit: 15, minGapSeconds: 0 });
   await writeAudit({
     userId: admin.id,
     action: "agents.tick",
     entity: "agent_tasks",
-    diff: { scheduled, processed },
+    diff: { ...result },
   });
   revalidatePath("/admin/agents");
-  return {
-    ok: true,
-    detail: `Scheduled ${scheduled.length}, processed ${processed}. Queue: ${
-      Object.entries(depth)
-        .map(([k, v]) => `${v} ${k}`)
-        .join(", ") || "empty"
-    }.`,
-  };
+  revalidatePath("/admin/scrapes");
+
+  const parts: string[] = [];
+  if (result.maintenance?.ran) {
+    parts.push(`Directory refresh: ${result.maintenance.detail ?? result.maintenance.reason}.`);
+  }
+  if (result.skipped) parts.push(`Agents: ${result.skipped}.`);
+  else {
+    parts.push(
+      `Scheduled ${result.scheduled?.length ?? 0}, processed ${result.processed ?? 0}. Queue: ${
+        Object.entries(result.depth ?? {})
+          .map(([k, v]) => `${v} ${k}`)
+          .join(", ") || "empty"
+      }.`,
+    );
+  }
+  return { ok: true, detail: parts.join(" ") };
 }
 
 export async function queueJobAction(
