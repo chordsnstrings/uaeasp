@@ -18,7 +18,7 @@ import { visibilityHandlers } from "./visibility";
  * switch back on resumes exactly where it stopped.
  */
 
-const HANDLERS: Record<AgentKey, Record<string, AgentHandler>> = {
+export const HANDLERS: Record<AgentKey, Record<string, AgentHandler>> = {
   visibility: visibilityHandlers,
   prospector: prospectorHandlers,
   conversationalist: conversationalistHandlers,
