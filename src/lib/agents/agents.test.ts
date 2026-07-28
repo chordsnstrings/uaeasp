@@ -12,6 +12,7 @@ import { buildSweepQueries, parseEmirate } from "./prospector/places";
 import { dubaiDayStart, emailDomain, normalizeEmail, rampedCap } from "./mailer";
 import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "./config";
 import { findOwnPosition } from "./visibility/search";
+import { LANDING_SLUGS, landingContent } from "@/content/landings";
 import {
   classifyQuery,
   isActionableQuery,
@@ -646,5 +647,64 @@ describe("Search Console demand classification", () => {
 
   it("asks for whole days, which is all Search Console accepts", () => {
     expect(isoDay(new Date("2026-07-28T22:15:00Z"))).toBe("2026-07-28");
+  });
+});
+
+describe("query-cluster landing pages", () => {
+  const locales = ["en", "ar"] as const;
+
+  it("gives every declared slug real copy in both locales", () => {
+    for (const locale of locales) {
+      for (const slug of LANDING_SLUGS) {
+        const copy = landingContent[locale][slug];
+        expect(copy, `${locale}/${slug}`).toBeTruthy();
+        expect(copy.slug).toBe(slug);
+        expect(copy.h1.length).toBeGreaterThan(10);
+        expect(copy.intro.length).toBeGreaterThan(80);
+        expect(copy.faq.length).toBeGreaterThanOrEqual(3);
+      }
+    }
+  });
+
+  it("keeps titles inside what Google will actually render", () => {
+    for (const locale of locales) {
+      for (const slug of LANDING_SLUGS) {
+        const { metaTitle, metaDescription } = landingContent[locale][slug];
+        expect(metaTitle.length, `${locale}/${slug} title`).toBeLessThanOrEqual(75);
+        expect(metaDescription.length, `${locale}/${slug} desc`).toBeLessThanOrEqual(175);
+        expect(metaDescription.length).toBeGreaterThan(70);
+      }
+    }
+  });
+
+  it("never gives two pages the same title or heading", () => {
+    // The failure mode this whole feature exists to avoid: near-duplicate
+    // pages competing with each other instead of with anyone else.
+    for (const locale of locales) {
+      const titles = LANDING_SLUGS.map((s) => landingContent[locale][s].metaTitle);
+      const h1s = LANDING_SLUGS.map((s) => landingContent[locale][s].h1);
+      expect(new Set(titles).size).toBe(titles.length);
+      expect(new Set(h1s).size).toBe(h1s.length);
+    }
+  });
+
+  it("asks a different question on each page rather than rewording one", () => {
+    for (const locale of locales) {
+      const questions = LANDING_SLUGS.flatMap((s) =>
+        landingContent[locale][s].faq.map((f) => f.q.toLowerCase().trim()),
+      );
+      expect(new Set(questions).size).toBe(questions.length);
+    }
+  });
+
+  it("cross-links only to slugs that exist, and never to itself", () => {
+    for (const locale of locales) {
+      for (const slug of LANDING_SLUGS) {
+        for (const rel of landingContent[locale][slug].related) {
+          expect(LANDING_SLUGS as readonly string[]).toContain(rel);
+          expect(rel).not.toBe(slug);
+        }
+      }
+    }
   });
 });

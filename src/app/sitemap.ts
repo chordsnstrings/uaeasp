@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getPublicProviders } from "@/lib/data";
 import { getPublishedArticleSlugs } from "@/lib/insights";
 import { GUIDE_SLUGS, GUIDE_UPDATED_ISO } from "@/content/guides";
+import { LANDING_SLUGS } from "@/content/landings";
 import { EMIRATES, PROVIDER_CATEGORIES } from "@/db/schema";
 import { absoluteUrl, localePath } from "@/lib/site";
 
@@ -55,6 +56,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ),
     ...EMIRATES.map((emirate) =>
       entry(`/e-invoicing/${emirate}`, { priority: 0.8, changeFrequency: "monthly" }),
+    ),
+    // Query-cluster landings: high priority because these carry the generic
+    // commercial terms the homepage was losing.
+    ...LANDING_SLUGS.map((slug) =>
+      entry(`/lists/${slug}`, { priority: 0.9, changeFrequency: "daily" }),
     ),
     entry("/insights", { priority: 0.7, changeFrequency: "weekly" }),
     ...insights
