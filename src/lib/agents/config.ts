@@ -103,7 +103,11 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
 
   outreachDailyCap: 200,
   outreachWarmupStartCap: 20,
-  outreachWarmupGrowth: 1.4,
+  // Compounds once per day we actually send on. At 1.12 the ramp reaches the
+  // 200/day ceiling in about three weeks of sending; at the previous 1.4 it got
+  // there in seven days, which is far too steep for a domain with no sending
+  // history and is what gets a new domain filtered.
+  outreachWarmupGrowth: 1.12,
   outreachApprovalMode: "manual",
   outreachMaxFollowUps: 2,
   outreachStepDelayDays: 4,
