@@ -66,6 +66,10 @@ export interface AgentConfig {
   /** serper | bing | none — pluggable SERP/mention source. */
   searchApiProvider: string;
   searchApiKey: string;
+  /** Service-account JSON for the Search Console API. Write-only. */
+  gscServiceAccountJson: string;
+  /** Property to query, e.g. "sc-domain:uaeasp.ae". */
+  gscSiteUrl: string;
   visibilityWeeklyDraftCap: number;
 
   // --- Offer copy the Conversationalist pitches ---
@@ -155,6 +159,8 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
 
   searchApiProvider: "none",
   searchApiKey: "",
+  gscServiceAccountJson: "",
+  gscSiteUrl: "sc-domain:uaeasp.ae",
   visibilityWeeklyDraftCap: 3,
 
   senderName: "",
@@ -188,6 +194,7 @@ export const AGENT_SECRET_FIELDS: readonly (keyof AgentConfig)[] = [
   "sesSecretAccessKey",
   "placesApiKey",
   "searchApiKey",
+  "gscServiceAccountJson",
 ];
 
 async function readStored(): Promise<Partial<AgentConfig>> {
