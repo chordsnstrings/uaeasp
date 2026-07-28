@@ -1,4 +1,4 @@
-import { and, eq, gte, isNotNull, sql } from "drizzle-orm";
+import { and, eq, gte, isNotNull, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   outreachMessages,
@@ -85,24 +85,34 @@ export async function suppress(
     );
 }
 
-/** How many emails today's warm-up ramp allows. */
-export async function dailySendCap(config: AgentConfig): Promise<number> {
-  const [row] = await db
-    .select({ first: sql<Date | null>`min(${outreachMessages.sentAt})` })
-    .from(outreachMessages)
-    .where(isNotNull(outreachMessages.sentAt));
-  const first = row?.first ? new Date(row.first) : null;
-  if (!first) return Math.min(config.outreachWarmupStartCap, config.outreachDailyCap);
-  const days = Math.max(
-    0,
-    Math.floor((dubaiDayStart().getTime() - dubaiDayStart(first).getTime()) / 86_400_000),
-  );
+/**
+ * How many emails today's warm-up ramp allows.
+ *
+ * The ramp advances per day we actually sent on, not per day on the calendar.
+ * Reputation is built by delivering mail; elapsed time builds none. Ramping on
+ * calendar days would mean a pause silently graduated us — send 20 on Monday,
+ * stop for a month, and the ceiling would be waiting on our return, which is
+ * the opposite of a warm-up. Counting sending days makes an interruption cost
+ * nothing and resume exactly where it left off.
+ */
+export function rampedCap(config: AgentConfig, sendingDays: number): number {
   const ramped = Math.round(
-    config.outreachWarmupStartCap * Math.pow(config.outreachWarmupGrowth, days),
+    config.outreachWarmupStartCap * Math.pow(config.outreachWarmupGrowth, Math.max(0, sendingDays)),
   );
-  // A configured cap of zero means "stop sending" and must not be floored to 1.
   if (config.outreachDailyCap <= 0) return 0;
   return Math.max(1, Math.min(ramped, config.outreachDailyCap));
+}
+
+export async function dailySendCap(config: AgentConfig): Promise<number> {
+  // Distinct Dubai dates we have sent on, excluding today — today is the day
+  // being budgeted, so it must not advance its own allowance.
+  const [row] = await db
+    .select({
+      days: sql<string>`count(DISTINCT ((${outreachMessages.sentAt} AT TIME ZONE 'Asia/Dubai')::date))`,
+    })
+    .from(outreachMessages)
+    .where(and(isNotNull(outreachMessages.sentAt), lt(outreachMessages.sentAt, dubaiDayStart())));
+  return rampedCap(config, Number(row?.days ?? 0));
 }
 
 /**

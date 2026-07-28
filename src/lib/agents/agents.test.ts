@@ -9,7 +9,8 @@ import {
   robotsAllows,
 } from "./prospector/crawl";
 import { buildSweepQueries, parseEmirate } from "./prospector/places";
-import { dubaiDayStart, emailDomain, normalizeEmail } from "./mailer";
+import { dubaiDayStart, emailDomain, normalizeEmail, rampedCap } from "./mailer";
+import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "./config";
 import { findOwnPosition } from "./visibility/search";
 import { dubaiHour, refreshIsDue } from "./maintenance";
 import { AI_JOBS, pickModel } from "@/lib/ai/models";
@@ -448,5 +449,44 @@ describe("mandate facts stated to prospects", () => {
     expect(appointmentDeadlineFor(null)).toBe(expected);
     expect(appointmentDeadlineFor("unknown")).toBe(expected);
     expect(appointmentDeadlineFor("phase-2")).toBe(expected);
+  });
+});
+
+describe("outreach warm-up ramp", () => {
+  const cfg = (over: Partial<AgentConfig> = {}) =>
+    ({ ...DEFAULT_AGENT_CONFIG, ...over }) as AgentConfig;
+
+  it("starts at the warm-up cap on the first sending day", () => {
+    expect(rampedCap(cfg({ outreachWarmupStartCap: 20 }), 0)).toBe(20);
+  });
+
+  it("compounds per sending day and stops at the hard ceiling", () => {
+    const c = cfg({ outreachWarmupStartCap: 20, outreachWarmupGrowth: 1.12, outreachDailyCap: 200 });
+    expect(rampedCap(c, 1)).toBe(22);
+    expect(rampedCap(c, 7)).toBe(44);
+    expect(rampedCap(c, 14)).toBe(98);
+    expect(rampedCap(c, 21)).toBe(200);
+    expect(rampedCap(c, 500)).toBe(200);
+  });
+
+  it("never exceeds the hard ceiling even if the start cap is above it", () => {
+    expect(rampedCap(cfg({ outreachWarmupStartCap: 500, outreachDailyCap: 50 }), 0)).toBe(50);
+  });
+
+  it("treats a cap of zero as stop, not as one", () => {
+    expect(rampedCap(cfg({ outreachDailyCap: 0 }), 0)).toBe(0);
+    expect(rampedCap(cfg({ outreachDailyCap: 0 }), 30)).toBe(0);
+  });
+
+  it("cannot be advanced by calendar time, only by sending", () => {
+    // The whole point: a pause must not graduate the ramp. Same sending-day
+    // count returns the same cap no matter how much time has passed.
+    const c = cfg({ outreachWarmupStartCap: 20, outreachWarmupGrowth: 1.12 });
+    expect(rampedCap(c, 3)).toBe(rampedCap(c, 3));
+    expect(rampedCap(c, 3)).toBeLessThan(rampedCap(c, 4));
+  });
+
+  it("clamps a negative day count rather than shrinking below the start", () => {
+    expect(rampedCap(cfg({ outreachWarmupStartCap: 20 }), -5)).toBe(20);
   });
 });
