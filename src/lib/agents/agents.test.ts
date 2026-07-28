@@ -12,6 +12,14 @@ import { buildSweepQueries, parseEmirate } from "./prospector/places";
 import { dubaiDayStart, emailDomain, normalizeEmail, rampedCap } from "./mailer";
 import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "./config";
 import { findOwnPosition } from "./visibility/search";
+import {
+  classifyQuery,
+  isActionableQuery,
+  isoDay,
+  localeOf,
+  parseServiceAccount,
+  type SearchAnalyticsRow,
+} from "./visibility/gsc";
 import { dubaiHour, refreshIsDue } from "./maintenance";
 import { AI_JOBS, pickModel } from "@/lib/ai/models";
 import { certUrlIsTrusted, subscribeUrlIsTrusted } from "./sns";
@@ -582,5 +590,61 @@ describe("site digest built for personalisation", () => {
     const huge = `<html><body><p>${"padding ".repeat(50_000)}</p></body></html>`;
     const digest = buildSiteDigest([extractPageFacts(huge, "https://x.ae/")], 3500);
     expect(digest.length).toBeLessThanOrEqual(3500);
+  });
+});
+
+describe("Search Console demand classification", () => {
+  const row = (over: Partial<SearchAnalyticsRow> = {}): SearchAnalyticsRow => ({
+    keys: ["accredited service provider uae"],
+    clicks: 0,
+    impressions: 10,
+    ctr: 0,
+    position: 40,
+    ...over,
+  });
+
+  it("ignores the one-impression long tail that would fill the queue with noise", () => {
+    expect(isActionableQuery(row({ impressions: 1 }))).toBe(false);
+    expect(isActionableQuery(row({ impressions: 3 }))).toBe(true);
+  });
+
+  it("ignores phrases too short or too long to be a real query", () => {
+    expect(isActionableQuery(row({ keys: ["asp"] }))).toBe(false);
+    expect(isActionableQuery(row({ keys: ["x".repeat(200)] }))).toBe(false);
+  });
+
+  it("calls a page we already rank for an improvement, never a gap", () => {
+    // The whole point: writing a second page for a query we already have a
+    // page for is how a site cannibalises itself.
+    expect(classifyQuery(40, true)).toBe("improve");
+    expect(classifyQuery(58, true)).toBe("improve");
+  });
+
+  it("only calls it a gap when no page of ours competes at all", () => {
+    expect(classifyQuery(40, false)).toBe("gap");
+    expect(classifyQuery(95, true)).toBe("gap");
+  });
+
+  it("leaves alone what is already winning", () => {
+    expect(classifyQuery(4, true)).toBe("winning");
+    expect(classifyQuery(10, true)).toBe("winning");
+    expect(classifyQuery(11, true)).toBe("improve");
+  });
+
+  it("routes Arabic queries to the Arabic locale", () => {
+    expect(localeOf("مزود خدمة معتمد الفوترة الإلكترونية")).toBe("ar");
+    expect(localeOf("accredited service provider uae")).toBe("en");
+  });
+
+  it("rejects a service account that is missing, malformed or half-pasted", () => {
+    expect(parseServiceAccount("")).toBeNull();
+    expect(parseServiceAccount("{not json")).toBeNull();
+    expect(parseServiceAccount('{"client_email":"a@b.com"}')).toBeNull();
+    const ok = parseServiceAccount('{"client_email":"a@b.com","private_key":"-----BEGIN"}');
+    expect(ok?.token_uri).toBe("https://oauth2.googleapis.com/token");
+  });
+
+  it("asks for whole days, which is all Search Console accepts", () => {
+    expect(isoDay(new Date("2026-07-28T22:15:00Z"))).toBe("2026-07-28");
   });
 });

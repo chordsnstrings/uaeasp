@@ -18,6 +18,14 @@ import { enqueue } from "../queue";
 import type { AgentHandler } from "../types";
 import { findContactEmails, registrableDomain, verifyEmail } from "../prospector/crawl";
 import { findOwnPosition, webSearch, type SearchHit } from "./search";
+import {
+  classifyQuery,
+  isActionableQuery,
+  isConfigured,
+  localeOf,
+  querySearchAnalytics,
+  type QueryAction,
+} from "./gsc";
 
 /**
  * Agent 1 — Visibility.
@@ -435,12 +443,19 @@ export const seedCitations: AgentHandler = async (_task, ctx) => {
 /** Weekly cycle: refresh ranks, hunt mentions, keep the content queue moving. */
 export const weekly: AgentHandler = async (_task, ctx) => {
   const week = new Date().toISOString().slice(0, 10);
+  // Search Console first: it supplies the real demand every later step reads.
+  await enqueue({
+    agent: "visibility",
+    kind: "import_search_console",
+    dedupeKey: `gsc:${week}`,
+    priority: 5,
+  });
   await enqueue({ agent: "visibility", kind: "seed_keywords", dedupeKey: `seed-kw:${week}` });
   await enqueue({ agent: "visibility", kind: "seed_citations", dedupeKey: `seed-cit:${week}` });
   await enqueue({ agent: "visibility", kind: "rank_check", dedupeKey: `rank:${week}` });
   await enqueue({ agent: "visibility", kind: "find_mentions", dedupeKey: `mentions:${week}` });
   ctx.log("weekly visibility cycle queued");
-  return { itemsIn: 0, itemsOut: 4, summary: { queued: 4 } };
+  return { itemsIn: 0, itemsOut: 5, summary: { queued: 5 } };
 };
 
 /** Which of our pages actually pull traffic — used by the analyst report. */
@@ -459,11 +474,120 @@ export async function topLandingPages(days = 7): Promise<{ path: string; views: 
   return rows.map((r) => ({ path: r.path, views: Number(r.views) }));
 }
 
+
+/**
+ * Pull real demand from Search Console into the keyword table.
+ *
+ * This replaces guesswork as the agent's view of the world. Before this, the
+ * only keywords it knew were twelve phrases typed by hand with priorities
+ * someone invented, and a keyword only became a "gap" if a paid SERP API said
+ * so — which is why nothing was ever drafted.
+ *
+ * Now every query that actually produced impressions arrives with its true
+ * impressions, clicks, position and, crucially, the URL Google chose to show.
+ * That last field is what stops the agent writing a second page for a query it
+ * already has a page for.
+ */
+export const importSearchConsole: AgentHandler = async (_task, ctx) => {
+  const config = await getAgentConfig();
+  if (!isConfigured(config)) {
+    return { itemsIn: 0, itemsOut: 0, summary: { reason: "Search Console not configured" } };
+  }
+
+  const [queryRows, pairRows] = await Promise.all([
+    querySearchAnalytics(config, { dimensions: ["query"], rowLimit: 500 }),
+    // query+page together tells us which URL is competing for each phrase.
+    querySearchAnalytics(config, { dimensions: ["query", "page"], rowLimit: 1000 }),
+  ]);
+  if (queryRows.error) {
+    ctx.log(`Search Console unavailable: ${queryRows.error}`);
+    throw new Error(queryRows.error);
+  }
+
+  // Best-ranking page per query, so a phrase spread over several URLs resolves
+  // to the one Google actually favours.
+  const bestPage = new Map<string, { path: string; position: number }>();
+  for (const row of pairRows.rows) {
+    const [phrase, url] = row.keys;
+    if (!phrase || !url) continue;
+    const path = url.replace(/^https?:\/\/[^/]+/, "") || "/";
+    const current = bestPage.get(phrase);
+    if (!current || row.position < current.position) {
+      bestPage.set(phrase, { path, position: row.position });
+    }
+  }
+
+  const actionable = queryRows.rows.filter((r) => isActionableQuery(r));
+  const tally: Record<QueryAction, number> = { winning: 0, improve: 0, gap: 0 };
+  let stored = 0;
+
+  for (const row of actionable) {
+    const phrase = row.keys[0].trim().toLowerCase();
+    const page = bestPage.get(row.keys[0]);
+    const action = classifyQuery(row.position, Boolean(page));
+    tally[action] += 1;
+
+    await db
+      .insert(seoKeywords)
+      .values({
+        phrase,
+        locale: localeOf(phrase),
+        // Impressions are the demand signal, so they drive the queue order.
+        // Priority ascends, so negate: the busiest query sorts first.
+        priority: -row.impressions,
+        lastPosition: Math.round(row.position),
+        lastCheckedAt: new Date(),
+        impressions: row.impressions,
+        clicks: row.clicks,
+        rankingPath: page?.path ?? null,
+        hasGap: action === "gap",
+        coveredByPath: action === "gap" ? null : (page?.path ?? null),
+        source: "gsc",
+      })
+      .onConflictDoUpdate({
+        target: [seoKeywords.phrase, seoKeywords.locale],
+        set: {
+          priority: -row.impressions,
+          lastPosition: Math.round(row.position),
+          lastCheckedAt: new Date(),
+          impressions: row.impressions,
+          clicks: row.clicks,
+          rankingPath: page?.path ?? null,
+          hasGap: action === "gap",
+          coveredByPath: action === "gap" ? null : (page?.path ?? null),
+          source: "gsc",
+        },
+      });
+    stored += 1;
+  }
+
+  if (tally.gap > 0) {
+    await enqueue({
+      agent: "visibility",
+      kind: "draft_article",
+      payload: {},
+      dedupeKey: `draft:${new Date().toISOString().slice(0, 10)}`,
+      priority: 200,
+    });
+  }
+
+  ctx.log(
+    `Search Console: ${actionable.length} actionable of ${queryRows.rows.length} queries — ` +
+      `${tally.winning} winning, ${tally.improve} to improve, ${tally.gap} gaps`,
+  );
+  return {
+    itemsIn: queryRows.rows.length,
+    itemsOut: stored,
+    summary: { ...tally, stored },
+  };
+};
+
 export const visibilityHandlers: Record<string, AgentHandler> = {
   weekly,
   seed_keywords: seedKeywords,
   seed_citations: seedCitations,
   rank_check: rankCheck,
+  import_search_console: importSearchConsole,
   draft_article: draftArticle,
   find_mentions: findMentions,
   draft_outreach: draftOutreach,

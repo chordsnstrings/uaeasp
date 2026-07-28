@@ -564,6 +564,11 @@ export const seoKeywords = pgTable(
     priority: integer("priority").notNull().default(100),
     lastPosition: integer("last_position"),
     lastCheckedAt: timestamp("last_checked_at", { withTimezone: true }),
+    /** Real demand from Search Console: what this query did over the window. */
+    impressions: integer("impressions").notNull().default(0),
+    clicks: integer("clicks").notNull().default(0),
+    /** The URL Google actually shows for this query — not the one we assumed. */
+    rankingPath: text("ranking_path"),
     /** True when we have no page targeting it — the content agent's queue. */
     hasGap: boolean("has_gap").notNull().default(false),
     coveredByPath: text("covered_by_path"),
