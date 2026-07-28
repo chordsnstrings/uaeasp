@@ -40,6 +40,7 @@ export interface LandingCopy {
 export const LANDING_SLUGS = [
   "accredited-service-providers",
   "e-invoicing-service-providers",
+  "e-invoicing-pricing-uae",
 ] as const;
 
 export type LandingSlug = (typeof LANDING_SLUGS)[number];
@@ -108,6 +109,41 @@ export const landingContent: Record<Locale, Record<LandingSlug, LandingCopy>> = 
       ],
       related: ["accredited-service-providers"],
     },
+    "e-invoicing-pricing-uae": {
+      slug: "e-invoicing-pricing-uae",
+      metaTitle: "UAE E-Invoicing Costs: What ASPs Charge and What to Ask",
+      metaDescription:
+        "What actually drives the price of a UAE e-invoicing provider, the entitlements you are owed by law, and the questions to ask before signing. No sponsored rankings.",
+      h1: "What UAE e-invoicing actually costs",
+      intro:
+        "Pricing is the hardest thing to find out about accredited providers, and the Ministry of Finance itself cited cost feedback from businesses when it extended the first deadline. We do not publish per-provider rate cards, because no provider publishes one we could verify and a made-up number is worse than none. What we can set out is what drives the price, what you are entitled to before you pay anything, and the questions that expose the real cost.",
+      listHeading: "Providers to price up",
+      listIntro:
+        "Ask any three of these for a written quote using the checklist above. Quotes vary widely for the same volume, so getting more than one is the single most effective thing you can do.",
+      faq: [
+        {
+          q: "How is UAE e-invoicing usually priced?",
+          a: "Most providers combine some of: a one-off implementation or integration fee, a recurring subscription tied to a user or entity count, and a per-document charge for each invoice transmitted. The per-document element is what makes volume the biggest single driver, so know your monthly invoice count before you ask for a quote.",
+        },
+        {
+          q: "Am I entitled to any free e-invoices?",
+          a: "Under Ministerial Decision No. 64 of 2025, accredited service providers are required to make available at least 100 free e-invoices per year. Practitioners consistently warn that this is not always applied automatically, so ask for it to be written into the contract rather than assuming it appears on the invoice.",
+        },
+        {
+          q: "Why do quotes for the same volume differ so much?",
+          a: "Usually because they are not quoting the same thing. One may include ERP integration work and another assumes you will upload files to a portal by hand. One may include archiving, validation-failure support and Arabic assistance while another charges separately. Compare what is bundled before comparing the headline figure.",
+        },
+        {
+          q: "What should I ask before signing?",
+          a: "Ask for the total first-year cost including implementation, the per-document rate above any included allowance, the notice period, and exactly what you get if you leave: whether your archived invoices are exported in full, in what format, and at what cost. Switching later means re-integrating and re-testing, so exit terms matter more here than in most software contracts.",
+        },
+        {
+          q: "Does a higher price mean a better provider?",
+          a: "No. The right provider is mostly determined by whether it integrates properly with the accounting system you already run and can handle your volume. A cheaper provider that only offers manual portal upload will cost you far more in staff time if you issue hundreds of invoices a month.",
+        },
+      ],
+      related: ["accredited-service-providers", "e-invoicing-service-providers"],
+    },
   },
   ar: {
     "accredited-service-providers": {
@@ -161,6 +197,37 @@ export const landingContent: Record<Locale, Record<LandingSlug, LandingCopy>> = 
         },
       ],
       related: ["accredited-service-providers"],
+    },
+    "e-invoicing-pricing-uae": {
+      slug: "e-invoicing-pricing-uae",
+      metaTitle: "تكلفة الفوترة الإلكترونية في الإمارات وما يجب سؤال المزود عنه",
+      metaDescription:
+        "ما الذي يحدد سعر مزود الفوترة الإلكترونية في الإمارات، وما تستحقه بحكم القرار الوزاري، والأسئلة التي تكشف التكلفة الحقيقية قبل التوقيع. بلا ترتيب مدفوع.",
+      h1: "كم تكلّف الفوترة الإلكترونية في الإمارات",
+      intro:
+        "السعر هو أصعب ما يمكن معرفته عن المزودين المعتمدين، وقد أشارت وزارة المالية نفسها إلى ملاحظات المنشآت حول التكلفة عند تمديد الموعد الأول. نحن لا ننشر قوائم أسعار لكل مزود لأن أحداً منهم لا ينشر قائمة يمكننا التحقق منها، ورقم مختلق أسوأ من لا شيء. لكن يمكننا أن نوضح ما الذي يحدد السعر، وما تستحقه قبل أن تدفع، والأسئلة التي تكشف التكلفة الفعلية.",
+      listHeading: "مزودون لطلب عروض أسعار منهم",
+      listIntro:
+        "اطلب عرض سعر مكتوباً من ثلاثة على الأقل باستخدام الأسئلة أعلاه. تتفاوت العروض كثيراً لنفس الحجم، وطلب أكثر من عرض هو أنجع خطوة يمكنك اتخاذها.",
+      faq: [
+        {
+          q: "كيف تُحتسب أسعار الفوترة الإلكترونية عادة؟",
+          a: "يجمع معظم المزودين بين رسوم تنفيذ وتكامل لمرة واحدة، واشتراك دوري مرتبط بعدد المستخدمين أو المنشآت، ورسم لكل مستند يُرسل. عنصر الرسم لكل مستند هو ما يجعل حجم الفواتير المحرك الأكبر للتكلفة، لذا اعرف عددك الشهري قبل طلب العرض.",
+        },
+        {
+          q: "هل لي حق في فواتير إلكترونية مجانية؟",
+          a: "بموجب القرار الوزاري رقم 64 لسنة 2025، يُلزم مزودو الخدمة المعتمدون بإتاحة ما لا يقل عن 100 فاتورة إلكترونية مجاناً سنوياً. ويحذر المختصون من أن ذلك لا يُطبّق تلقائياً دائماً، فاطلب إدراجه في العقد صراحة.",
+        },
+        {
+          q: "لماذا تتفاوت العروض كثيراً لنفس الحجم؟",
+          a: "لأنها غالباً لا تسعّر الشيء نفسه. قد يشمل عرض أعمال التكامل مع نظامك المحاسبي بينما يفترض آخر أنك سترفع الملفات يدوياً عبر بوابة. وقد يشمل أحدهما الأرشفة ودعم أخطاء التحقق والدعم بالعربية ويحتسبها الآخر منفصلة.",
+        },
+        {
+          q: "ما الذي يجب أن أسأل عنه قبل التوقيع؟",
+          a: "اسأل عن التكلفة الإجمالية للسنة الأولى شاملة التنفيذ، والسعر لكل مستند بعد الحصة المشمولة، ومدة الإشعار، وما تحصل عليه عند المغادرة: هل تُصدَّر فواتيرك المؤرشفة كاملة، وبأي صيغة، وبأي تكلفة.",
+        },
+      ],
+      related: ["accredited-service-providers", "e-invoicing-service-providers"],
     },
   },
 };
