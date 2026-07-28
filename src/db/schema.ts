@@ -366,6 +366,10 @@ export const prospects = pgTable(
     /** 0-100 fit score from the AI qualification pass. */
     score: integer("score"),
     scoreReason: text("score_reason"),
+    /** Compact brief built from the prospect's own site, for personalisation. */
+    siteDigest: text("site_digest"),
+    /** Facts the AI pulled out of that brief: services, sectors, ERP, clients. */
+    profile: jsonb("profile"),
     status: text("status", { enum: PROSPECT_STATUSES }).notNull().default("discovered"),
     source: text("source").notNull().default("places"),
     raw: jsonb("raw"),

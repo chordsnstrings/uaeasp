@@ -11,6 +11,7 @@ import {
   type Prospect,
 } from "@/db/schema";
 import { chat, extractJson } from "@/lib/ai/chat";
+import type { ProspectProfile } from "../prospector";
 import { getSalesNotifyEmails, sendEmail } from "@/lib/email";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { appointmentDeadlineFor, mandateTimelineLines } from "@/content/mandate";
@@ -75,6 +76,14 @@ Writing rules:
 - Never claim we are government, never imply enforcement, never invent a deadline specific to them beyond the two published waves.
 - Never invent facts about the recipient's company. Use only what is given.
 - Do not add a signature or sign-off block — one is appended automatically.
+
+Personalisation — this is the part that decides whether the email works:
+- Open by naming something specific and verifiable about THIS company, drawn from the facts supplied below. What they actually do, where they operate, the systems they run, something they are known for.
+- One clause is enough. "You clear customs at Jebel Ali and invoice freight forwarders monthly" earns the next sentence. "As a leading company in your industry" wastes it.
+- Then connect that specific thing to why appointing a provider matters for them in particular — invoice volume, ERP they already run, number of branches, the sector they bill.
+- If a contact name is given, address them by first name. If not, do not write "Dear Sir/Madam", "To whom it may concern" or "Dear business owner" — open with the specific observation instead.
+- If the facts are thin, write a shorter email about the one thing you do know. Never pad with generic industry language, and never assert something the facts do not support.
+- Do not restate their own website copy back at them or flatter them. State the fact plainly and move on.
 ${step > 0 ? "- This is a follow-up to an unanswered email. Do not repeat the original pitch verbatim; add one new, useful angle and make it easy to say no." : ""}
 
 Respond with ONLY JSON: {"subject": "...", "body": "..."}`;
@@ -83,6 +92,8 @@ Respond with ONLY JSON: {"subject": "...", "body": "..."}`;
 interface Draft {
   subject: string;
   body: string;
+  /** Set when the draft failed the personalisation check and must not auto-send. */
+  needsReview?: string;
 }
 
 function fallbackDraft(prospect: Prospect, config: AgentConfig, step: number): Draft {
@@ -100,6 +111,17 @@ function fallbackDraft(prospect: Prospect, config: AgentConfig, step: number): D
     subject: `Re: E-invoicing provider shortlist for ${name}`,
     body: `Hello,\n\nFollowing up briefly. The full list of accredited providers is free to browse at ${absoluteUrl("/providers")} — no signup needed.\n\nIf ${name} already has a provider lined up, tell me and I will close this off.`,
   };
+}
+
+/** "Mohammed Al Rashid" -> "Mohammed". Blank if we have nothing usable. */
+export function firstName(name: string | null | undefined): string | null {
+  const first = (name ?? "").trim().split(/\s+/)[0] ?? "";
+  // Titles and role words are not names and must never be used as one.
+  if (!/^[\p{L}'-]{2,40}$/u.test(first)) return null;
+  if (/^(mr|mrs|ms|dr|eng|sheikh|hh|the|team|sales|info|admin|contact|support)$/i.test(first)) {
+    return null;
+  }
+  return first;
 }
 
 function appendSignature(body: string, config: AgentConfig, threadToken: string): string {
@@ -166,34 +188,117 @@ export const startSequence: AgentHandler = async (task, ctx) => {
     })
     .returning();
 
-  const draft = await writeDraft(prospect, config, 0, ctx);
+  const draft = await writeDraft(prospect, config, 0, ctx, firstName(contact.name));
+  if (!draft) {
+    // No personalised draft, and a generic first touch is not worth sending.
+    // Retry later: the enrich pass may yet fill in what we are missing.
+    await enqueue({
+      agent: "conversationalist",
+      kind: "start_sequence",
+      payload: { prospectId },
+      runAfter: new Date(Date.now() + 6 * 60 * 60 * 1000),
+      dedupeKey: `sequence-retry:${prospectId}`,
+      priority: 60,
+    });
+    await db.delete(outreachThreads).where(eq(outreachThreads.id, thread.id));
+    ctx.log(`no personalised draft for ${prospect.name} — retrying later, nothing sent`);
+    return { itemsIn: 1, itemsOut: 0, summary: { reason: "no personalised draft" } };
+  }
   await queueOutbound(thread, draft, 0, config);
 
   ctx.log(`sequence opened for ${prospect.name} → ${contact.email}`);
   return { itemsIn: 1, itemsOut: 1, summary: { threadId: thread.id, to: contact.email } };
 };
 
+/** Everything we know about this company, laid out for the writer. */
+function prospectBrief(prospect: Prospect, contactName: string | null, step: number): string {
+  const profile = (prospect.profile ?? null) as ProspectProfile | null;
+  const lines = [
+    `Company: ${prospect.name}`,
+    `Website: ${prospect.website ?? "unknown"}`,
+    `Emirate: ${prospect.emirate ?? "UAE"}`,
+    `Sector (from search, may be crude): ${prospect.sector ?? "unknown"}`,
+    `Estimated size: ${prospect.sizeHint ?? "unknown"}`,
+    `Likely mandate wave: ${prospect.mandateWave ?? "unknown"}`,
+    contactName ? `Contact first name: ${contactName}` : "Contact name: not known",
+  ];
+  if (profile) {
+    lines.push("", "Facts taken from their own website:");
+    if (profile.whatTheyDo) lines.push(`- What they do: ${profile.whatTheyDo}`);
+    if (profile.sectorsServed.length) lines.push(`- Sectors they serve: ${profile.sectorsServed.join(", ")}`);
+    if (profile.locations.length) lines.push(`- Locations: ${profile.locations.join(", ")}`);
+    if (profile.systems.length) lines.push(`- Systems they run: ${profile.systems.join(", ")}`);
+    if (profile.notable.length) lines.push(`- Notable: ${profile.notable.join("; ")}`);
+  } else {
+    lines.push("", "We could not read their website. Keep it short and do not pretend to know them.");
+  }
+  lines.push("", step > 0 ? `This is follow-up number ${step}.` : "This is the first contact.");
+  return lines.join("\n");
+}
+
+/** The tells of a template: an opening that would fit any company at all. */
+const GENERIC_OPENERS =
+  /\b(dear (sir|madam|sir\/madam|business owner|team)|to whom it may concern|i hope (this|you)|as a (leading|prominent|reputable|well[- ]known)|in today'?s (fast[- ]paced|digital|competitive))/i;
+
+/**
+ * Does this draft prove we actually looked at them?
+ *
+ * The company name alone does not count — a mail merge produces that. We
+ * require a second, harder-won detail: something from their site, their
+ * emirate, or the contact's own name. A draft that cannot clear this is not
+ * sent; it goes to a human instead.
+ */
+export function personalisationEvidence(
+  body: string,
+  prospect: { name: string; emirate?: string | null; profile?: unknown },
+  contactName: string | null,
+): { ok: boolean; reason?: string } {
+  const text = body.toLowerCase();
+  if (GENERIC_OPENERS.test(body)) return { ok: false, reason: "generic opener" };
+  if (!text.includes(prospect.name.toLowerCase().split(/\s+/)[0] ?? "")) {
+    return { ok: false, reason: "does not name the company" };
+  }
+
+  const profile = (prospect.profile ?? null) as ProspectProfile | null;
+  const specifics: string[] = [];
+  if (contactName) specifics.push(contactName);
+  if (prospect.emirate) specifics.push(prospect.emirate.replace(/-/g, " "));
+  if (profile) {
+    specifics.push(
+      ...profile.sectorsServed,
+      ...profile.locations,
+      ...profile.systems,
+      ...profile.notable,
+    );
+    // Match on the meaningful words of the description, not the whole clause.
+    if (profile.whatTheyDo) {
+      specifics.push(
+        ...profile.whatTheyDo.split(/[^a-zA-Z]+/).filter((w) => w.length > 4),
+      );
+    }
+  }
+  // A term that already appears in the company's own name proves nothing —
+  // "Gulf Freight Systems" trivially contains "freight". Only a detail the
+  // name does not hand us for free counts as evidence we actually looked.
+  const companyName = prospect.name.toLowerCase();
+  const hit = specifics.some((s) => {
+    const needle = s?.toLowerCase().slice(0, 40);
+    return needle && !companyName.includes(needle) && text.includes(needle);
+  });
+  return hit ? { ok: true } : { ok: false, reason: "no company-specific detail" };
+}
+
 async function writeDraft(
   prospect: Prospect,
   config: AgentConfig,
   step: number,
-  ctx: { addTokens: (n: number, model?: string) => void },
-): Promise<Draft> {
+  ctx: { addTokens: (n: number, model?: string) => void; log?: (m: string) => void },
+  contactName: string | null = null,
+): Promise<Draft | null> {
   const result = await chat(
     [
       { role: "system", content: systemPrompt(config, step) },
-      {
-        role: "user",
-        content: [
-          `Company: ${prospect.name}`,
-          `Website: ${prospect.website ?? "unknown"}`,
-          `Emirate: ${prospect.emirate ?? "UAE"}`,
-          `Sector (from search): ${prospect.sector ?? "unknown"}`,
-          `Estimated size: ${prospect.sizeHint ?? "unknown"}`,
-          `Likely mandate wave: ${prospect.mandateWave ?? "unknown"}`,
-          step > 0 ? `This is follow-up number ${step}.` : "This is the first contact.",
-        ].join("\n"),
-      },
+      { role: "user", content: prospectBrief(prospect, contactName, step) },
     ],
     { temperature: 0.4, maxTokens: 700, job: "email" },
   );
@@ -201,10 +306,20 @@ async function writeDraft(
     ctx.addTokens(result.totalTokens, result.model);
     const parsed = extractJson<Draft>(result.text);
     if (parsed?.subject && parsed?.body) {
-      return { subject: parsed.subject.slice(0, 180), body: parsed.body.slice(0, 4000) };
+      const draft = {
+        subject: parsed.subject.slice(0, 180),
+        body: parsed.body.slice(0, 4000),
+      };
+      const evidence = personalisationEvidence(draft.body, prospect, contactName);
+      if (evidence.ok) return draft;
+      ctx.log?.(`draft for ${prospect.name} rejected: ${evidence.reason}`);
+      return { ...draft, needsReview: evidence.reason };
     }
   }
-  return fallbackDraft(prospect, config, step);
+  // A follow-up may safely fall back to the plain template — the recipient has
+  // already had the personalised first touch. A first contact may not: sending
+  // a merge-field email is worse than sending nothing, so it goes to a human.
+  return step > 0 ? fallbackDraft(prospect, config, step) : null;
 }
 
 async function queueOutbound(
@@ -213,10 +328,12 @@ async function queueOutbound(
   step: number,
   config: AgentConfig,
 ): Promise<string> {
-  // Approval mode decides whether this can send unattended.
+  // Approval mode decides whether this can send unattended — but a draft that
+  // failed the personalisation check never sends unattended, whatever the mode.
   const autoSend =
-    config.outreachApprovalMode === "auto" ||
-    (config.outreachApprovalMode === "first_touch" && thread.agent === "conversationalist");
+    !draft.needsReview &&
+    (config.outreachApprovalMode === "auto" ||
+      (config.outreachApprovalMode === "first_touch" && thread.agent === "conversationalist"));
   const bodyText = appendSignature(draft.body, config, thread.token);
 
   const [row] = await db
@@ -609,12 +726,25 @@ export const tick: AgentHandler = async (_task, ctx) => {
   for (const { thread, prospect } of due) {
     if (await isSuppressed(thread.toEmail)) continue;
     const step = thread.stepIndex + 1;
+    const contactName = thread.contactId
+      ? firstName(
+          (
+            await db
+              .select({ name: prospectContacts.name })
+              .from(prospectContacts)
+              .where(eq(prospectContacts.id, thread.contactId))
+              .limit(1)
+          )[0]?.name,
+        )
+      : null;
     const draft = prospect
-      ? await writeDraft(prospect, config, step, ctx)
+      ? await writeDraft(prospect, config, step, ctx, contactName)
       : {
           subject: `Re: ${thread.subject ?? "e-invoicing providers"}`,
           body: `Just following up in case this slipped through. The accredited provider directory is free at ${absoluteUrl("/providers")} — happy to send a shortlist if useful.`,
         };
+    // writeDraft only returns null for a first touch, which this never is.
+    if (!draft) continue;
     await queueOutbound(thread, draft, step, config);
     queued += 1;
   }

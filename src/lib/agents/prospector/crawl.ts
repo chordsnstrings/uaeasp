@@ -73,6 +73,97 @@ export interface FoundContact {
   sourceUrl: string;
 }
 
+/** What a crawled page told us about the business, beyond its addresses. */
+export interface CrawledPage {
+  url: string;
+  title: string;
+  description: string;
+  headings: string[];
+  text: string;
+}
+
+const TAG_RE = {
+  title: /<title[^>]*>([\s\S]{0,300}?)<\/title>/i,
+  description: /<meta[^>]+name=["']description["'][^>]+content=["']([^"']{0,500})["']/i,
+  ogDescription: /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']{0,500})["']/i,
+  heading: /<h[123][^>]*>([\s\S]{0,200}?)<\/h[123]>/gi,
+};
+
+function decodeEntities(value: string): string {
+  return value
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;|&apos;/g, "'")
+    .replace(/&#(\d{2,5});/g, (_m, code: string) => String.fromCharCode(Number(code)));
+}
+
+function stripTags(value: string): string {
+  return decodeEntities(value.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Pull the human-readable substance out of a page.
+ *
+ * We already fetch these pages to find an address and then throw the rest away,
+ * which is why outreach had nothing to say about the recipient. Keeping the
+ * title, meta description, headings and body text costs one extra pass over
+ * HTML that is already in memory, and it is the whole difference between "Dear
+ * business owner" and a first line that proves we looked.
+ */
+export function extractPageFacts(html: string, url: string): CrawledPage {
+  // Scripts and styles are pure noise and can be enormous — drop them first so
+  // neither the regexes below nor the digest ever see them.
+  const body = html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<!--[\s\S]*?-->/g, " ");
+
+  const headings: string[] = [];
+  for (const match of body.matchAll(TAG_RE.heading)) {
+    const heading = stripTags(match[1]);
+    if (heading.length > 2 && heading.length < 160 && !headings.includes(heading)) {
+      headings.push(heading);
+    }
+    if (headings.length >= 12) break;
+  }
+
+  return {
+    url,
+    title: stripTags(body.match(TAG_RE.title)?.[1] ?? "").slice(0, 200),
+    description: stripTags(
+      body.match(TAG_RE.description)?.[1] ?? body.match(TAG_RE.ogDescription)?.[1] ?? "",
+    ).slice(0, 400),
+    headings,
+    text: stripTags(body).slice(0, 4000),
+  };
+}
+
+/**
+ * Flatten crawled pages into a compact brief for the model.
+ *
+ * Bounded deliberately: this text is pasted into a prompt, and an attacker who
+ * controls their own website controls every byte of it.
+ */
+export function buildSiteDigest(pages: CrawledPage[], maxChars = 3500): string {
+  const parts: string[] = [];
+  for (const page of pages) {
+    const section = [
+      `PAGE: ${page.url}`,
+      page.title && `Title: ${page.title}`,
+      page.description && `Description: ${page.description}`,
+      page.headings.length && `Headings: ${page.headings.slice(0, 8).join(" | ")}`,
+      page.text && `Text: ${page.text.slice(0, 1200)}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+    parts.push(section);
+  }
+  return parts.join("\n\n").slice(0, maxChars);
+}
+
 export function registrableDomain(input: string): string | null {
   try {
     const url = input.includes("://") ? new URL(input) : new URL(`https://${input}`);
@@ -152,8 +243,20 @@ export async function findContactEmails(
   websiteUrl: string,
   maxPages = 4,
 ): Promise<FoundContact[]> {
+  return (await crawlSite(websiteUrl, maxPages)).contacts;
+}
+
+/**
+ * One courtesy crawl, two outputs: the addresses we may write to, and what the
+ * business says about itself. Same pages, same budget — we were already paying
+ * for the fetch and discarding half of what came back.
+ */
+export async function crawlSite(
+  websiteUrl: string,
+  maxPages = 4,
+): Promise<{ contacts: FoundContact[]; pages: CrawledPage[] }> {
   const domain = registrableDomain(websiteUrl);
-  if (!domain) return [];
+  if (!domain) return { contacts: [], pages: [] };
   const origin = websiteUrl.startsWith("http") ? new URL(websiteUrl).origin : `https://${domain}`;
 
   const robotsBody = await fetchText(`${origin}/robots.txt`, 8000);
@@ -162,6 +265,7 @@ export async function findContactEmails(
     : { disallowed: [], crawlDelay: 0 };
 
   const found = new Map<string, FoundContact>();
+  const pages: CrawledPage[] = [];
   let visited = 0;
 
   for (const path of CONTACT_PATHS) {
@@ -171,6 +275,9 @@ export async function findContactEmails(
     visited += 1;
     if (crawlDelay) await sleep(crawlDelay * 1000);
     if (!html) continue;
+
+    const facts = extractPageFacts(html, `${origin}${path}`);
+    if (facts.title || facts.description || facts.text) pages.push(facts);
 
     const matches = html.match(EMAIL_RE) ?? [];
     for (const rawMatch of matches) {
@@ -189,7 +296,10 @@ export async function findContactEmails(
     }
   }
 
-  return [...found.values()].sort((a, b) => rank(a, domain) - rank(b, domain));
+  return {
+    contacts: [...found.values()].sort((a, b) => rank(a, domain) - rank(b, domain)),
+    pages,
+  };
 }
 
 function rank(contact: FoundContact, domain: string): number {

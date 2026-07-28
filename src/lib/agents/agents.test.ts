@@ -15,7 +15,8 @@ import { findOwnPosition } from "./visibility/search";
 import { dubaiHour, refreshIsDue } from "./maintenance";
 import { AI_JOBS, pickModel } from "@/lib/ai/models";
 import { certUrlIsTrusted, subscribeUrlIsTrusted } from "./sns";
-import { keywordIntent } from "./conversationalist";
+import { firstName, keywordIntent, personalisationEvidence } from "./conversationalist";
+import { buildSiteDigest, extractPageFacts } from "./prospector/crawl";
 import {
   MANDATE_PHASES,
   VOLUNTARY_START_ISO,
@@ -488,5 +489,98 @@ describe("outreach warm-up ramp", () => {
 
   it("clamps a negative day count rather than shrinking below the start", () => {
     expect(rampedCap(cfg({ outreachWarmupStartCap: 20 }), -5)).toBe(20);
+  });
+});
+
+describe("outreach personalisation", () => {
+  const prospect = {
+    name: "Gulf Freight Systems LLC",
+    emirate: "dubai",
+    profile: {
+      whatTheyDo: "customs clearance and sea freight out of Jebel Ali",
+      sectorsServed: ["retail importers"],
+      locations: ["Jebel Ali"],
+      systems: ["SAP"],
+      notable: ["operating since 1998"],
+      language: "en",
+    },
+  };
+
+  it("accepts a draft that cites a fact from their own site", () => {
+    const body =
+      "Hello Ahmed,\n\nGulf Freight Systems clears customs at Jebel Ali, so your invoice volume will make the provider choice matter.";
+    expect(personalisationEvidence(body, prospect, "Ahmed").ok).toBe(true);
+  });
+
+  it("rejects a mail-merge draft that only knows the company name", () => {
+    const body =
+      "Hello,\n\nUnder the UAE e-invoicing mandate, businesses like Gulf Freight Systems LLC need an accredited service provider.";
+    const result = personalisationEvidence(body, prospect, null);
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("no company-specific detail");
+  });
+
+  it("rejects the tells of a template even when a real fact follows", () => {
+    const body = "Dear Sir/Madam,\n\nGulf Freight Systems operates from Jebel Ali.";
+    expect(personalisationEvidence(body, prospect, null)).toEqual({
+      ok: false,
+      reason: "generic opener",
+    });
+    expect(
+      personalisationEvidence("I hope this email finds you well. Jebel Ali.", prospect, null).ok,
+    ).toBe(false);
+  });
+
+  it("rejects a draft that never names the company at all", () => {
+    expect(personalisationEvidence("Hello, we maintain a directory.", prospect, null)).toEqual({
+      ok: false,
+      reason: "does not name the company",
+    });
+  });
+
+  it("counts the contact's own name as evidence we looked", () => {
+    const bare = { name: "Acme Trading", emirate: null, profile: null };
+    expect(personalisationEvidence("Hi Fatima, Acme Trading — quick one.", bare, "Fatima").ok).toBe(
+      true,
+    );
+    expect(personalisationEvidence("Hello, Acme Trading — quick one.", bare, null).ok).toBe(false);
+  });
+
+  it("does not mistake a title or a shared mailbox for a person's name", () => {
+    expect(firstName("Mohammed Al Rashid")).toBe("Mohammed");
+    expect(firstName("  Fatima   Khan ")).toBe("Fatima");
+    expect(firstName("Dr Ahmed")).toBeNull();
+    expect(firstName("Sales Team")).toBeNull();
+    expect(firstName("info")).toBeNull();
+    expect(firstName(null)).toBeNull();
+    expect(firstName("A")).toBeNull();
+  });
+});
+
+describe("site digest built for personalisation", () => {
+  const html = `<html><head><title>Gulf Freight Systems LLC</title>
+    <meta name="description" content="Customs clearance and sea freight from Jebel Ali since 1998."></head>
+    <body><script>var x = "ignore me";</script><style>.a{color:red}</style>
+    <h1>Sea freight &amp; customs clearance</h1><h2>Serving retail importers</h2>
+    <p>We run SAP and handle 400 shipments a month.</p></body></html>`;
+
+  it("keeps the parts a writer can actually use", () => {
+    const page = extractPageFacts(html, "https://gulffreight.ae/");
+    expect(page.title).toBe("Gulf Freight Systems LLC");
+    expect(page.description).toContain("Jebel Ali");
+    expect(page.headings).toContain("Sea freight & customs clearance");
+    expect(page.text).toContain("400 shipments");
+  });
+
+  it("drops scripts and styles rather than feeding them to the model", () => {
+    const page = extractPageFacts(html, "https://gulffreight.ae/");
+    expect(page.text).not.toContain("ignore me");
+    expect(page.text).not.toContain("color:red");
+  });
+
+  it("bounds the digest, because a hostile site controls every byte of it", () => {
+    const huge = `<html><body><p>${"padding ".repeat(50_000)}</p></body></html>`;
+    const digest = buildSiteDigest([extractPageFacts(huge, "https://x.ae/")], 3500);
+    expect(digest.length).toBeLessThanOrEqual(3500);
   });
 });

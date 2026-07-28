@@ -64,6 +64,13 @@
       "when": 1785146861043,
       "tag": "0008_blue_corsair",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1785220577696,
+      "tag": "0009_premium_otto_octavius",
+      "breakpoints": true
     }
   ]
 }
