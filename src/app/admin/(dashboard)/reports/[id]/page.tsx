@@ -1,19 +1,40 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { agentReports } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import type { WeeklyMetrics, Recommendation } from "@/lib/agents/analyst";
+import { formatDateTime } from "@/components/admin/status";
+import {
+  Badge,
+  BarList,
+  ButtonLink,
+  Card,
+  Dot,
+  EmptyState,
+  PageHeader,
+  SectionTitle,
+  StatCard,
+} from "@/components/admin/ui";
 
 export const dynamic = "force-dynamic";
 
-function delta(now: number, before: number): { text: string; positive: boolean } {
-  if (before === 0) {
-    return { text: now === 0 ? "—" : `new`, positive: now > 0 };
-  }
-  const change = Math.round(((now - before) / before) * 1000) / 10;
-  return { text: `${change >= 0 ? "+" : ""}${change}%`, positive: change >= 0 };
+/** period_start / period_end are date columns, so they arrive as plain ISO days. */
+function formatDay(iso: string): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(d);
+}
+
+/** Percentage change, or null when there is no baseline to compare against. */
+function delta(now: number, before: number): number | null {
+  if (before === 0) return now === 0 ? 0 : null;
+  return ((now - before) / before) * 100;
 }
 
 /** Minimal markdown rendering: headings, bullets, ordered lists, paragraphs. */
@@ -24,7 +45,7 @@ function renderMarkdown(md: string): React.ReactNode {
     if (!trimmed) return null;
     if (trimmed.startsWith("## ")) {
       return (
-        <h2 key={i} className="mt-6 font-display text-lg font-semibold text-ink-900">
+        <h2 key={i} className="mt-6 font-display text-lg font-bold text-ink-900 first:mt-0">
           {trimmed.slice(3)}
         </h2>
       );
@@ -71,7 +92,7 @@ export default async function ReportDetailPage({
   const recommendations = (report.recommendations ?? []) as Recommendation[];
   const { current, previous } = metrics;
 
-  const stats = [
+  const stats: { label: string; now: number; before: number; hint?: string }[] = [
     { label: "Leads", now: current.funnel.leads, before: previous.funnel.leads },
     { label: "Visitors", now: current.traffic.visitors, before: previous.traffic.visitors },
     { label: "Pageviews", now: current.traffic.pageviews, before: previous.traffic.pageviews },
@@ -83,88 +104,128 @@ export default async function ReportDetailPage({
       before: previous.prospecting.discovered,
     },
     { label: "Keywords top 10", now: current.seo.keywordsTop10, before: previous.seo.keywordsTop10 },
-    { label: "Unsubscribes", now: current.outreach.unsubscribes, before: previous.outreach.unsubscribes },
+    {
+      label: "Unsubscribes",
+      now: current.outreach.unsubscribes,
+      before: previous.outreach.unsubscribes,
+      hint: "Lower is better.",
+    },
   ];
 
-  return (
-    <div className="space-y-6">
-      <header>
-        <Link href="/admin/reports" className="text-xs font-semibold text-brand-700 hover:text-brand-900">
-          ← Reports
-        </Link>
-        <h1 className="num mt-2 text-2xl font-bold text-ink-900">
-          {report.periodStart} → {report.periodEnd}
-        </h1>
-      </header>
+  // Older stored reports may predate these fields, so never trust the shape.
+  const topPages = Array.isArray(current.topPages) ? current.topPages : [];
+  const agentActivity = Array.isArray(current.agentActivity) ? current.agentActivity : [];
 
-      <div className="grid gap-4 sm:grid-cols-4">
-        {stats.map((stat) => {
-          const d = delta(stat.now, stat.before);
-          return (
-            <div key={stat.label} className="rounded-xl border border-ink-200 bg-white p-4">
-              <p className="num text-2xl font-semibold text-ink-900">{stat.now}</p>
-              <p className="num mt-1 text-[10px] uppercase tracking-[0.12em] text-ink-500">
-                {stat.label}
-              </p>
-              <p
-                className={`num mt-1 text-xs ${
-                  d.positive ? "text-brand-700" : "text-red-600"
-                }`}
-              >
-                {d.text} <span className="text-ink-400">vs {stat.before}</span>
-              </p>
-            </div>
-          );
-        })}
+  return (
+    <>
+      <PageHeader
+        title={`${formatDay(report.periodStart)} → ${formatDay(report.periodEnd)}`}
+        subtitle={
+          <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+            <Dot tone={report.emailedAt ? "positive" : "neutral"} />
+            <span>{report.kind} report</span>
+            <span className="text-ink-300">·</span>
+            <span className="num">generated {formatDateTime(report.createdAt)}</span>
+            <span className="text-ink-300">·</span>
+            <span>
+              {report.emailedAt ? (
+                <span className="num">emailed {formatDateTime(report.emailedAt)}</span>
+              ) : (
+                "not emailed"
+              )}
+            </span>
+          </span>
+        }
+        actions={<ButtonLink href="/admin/reports">All reports</ButtonLink>}
+      />
+
+      <section>
+        <SectionTitle hint="This period against the seven days before it.">
+          Week over week
+        </SectionTitle>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {stats.map((stat) => (
+            <StatCard
+              key={stat.label}
+              label={stat.label}
+              value={stat.now}
+              delta={delta(stat.now, stat.before)}
+              hint={
+                stat.hint
+                  ? `${stat.before} the week before · ${stat.hint}`
+                  : stat.before === 0 && stat.now > 0
+                    ? "New — nothing the week before."
+                    : `${stat.before} the week before`
+              }
+            />
+          ))}
+        </div>
+      </section>
+
+      <div className="grid gap-6 xl:grid-cols-3">
+        <Card className="xl:col-span-2">
+          <SectionTitle hint="Written by the Analyst from the numbers above.">
+            What happened
+          </SectionTitle>
+          {report.narrativeMd ? (
+            <div>{renderMarkdown(report.narrativeMd)}</div>
+          ) : (
+            <EmptyState
+              title="No narrative for this period"
+              body="The metrics were stored, but the model did not return a written summary. Re-queue the Analyst to try again."
+              action={<ButtonLink href="/admin/agents">Agent console</ButtonLink>}
+            />
+          )}
+        </Card>
+
+        <div className="space-y-6">
+          <Card>
+            <SectionTitle hint="Most viewed pages in this period.">Top pages</SectionTitle>
+            <BarList
+              tone="info"
+              items={topPages.map((page) => ({ label: page.path, value: page.views }))}
+              emptyLabel="No page data was recorded for this period."
+            />
+          </Card>
+
+          <Card>
+            <SectionTitle hint="Runs completed by each agent.">Agent activity</SectionTitle>
+            <BarList
+              tone="brand"
+              items={agentActivity.map((a) => ({
+                label: a.agent,
+                value: a.runs,
+                hint: a.failures > 0 ? `${a.failures} failed` : undefined,
+              }))}
+              emptyLabel="No agent runs in this period."
+            />
+          </Card>
+        </div>
       </div>
 
-      <article className="rounded-xl border border-ink-200 bg-white p-6">
-        {report.narrativeMd ? (
-          renderMarkdown(report.narrativeMd)
-        ) : (
-          <p className="text-sm text-ink-500">No narrative was generated for this period.</p>
-        )}
-      </article>
-
       {recommendations.length > 0 && (
-        <section className="rounded-xl border border-ink-200 bg-white p-6">
-          <h2 className="num text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-500">
+        <section>
+          <SectionTitle hint="What the Analyst suggests doing next, and which agent should do it.">
             Recommendations
-          </h2>
-          <ul className="mt-4 space-y-4">
+          </SectionTitle>
+          <div className="grid gap-4 lg:grid-cols-2">
             {recommendations.map((rec, i) => (
-              <li key={i} className="border-s-2 border-brand-300 ps-4">
-                <p className="font-semibold text-ink-900">{rec.title}</p>
-                <p className="mt-1 text-sm text-ink-600">{rec.why}</p>
-                <p className="mt-1.5 text-sm text-ink-800">
-                  <span className="num text-[10px] uppercase tracking-wide text-brand-700">
-                    {rec.agent}
-                  </span>{" "}
+              <Card key={i}>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge tone="brand">{rec.agent}</Badge>
+                  <p className="font-display text-base font-bold tracking-tight text-ink-900">
+                    {rec.title}
+                  </p>
+                </div>
+                <p className="mt-2 text-sm leading-relaxed text-ink-600">{rec.why}</p>
+                <p className="mt-3 border-s-2 border-brand-300 ps-3 text-sm leading-relaxed text-ink-900">
                   {rec.action}
                 </p>
-              </li>
+              </Card>
             ))}
-          </ul>
+          </div>
         </section>
       )}
-
-      {current.topPages.length > 0 && (
-        <section className="rounded-xl border border-ink-200 bg-white p-6">
-          <h2 className="num text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-500">
-            Top pages
-          </h2>
-          <ul className="mt-3 space-y-1.5">
-            {current.topPages.map((page) => (
-              <li key={page.path} className="flex justify-between gap-4 text-sm">
-                <span className="num truncate text-ink-700" dir="ltr">
-                  {page.path}
-                </span>
-                <span className="num font-semibold text-ink-900">{page.views}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </div>
+    </>
   );
 }

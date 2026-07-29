@@ -17,12 +17,19 @@ import type { AgentConfig } from "@/lib/agents/config";
 
 /** Shared bits of chrome for the agent console. */
 
+// These constants style every control in the console, so they are the one
+// place the client components meet the Ledger primitives the pages use. They
+// deliberately mirror ButtonLink in components/admin/ui.tsx: a migrated page
+// wrapping an un-migrated button is the seam users actually notice.
 const inputClass =
-  "w-full rounded-lg border border-ink-200 bg-white px-3.5 py-2 text-sm shadow-sm placeholder:text-ink-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100";
+  "w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm shadow-sm transition-colors placeholder:text-ink-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100";
 const buttonClass =
-  "press rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800 disabled:opacity-50";
+  "press inline-flex items-center gap-1.5 rounded-xl bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-ink-800 disabled:cursor-not-allowed disabled:opacity-50";
 const ghostButtonClass =
-  "press rounded-lg border border-ink-200 bg-white px-4 py-2 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:opacity-50";
+  "press inline-flex items-center gap-1.5 rounded-xl border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-700 transition-colors hover:border-brand-300 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-50";
+/** Reject is not destructive, but it does end a conversation — say so in colour. */
+const cautionButtonClass =
+  "press inline-flex items-center gap-1.5 rounded-xl border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-600 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50";
 
 function Status({ state }: { state?: { ok?: boolean; error?: string; detail?: string } }) {
   if (!state) return null;
@@ -418,7 +425,7 @@ export function ApprovalCard({
         />
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-3">
+      <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-ink-200/70 pt-4">
         <form action={approve}>
           <input type="hidden" name="messageId" value={message.id} />
           <input type="hidden" name="bodyText" value={body} />
@@ -430,13 +437,16 @@ export function ApprovalCard({
         <form action={reject} className="flex items-center gap-3">
           <input type="hidden" name="messageId" value={message.id} />
           <label className="flex items-center gap-1.5 text-xs text-ink-600">
-            <input type="checkbox" name="suppress" className="size-3.5 accent-brand-700" />
+            <input type="checkbox" name="suppress" className="size-3.5 accent-red-600" />
             never contact
           </label>
-          <button type="submit" disabled={approving || rejecting} className={ghostButtonClass}>
+          <button type="submit" disabled={approving || rejecting} className={cautionButtonClass}>
             {rejecting ? "Rejecting…" : "Reject"}
           </button>
         </form>
+        <p className="ms-auto text-[11px] text-ink-400">
+          Nothing leaves until you approve it.
+        </p>
       </div>
       <Status state={approveState ?? rejectState} />
     </article>
