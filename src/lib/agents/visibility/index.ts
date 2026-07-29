@@ -22,13 +22,17 @@ import {
   classifyQuery,
   isActionableQuery,
   isConfigured,
+  explainIndexingError,
   listSitemaps,
   localeOf,
   needsDedicatedPage,
+  publishUrlNotification,
   querySearchAnalytics,
   submitSitemap,
+  type IndexPingResult,
   type QueryAction,
 } from "./gsc";
+import { LANDING_SLUGS } from "@/content/landings";
 
 /**
  * Agent 1 — Visibility.
@@ -677,8 +681,106 @@ export const daily: AgentHandler = async (_task, ctx) => {
     dedupeKey: `draft:${day}`,
     priority: 200,
   });
+  await enqueue({
+    agent: "visibility",
+    kind: "ping_index",
+    dedupeKey: `ping:${day}`,
+    priority: 210,
+  });
   ctx.log("daily visibility cycle queued");
-  return { itemsIn: 0, itemsOut: 3, summary: { queued: 3 } };
+  return { itemsIn: 0, itemsOut: 4, summary: { queued: 4 } };
+};
+
+
+/**
+ * Which URLs are worth asking Google to recrawl.
+ *
+ * Pinging the whole site every night would burn the quota on pages that have
+ * not moved and teaches Google nothing. Only genuinely changed things go: a
+ * page published or edited since the last run, and the query-cluster landings,
+ * which change whenever the provider list does.
+ */
+export function urlsWorthPinging(
+  recentArticles: { slug: string; locale: string }[],
+  landingSlugs: readonly string[],
+  cap: number,
+): string[] {
+  const urls = [
+    ...recentArticles.map((a) =>
+      absoluteUrl(a.locale === "ar" ? `/ar/insights/${a.slug}` : `/insights/${a.slug}`),
+    ),
+    ...landingSlugs.map((s) => absoluteUrl(`/lists/${s}`)),
+  ];
+  // De-duplicate before capping, or a repeated URL silently eats the budget.
+  return [...new Set(urls)].slice(0, Math.max(0, cap));
+}
+
+/**
+ * Ask Google to recrawl what changed.
+ *
+ * Off unless indexingApiEnabled is set, because Google documents this endpoint
+ * as being for job postings and live-stream markup. Enabled deliberately, it
+ * is capped and reports every rejection with the remedy rather than a raw 403 —
+ * both prerequisites (API enabled, service account is a property OWNER) fail
+ * with the same status code and entirely different fixes.
+ */
+export const pingIndex: AgentHandler = async (task, ctx) => {
+  const config = await getAgentConfig();
+  if (!isConfigured(config)) {
+    return { itemsIn: 0, itemsOut: 0, summary: { reason: "Search Console not configured" } };
+  }
+  if (!config.indexingApiEnabled) {
+    return { itemsIn: 0, itemsOut: 0, summary: { reason: "indexing API disabled in config" } };
+  }
+
+  const explicit = (task.payload as { urls?: string[] })?.urls;
+  let urls: string[];
+  if (Array.isArray(explicit) && explicit.length) {
+    urls = [...new Set(explicit)].slice(0, config.indexingDailyPingCap);
+  } else {
+    const since = new Date(Date.now() - 2 * 86_400_000);
+    const recent = await db
+      .select({ slug: articles.slug, locale: articles.locale })
+      .from(articles)
+      .where(and(eq(articles.status, "published"), gte(articles.updatedAt, since)))
+      .limit(50);
+    urls = urlsWorthPinging(recent, LANDING_SLUGS, config.indexingDailyPingCap);
+  }
+  if (!urls.length) return { itemsIn: 0, itemsOut: 0, summary: { reason: "nothing changed" } };
+
+  const results: IndexPingResult[] = [];
+  for (const url of urls) {
+    const result = await publishUrlNotification(config, url);
+    results.push(result);
+    // One misconfiguration will reject every URL identically, so stop at the
+    // first rather than spending the whole cap proving the same point.
+    if (!result.ok && result.status === 403) {
+      ctx.log(explainIndexingError(result.status, result.error ?? ""));
+      break;
+    }
+    if (!result.ok && result.status === 429) {
+      ctx.log(explainIndexingError(result.status, result.error ?? ""));
+      break;
+    }
+  }
+
+  const ok = results.filter((r) => r.ok).length;
+  const failed = results.filter((r) => !r.ok);
+  ctx.log(
+    `indexing: ${ok}/${results.length} accepted` +
+      (failed.length ? ` — ${explainIndexingError(failed[0].status, failed[0].error ?? "")}` : ""),
+  );
+  return {
+    itemsIn: urls.length,
+    itemsOut: ok,
+    summary: {
+      accepted: ok,
+      rejected: failed.length,
+      firstError: failed[0]
+        ? explainIndexingError(failed[0].status, failed[0].error ?? "")
+        : null,
+    },
+  };
 };
 
 export const visibilityHandlers: Record<string, AgentHandler> = {
@@ -688,6 +790,7 @@ export const visibilityHandlers: Record<string, AgentHandler> = {
   rank_check: rankCheck,
   daily,
   submit_sitemap: submitSitemapJob,
+  ping_index: pingIndex,
   import_search_console: importSearchConsole,
   draft_article: draftArticle,
   find_mentions: findMentions,

@@ -75,6 +75,10 @@ export interface AgentConfig {
   visibilityDailyDraftCap: number;
   /** Sitemap resubmitted to Search Console each night. */
   sitemapFeedPath: string;
+  /** Ask Google to recrawl changed URLs. Off by default — see gsc.ts. */
+  indexingApiEnabled: boolean;
+  /** URLs pinged per run. Google's default quota is 200/day. */
+  indexingDailyPingCap: number;
 
   // --- Offer copy the Conversationalist pitches ---
   senderName: string;
@@ -168,6 +172,8 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   visibilityWeeklyDraftCap: 10,
   visibilityDailyDraftCap: 2,
   sitemapFeedPath: "https://uaeasp.ae/sitemap.xml",
+  indexingApiEnabled: false,
+  indexingDailyPingCap: 20,
 
   senderName: "",
   senderTitle: "",
