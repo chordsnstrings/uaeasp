@@ -22,8 +22,11 @@ import {
   classifyQuery,
   isActionableQuery,
   isConfigured,
+  listSitemaps,
   localeOf,
+  needsDedicatedPage,
   querySearchAnalytics,
+  submitSitemap,
   type QueryAction,
 } from "./gsc";
 
@@ -185,12 +188,24 @@ interface ArticleDraft {
 /** Write the highest-value missing page as a draft article. */
 export const draftArticle: AgentHandler = async (_task, ctx) => {
   const config = await getAgentConfig();
+  // Two ceilings, both on drafts rather than publications: an unreviewed
+  // backlog stops the agent writing more, which is the behaviour we want.
+  const dayAgo = new Date(Date.now() - 86_400_000);
   const weekAgo = new Date(Date.now() - 7 * 86_400_000);
-  const [{ count } = { count: "0" }] = await db
-    .select({ count: sql<string>`count(*)` })
-    .from(articles)
-    .where(and(eq(articles.agentGenerated, true), gte(articles.createdAt, weekAgo)));
-  if (Number(count) >= config.visibilityWeeklyDraftCap) {
+  const [today, thisWeek] = await Promise.all([
+    db
+      .select({ count: sql<string>`count(*)` })
+      .from(articles)
+      .where(and(eq(articles.agentGenerated, true), gte(articles.createdAt, dayAgo))),
+    db
+      .select({ count: sql<string>`count(*)` })
+      .from(articles)
+      .where(and(eq(articles.agentGenerated, true), gte(articles.createdAt, weekAgo))),
+  ]);
+  if (Number(today[0]?.count ?? 0) >= config.visibilityDailyDraftCap) {
+    return { itemsIn: 0, itemsOut: 0, summary: { reason: "daily draft cap reached" } };
+  }
+  if (Number(thisWeek[0]?.count ?? 0) >= config.visibilityWeeklyDraftCap) {
     return { itemsIn: 0, itemsOut: 0, summary: { reason: "weekly draft cap reached" } };
   }
 
@@ -524,7 +539,12 @@ export const importSearchConsole: AgentHandler = async (_task, ctx) => {
   for (const row of actionable) {
     const phrase = row.keys[0].trim().toLowerCase();
     const page = bestPage.get(row.keys[0]);
-    const action = classifyQuery(row.position, Boolean(page));
+    // A hub page standing in for a specific question is not coverage. Without
+    // this the queue stayed empty: every query resolved to /providers or the
+    // homepage, so everything looked "covered" and nothing was ever written.
+    const action: QueryAction = needsDedicatedPage(row.position, page?.path)
+      ? "gap"
+      : classifyQuery(row.position, Boolean(page));
     tally[action] += 1;
 
     await db
@@ -582,11 +602,92 @@ export const importSearchConsole: AgentHandler = async (_task, ctx) => {
   };
 };
 
+
+/**
+ * Resubmit the sitemap and record what Google makes of it.
+ *
+ * Google retired the anonymous ping endpoint in 2023, so the Search Console
+ * API is the only programmatic nudge left. Resubmitting an unchanged sitemap
+ * is a no-op to Google, which makes this safe to run nightly and after every
+ * deploy — new pages get noticed without anyone remembering to do it.
+ *
+ * Deliberately not here: the Indexing API. Google restricts it to job postings
+ * and live-stream markup; using it for ordinary pages is against its terms.
+ * Inspection tells us the truth about a URL, which is the honest substitute.
+ */
+export const submitSitemapJob: AgentHandler = async (_task, ctx) => {
+  const config = await getAgentConfig();
+  if (!isConfigured(config)) {
+    return { itemsIn: 0, itemsOut: 0, summary: { reason: "Search Console not configured" } };
+  }
+  const feed = config.sitemapFeedPath || absoluteUrl("/sitemap.xml");
+  const submitted = await submitSitemap(config, feed);
+  if (!submitted.ok) {
+    ctx.log(`sitemap submit failed: ${submitted.error}`);
+    throw new Error(submitted.error ?? "sitemap submit failed");
+  }
+
+  const { sitemaps } = await listSitemaps(config);
+  const mine = sitemaps.find((s) => s.path === feed) ?? sitemaps[0];
+  if (mine) {
+    ctx.log(
+      `sitemap ${feed}: ${mine.submitted} URLs submitted, ${mine.indexed} indexed, ` +
+        `${mine.warnings} warnings, ${mine.errors} errors`,
+    );
+  }
+  return {
+    itemsIn: 1,
+    itemsOut: 1,
+    summary: {
+      feed,
+      submitted: mine?.submitted ?? null,
+      indexed: mine?.indexed ?? null,
+      warnings: mine?.warnings ?? null,
+      errors: mine?.errors ?? null,
+      lastDownloaded: mine?.lastDownloaded ?? null,
+    },
+  };
+};
+
+/**
+ * The daily loop: refresh demand, submit the sitemap, keep writing.
+ *
+ * Content used to move on a weekly cycle with a cap of three, so at best the
+ * agent produced three pages a week and only if that week's cycle happened to
+ * fire. Gaps are discovered daily now, and drafting is bounded by a daily cap
+ * instead of waiting a week for permission.
+ */
+export const daily: AgentHandler = async (_task, ctx) => {
+  const day = new Date().toISOString().slice(0, 10);
+  await enqueue({
+    agent: "visibility",
+    kind: "import_search_console",
+    dedupeKey: `gsc:${day}`,
+    priority: 5,
+  });
+  await enqueue({
+    agent: "visibility",
+    kind: "submit_sitemap",
+    dedupeKey: `sitemap:${day}`,
+    priority: 8,
+  });
+  await enqueue({
+    agent: "visibility",
+    kind: "draft_article",
+    dedupeKey: `draft:${day}`,
+    priority: 200,
+  });
+  ctx.log("daily visibility cycle queued");
+  return { itemsIn: 0, itemsOut: 3, summary: { queued: 3 } };
+};
+
 export const visibilityHandlers: Record<string, AgentHandler> = {
   weekly,
   seed_keywords: seedKeywords,
   seed_citations: seedCitations,
   rank_check: rankCheck,
+  daily,
+  submit_sitemap: submitSitemapJob,
   import_search_console: importSearchConsole,
   draft_article: draftArticle,
   find_mentions: findMentions,

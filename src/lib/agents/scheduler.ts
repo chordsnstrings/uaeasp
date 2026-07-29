@@ -69,6 +69,13 @@ export async function scheduleDueWork(): Promise<string[]> {
       kind: "weekly",
       dedupeKey: `visibility-weekly:${week}`,
     });
+    // Demand and content move daily; only the slower link/citation work stays
+    // weekly. Three pages a week was a cadence nobody chose — it was the cap.
+    await add("visibility/daily", {
+      agent: "visibility",
+      kind: "daily",
+      dedupeKey: `visibility-daily:${day}`,
+    });
   }
 
   if (config.analystEnabled) {
