@@ -20,6 +20,7 @@ import { absoluteUrl } from "@/lib/site";
 import { dubaiDay, formatDateTime } from "@/components/admin/status";
 import {
   AgentConfigForm,
+  AgentSwitch,
   ModelRoutingForm,
   QueueJobForm,
   TestSesForm,
@@ -325,7 +326,16 @@ export default async function AgentsPage() {
                     </h3>
                     <p className="mt-1 text-xs leading-relaxed text-ink-500">{agent.role}</p>
                   </div>
-                  <Badge tone={agent.tone}>{agent.label}</Badge>
+                  <div className="flex shrink-0 flex-col items-end gap-1.5">
+                    <AgentSwitch
+                      agent={agent.key}
+                      enabled={agent.state.enabled}
+                      name={agent.name}
+                    />
+                    {/* The switch says on/off; this says what that actually
+                        means right now — enabled but blocked is not running. */}
+                    <Badge tone={agent.tone}>{agent.label}</Badge>
+                  </div>
                 </div>
                 <p className="num mt-3 text-[11px] text-ink-400">
                   {(runsPerAgent.get(agent.key) ?? 0).toLocaleString()} runs · 14d
@@ -366,9 +376,12 @@ export default async function AgentsPage() {
               <span className="num">{fmt(clock.lastRefreshAt)}</span>
             </Field>
             <Field label="Master switch">
-              <Badge tone={config.agentsEnabled ? "positive" : "neutral"}>
-                {config.agentsEnabled ? "on" : "off"}
-              </Badge>
+              <span className="flex items-center gap-2">
+                <AgentSwitch agent="agents" enabled={config.agentsEnabled} name="master switch" />
+                <span className="text-xs text-ink-500">
+                  {config.agentsEnabled ? "all agents may run" : "nothing runs"}
+                </span>
+              </span>
             </Field>
             <Field label="Approval mode">
               <Badge tone={config.outreachApprovalMode === "manual" ? "info" : "warning"}>

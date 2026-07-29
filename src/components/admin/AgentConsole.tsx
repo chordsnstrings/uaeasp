@@ -11,6 +11,7 @@ import {
   saveModelRoutingAction,
   suppressEmailAction,
   testSesAction,
+  toggleAgentAction,
   updateTargetAction,
 } from "@/app/admin/(dashboard)/agents/actions";
 import type { AgentConfig } from "@/lib/agents/config";
@@ -612,6 +613,49 @@ export function ModelRoutingForm({
           <Status state={state} />
         </div>
       </Section>
+    </form>
+  );
+}
+
+/**
+ * The on/off switch on an agent's own card.
+ *
+ * Renders as a real submit button rather than a checkbox with a separate save:
+ * one press, one state change, and the label always says what pressing it will
+ * do rather than what the current state is.
+ */
+export function AgentSwitch({
+  agent,
+  enabled,
+  name,
+}: {
+  agent: string;
+  enabled: boolean;
+  name: string;
+}) {
+  const [state, action, pending] = useActionState(toggleAgentAction, undefined);
+  return (
+    <form action={action} className="shrink-0">
+      <input type="hidden" name="agent" value={agent} />
+      <input type="hidden" name="next" value={enabled ? "off" : "on"} />
+      <button
+        type="submit"
+        disabled={pending}
+        aria-label={`${enabled ? "Switch off" : "Switch on"} the ${name} agent`}
+        title={enabled ? `Switch off ${name}` : `Switch on ${name}`}
+        className={`press stamp inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] uppercase tracking-[0.08em] ring-1 ring-inset transition-colors disabled:opacity-50 ${
+          enabled
+            ? "bg-emerald-50 text-emerald-800 ring-emerald-200 hover:bg-red-50 hover:text-red-700 hover:ring-red-200"
+            : "bg-ink-100 text-ink-600 ring-ink-200 hover:bg-emerald-50 hover:text-emerald-800 hover:ring-emerald-200"
+        }`}
+      >
+        <span
+          aria-hidden
+          className={`inline-block size-1.5 rounded-full ${enabled ? "bg-emerald-500" : "bg-ink-300"}`}
+        />
+        {pending ? "saving…" : enabled ? "on" : "off"}
+      </button>
+      {state?.error && <p className="mt-1 text-[10px] text-red-600">{state.error}</p>}
     </form>
   );
 }
