@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { articles, outreachMessages, visibilityTargets } from "@/db/schema";
+import { AGENT_KEYS, articles, outreachMessages, visibilityTargets } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import { writeAudit } from "@/lib/audit";
 import {
@@ -68,6 +68,47 @@ export async function saveAgentConfigAction(
   });
   revalidatePath("/admin/agents");
   return { ok: true };
+}
+
+/**
+ * Turn one agent on or off.
+ *
+ * Deliberately its own action rather than a checkbox inside the settings form.
+ * That form posts every field it renders, so a stale page could quietly revert
+ * an unrelated setting on the way past; a switch that does one thing should
+ * write one key. It also means the toggle works without scrolling to a form
+ * and pressing save, which is the whole point of putting it on the card.
+ */
+export async function toggleAgentAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const admin = await requireAdmin();
+  const agent = String(formData.get("agent") ?? "");
+  // "agents" is the master switch; everything else must be a real agent, so a
+  // crafted form cannot flip an arbitrary config key through this action.
+  if (agent !== "agents" && !(AGENT_KEYS as readonly string[]).includes(agent)) {
+    return { error: "Unknown agent." };
+  }
+  const key = `${agent}Enabled` as keyof AgentConfig;
+  const next = formData.get("next") === "on";
+
+  try {
+    await setAgentConfig({ [key]: next } as Partial<AgentConfig>);
+  } catch {
+    return { error: "Could not change that switch." };
+  }
+  await writeAudit({
+    userId: admin.id,
+    action: "agents.toggle",
+    entity: "agent_config",
+    entityId: agent,
+    diff: { [key]: next },
+  });
+  revalidatePath("/admin/agents");
+  revalidatePath("/admin");
+  const label = agent === "agents" ? "Master switch" : agent;
+  return { ok: true, detail: `${label} ${next ? "switched on" : "switched off"}.` };
 }
 
 export async function testSesAction(
