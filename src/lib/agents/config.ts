@@ -71,6 +71,10 @@ export interface AgentConfig {
   /** Property to query, e.g. "sc-domain:uaeasp.ae". */
   gscSiteUrl: string;
   visibilityWeeklyDraftCap: number;
+  /** Ceiling on drafts written in a rolling 24 hours. */
+  visibilityDailyDraftCap: number;
+  /** Sitemap resubmitted to Search Console each night. */
+  sitemapFeedPath: string;
 
   // --- Offer copy the Conversationalist pitches ---
   senderName: string;
@@ -161,7 +165,9 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   searchApiKey: "",
   gscServiceAccountJson: "",
   gscSiteUrl: "sc-domain:uaeasp.ae",
-  visibilityWeeklyDraftCap: 3,
+  visibilityWeeklyDraftCap: 10,
+  visibilityDailyDraftCap: 2,
+  sitemapFeedPath: "https://uaeasp.ae/sitemap.xml",
 
   senderName: "",
   senderTitle: "",

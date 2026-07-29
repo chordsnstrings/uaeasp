@@ -57,14 +57,18 @@ let cached: { token: string; expiresAt: number; owner: string } | null = null;
 export async function getAccessToken(
   key: ServiceAccountKey,
   now: number = Date.now(),
+  scope: string = TOKEN_SCOPE,
 ): Promise<string | null> {
-  if (cached && cached.owner === key.client_email && cached.expiresAt > now + 60_000) {
+  // Scope is part of the cache identity: a read-only token cannot submit a
+  // sitemap, and silently reusing one would fail in a confusing way.
+  const owner = `${key.client_email}|${scope}`;
+  if (cached && cached.owner === owner && cached.expiresAt > now + 60_000) {
     return cached.token;
   }
   const issued = Math.floor(now / 1000);
   const unsigned = `${base64url({ alg: "RS256", typ: "JWT" })}.${base64url({
     iss: key.client_email,
-    scope: TOKEN_SCOPE,
+    scope,
     aud: key.token_uri,
     exp: issued + 3600,
     iat: issued,
@@ -96,7 +100,7 @@ export async function getAccessToken(
     cached = {
       token: body.access_token,
       expiresAt: now + (body.expires_in ?? 3600) * 1000,
-      owner: key.client_email,
+      owner: `${key.client_email}|${scope}`,
     };
     return body.access_token;
   } catch {
@@ -202,4 +206,181 @@ export function classifyQuery(position: number, hasPage: boolean): QueryAction {
 /** Arabic queries carry Arabic-script characters; everything else is English. */
 export function localeOf(phrase: string): "en" | "ar" {
   return /[؀-ۿ]/.test(phrase) ? "ar" : "en";
+}
+
+/* ------------------------------------------------------- write-side calls */
+
+/** Read/write scope — sitemap submission needs more than webmasters.readonly. */
+const WRITE_SCOPE = "https://www.googleapis.com/auth/webmasters";
+
+async function token(config: AgentConfig, scope: string): Promise<string | null> {
+  const key = parseServiceAccount(config.gscServiceAccountJson);
+  if (!key) return null;
+  return getAccessToken(key, Date.now(), scope);
+}
+
+/**
+ * Tell Google the sitemap changed.
+ *
+ * Google retired the anonymous ping endpoint in 2023, so this is now the only
+ * programmatic way to nudge a sitemap — and it needs the same service account
+ * as everything else. Cheap and idempotent: resubmitting an unchanged sitemap
+ * is a no-op to Google, so this can run on every deploy and every night.
+ */
+export async function submitSitemap(
+  config: AgentConfig,
+  feedPath: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const access = await token(config, WRITE_SCOPE);
+  if (!access) return { ok: false, error: "no access token" };
+  try {
+    const res = await fetch(
+      `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(
+        config.gscSiteUrl,
+      )}/sitemaps/${encodeURIComponent(feedPath)}`,
+      { method: "PUT", headers: { Authorization: `Bearer ${access}` }, signal: AbortSignal.timeout(20_000) },
+    );
+    if (res.status === 204 || res.ok) return { ok: true };
+    return { ok: false, error: `${res.status}: ${(await res.text()).slice(0, 200)}` };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+export interface SitemapStatus {
+  path: string;
+  lastSubmitted?: string;
+  lastDownloaded?: string;
+  isPending?: boolean;
+  warnings: number;
+  errors: number;
+  submitted: number;
+  indexed: number;
+}
+
+/** What Google currently thinks of our sitemap — warnings are the useful part. */
+export async function listSitemaps(
+  config: AgentConfig,
+): Promise<{ sitemaps: SitemapStatus[]; error?: string }> {
+  const access = await token(config, WRITE_SCOPE);
+  if (!access) return { sitemaps: [], error: "no access token" };
+  try {
+    const res = await fetch(
+      `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(
+        config.gscSiteUrl,
+      )}/sitemaps`,
+      { headers: { Authorization: `Bearer ${access}` }, signal: AbortSignal.timeout(20_000) },
+    );
+    if (!res.ok) return { sitemaps: [], error: `${res.status}` };
+    const json = (await res.json()) as {
+      sitemap?: {
+        path: string;
+        lastSubmitted?: string;
+        lastDownloaded?: string;
+        isPending?: boolean;
+        warnings?: string;
+        errors?: string;
+        contents?: { submitted?: string; indexed?: string }[];
+      }[];
+    };
+    return {
+      sitemaps: (json.sitemap ?? []).map((s) => ({
+        path: s.path,
+        lastSubmitted: s.lastSubmitted,
+        lastDownloaded: s.lastDownloaded,
+        isPending: s.isPending,
+        warnings: Number(s.warnings ?? 0),
+        errors: Number(s.errors ?? 0),
+        submitted: Number(s.contents?.[0]?.submitted ?? 0),
+        indexed: Number(s.contents?.[0]?.indexed ?? 0),
+      })),
+    };
+  } catch (err) {
+    return { sitemaps: [], error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+export interface UrlVerdict {
+  url: string;
+  verdict: string;
+  coverageState: string;
+  lastCrawlTime?: string;
+  indexed: boolean;
+}
+
+/**
+ * Ask Google whether one URL is actually in the index.
+ *
+ * This is the honest alternative to the Indexing API, which Google restricts
+ * to job postings and live-stream markup — using it for ordinary pages is
+ * against its terms, so we do not. Inspection cannot request indexing; it can
+ * only tell us the truth about a page, which is what a report needs.
+ * Quota is 2,000 URLs a day, far more than we will ever use.
+ */
+export async function inspectUrl(
+  config: AgentConfig,
+  url: string,
+): Promise<{ result?: UrlVerdict; error?: string }> {
+  const access = await token(config, WRITE_SCOPE);
+  if (!access) return { error: "no access token" };
+  try {
+    const res = await fetch("https://searchconsole.googleapis.com/v1/urlInspection/index:inspect", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${access}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ inspectionUrl: url, siteUrl: config.gscSiteUrl }),
+      signal: AbortSignal.timeout(25_000),
+    });
+    if (!res.ok) return { error: `${res.status}: ${(await res.text()).slice(0, 200)}` };
+    const json = (await res.json()) as {
+      inspectionResult?: {
+        indexStatusResult?: { verdict?: string; coverageState?: string; lastCrawlTime?: string };
+      };
+    };
+    const r = json.inspectionResult?.indexStatusResult;
+    return {
+      result: {
+        url,
+        verdict: r?.verdict ?? "UNKNOWN",
+        coverageState: r?.coverageState ?? "unknown",
+        lastCrawlTime: r?.lastCrawlTime,
+        indexed: (r?.coverageState ?? "").toLowerCase().includes("indexed") &&
+          !(r?.coverageState ?? "").toLowerCase().includes("not indexed"),
+      },
+    };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/* ------------------------------------------------- richer gap definition */
+
+/**
+ * Pages that answer many questions rather than one.
+ *
+ * When one of these ranks for a specific query, that is not coverage — it is
+ * the homepage or a hub being asked to stand in for a page we never wrote.
+ * Search Console showed exactly this: "accredited service providers" resolving
+ * to "/" at position 48. Treating that as covered is what kept the content
+ * queue permanently empty.
+ */
+const HUB_PATHS = ["/", "/ar", "/providers", "/ar/providers", "/registry", "/ar/registry"];
+
+export function isHubPath(path: string | null | undefined): boolean {
+  if (!path) return false;
+  return HUB_PATHS.includes(path.replace(/\/$/, "") || "/");
+}
+
+/**
+ * Should we write a dedicated page for this query?
+ *
+ * Position alone is not enough. A specific page sitting at 30 needs improving,
+ * not duplicating. A hub page sitting at 30 means the query has no home of its
+ * own, and that is a genuine gap however well the hub happens to rank.
+ */
+export function needsDedicatedPage(
+  position: number,
+  rankingPath: string | null | undefined,
+): boolean {
+  if (position <= 10) return false;
+  return isHubPath(rankingPath) || !rankingPath;
 }

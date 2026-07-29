@@ -18,6 +18,8 @@ import {
   isActionableQuery,
   isoDay,
   localeOf,
+  isHubPath,
+  needsDedicatedPage,
   parseServiceAccount,
   type SearchAnalyticsRow,
 } from "./visibility/gsc";
@@ -706,5 +708,41 @@ describe("query-cluster landing pages", () => {
         }
       }
     }
+  });
+});
+
+describe("gaps worth writing a page for", () => {
+  it("treats a hub page standing in for a specific query as a gap", () => {
+    // The live failure: "accredited service providers" resolved to "/" at
+    // position 48, which classifyQuery called "covered" — so the content
+    // queue stayed permanently empty while the homepage lost the query.
+    expect(needsDedicatedPage(48, "/")).toBe(true);
+    expect(needsDedicatedPage(56, "/providers")).toBe(true);
+    expect(needsDedicatedPage(30, "/registry")).toBe(true);
+    expect(needsDedicatedPage(40, "/ar")).toBe(true);
+  });
+
+  it("leaves a specific page alone — that is an improvement, not a gap", () => {
+    expect(needsDedicatedPage(38, "/toolkit/penalty-calculator")).toBe(false);
+    expect(needsDedicatedPage(35, "/guides/peppol-pint-ae-explained")).toBe(false);
+    expect(needsDedicatedPage(58, "/integrations")).toBe(false);
+  });
+
+  it("never writes a second page for something already winning", () => {
+    expect(needsDedicatedPage(4, "/")).toBe(false);
+    expect(needsDedicatedPage(10, "/providers")).toBe(false);
+    expect(needsDedicatedPage(11, "/providers")).toBe(true);
+  });
+
+  it("counts a query with no ranking page at all as a gap", () => {
+    expect(needsDedicatedPage(45, null)).toBe(true);
+    expect(needsDedicatedPage(45, undefined)).toBe(true);
+  });
+
+  it("recognises hubs with or without a trailing slash", () => {
+    expect(isHubPath("/providers/")).toBe(true);
+    expect(isHubPath("/providers")).toBe(true);
+    expect(isHubPath("/providers/bdo-digital-solutions")).toBe(false);
+    expect(isHubPath(null)).toBe(false);
   });
 });
