@@ -52,6 +52,28 @@ export const TIMELINE_LABELS: Record<string, string> = {
   exploring: "Exploring",
 };
 
+/** The UAE has no DST, so the Dubai day is simply UTC+4 year-round. */
+const DUBAI_OFFSET_MS = 4 * 60 * 60 * 1000;
+
+/**
+ * One Dubai day: an ISO key that matches the `to_char(…, 'YYYY-MM-DD')` bucket
+ * Postgres returns, plus a human label for a chart axis. The key is
+ * deliberately not a localised string — Node renders September as "Sept" and
+ * Postgres as "Sep", so matching on the label would silently drop a month of
+ * data and plot it as zeros.
+ */
+export function dubaiDay(ms: number): { key: string; label: string } {
+  const shifted = new Date(ms + DUBAI_OFFSET_MS);
+  return {
+    key: shifted.toISOString().slice(0, 10),
+    label: shifted.toLocaleDateString("en-GB", {
+      timeZone: "UTC",
+      day: "2-digit",
+      month: "short",
+    }),
+  };
+}
+
 export function formatDateTime(d: Date | string): string {
   const date = typeof d === "string" ? new Date(d) : d;
   return new Intl.DateTimeFormat("en-AE", {
