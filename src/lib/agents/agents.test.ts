@@ -12,12 +12,14 @@ import { buildSweepQueries, parseEmirate } from "./prospector/places";
 import { dubaiDayStart, emailDomain, normalizeEmail, rampedCap } from "./mailer";
 import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "./config";
 import { findOwnPosition } from "./visibility/search";
+import { urlsWorthPinging } from "./visibility";
 import { LANDING_SLUGS, landingContent } from "@/content/landings";
 import {
   classifyQuery,
   isActionableQuery,
   isoDay,
   localeOf,
+  explainIndexingError,
   isHubPath,
   needsDedicatedPage,
   parseServiceAccount,
@@ -744,5 +746,40 @@ describe("gaps worth writing a page for", () => {
     expect(isHubPath("/providers")).toBe(true);
     expect(isHubPath("/providers/bdo-digital-solutions")).toBe(false);
     expect(isHubPath(null)).toBe(false);
+  });
+});
+
+describe("indexing API guard rails", () => {
+  it("turns each 403 into the remedy, since both fail identically", () => {
+    expect(
+      explainIndexingError(403, '{"reason":"SERVICE_DISABLED","message":"has not been used in project"}'),
+    ).toContain("not enabled on the Google Cloud project");
+    expect(explainIndexingError(403, "Failed to verify the URL ownership")).toContain("OWNER");
+    expect(explainIndexingError(429, "quota")).toContain("quota");
+  });
+
+  it("dedupes before capping, so a repeat cannot eat the budget", () => {
+    const urls = urlsWorthPinging(
+      [
+        { slug: "a", locale: "en" },
+        { slug: "a", locale: "en" },
+        { slug: "b", locale: "en" },
+      ],
+      [],
+      10,
+    );
+    expect(urls).toHaveLength(2);
+  });
+
+  it("respects the cap and never returns more than asked", () => {
+    const many = Array.from({ length: 40 }, (_, i) => ({ slug: `p${i}`, locale: "en" }));
+    expect(urlsWorthPinging(many, ["x", "y"], 5)).toHaveLength(5);
+    expect(urlsWorthPinging(many, ["x"], 0)).toHaveLength(0);
+    expect(urlsWorthPinging(many, ["x"], -3)).toHaveLength(0);
+  });
+
+  it("builds the Arabic path for Arabic articles", () => {
+    const urls = urlsWorthPinging([{ slug: "guide", locale: "ar" }], [], 5);
+    expect(urls[0]).toContain("/ar/insights/guide");
   });
 });

@@ -384,3 +384,66 @@ export function needsDedicatedPage(
   if (position <= 10) return false;
   return isHubPath(rankingPath) || !rankingPath;
 }
+
+/* --------------------------------------------------------- indexing API */
+
+const INDEXING_SCOPE = "https://www.googleapis.com/auth/indexing";
+
+export interface IndexPingResult {
+  url: string;
+  ok: boolean;
+  status: number;
+  error?: string;
+}
+
+/**
+ * Ask Google to (re)crawl one URL.
+ *
+ * Google documents this endpoint as being for JobPosting and BroadcastEvent
+ * pages, so for ordinary pages the realistic outcome is that the request is
+ * accepted and then ignored. It is enabled here by explicit choice, off by
+ * default, and capped — the failure mode to avoid is hammering a quota for
+ * requests that do nothing.
+ *
+ * Two prerequisites, both of which fail loudly rather than silently:
+ *   - indexing.googleapis.com enabled on the Cloud project (403 SERVICE_DISABLED)
+ *   - the service account is an OWNER of the property, not merely a full user
+ *     (403 "Failed to verify the URL ownership")
+ */
+export async function publishUrlNotification(
+  config: AgentConfig,
+  url: string,
+  type: "URL_UPDATED" | "URL_DELETED" = "URL_UPDATED",
+): Promise<IndexPingResult> {
+  const access = await token(config, INDEXING_SCOPE);
+  if (!access) return { url, ok: false, status: 0, error: "no access token" };
+  try {
+    const res = await fetch("https://indexing.googleapis.com/v3/urlNotifications:publish", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${access}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ url, type }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (res.ok) return { url, ok: true, status: res.status };
+    return { url, ok: false, status: res.status, error: (await res.text()).slice(0, 250) };
+  } catch (err) {
+    return { url, ok: false, status: 0, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/**
+ * Turn a 403 into an instruction rather than a stack trace.
+ *
+ * Both prerequisites surface as the same status code with different bodies,
+ * and the difference is the entire remedy, so it is worth naming precisely.
+ */
+export function explainIndexingError(status: number, body: string): string {
+  if (status === 403 && /SERVICE_DISABLED|has not been used in project/i.test(body)) {
+    return "The Indexing API is not enabled on the Google Cloud project. Enable indexing.googleapis.com, then retry.";
+  }
+  if (status === 403 && /ownership|permission/i.test(body)) {
+    return "The service account must be an OWNER of the Search Console property, not a full user. Change its permission in Search Console → Users and permissions.";
+  }
+  if (status === 429) return "Indexing API quota exhausted for today (default 200 URLs/day).";
+  return `Indexing API ${status}: ${body.slice(0, 160)}`;
+}
