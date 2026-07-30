@@ -13,6 +13,7 @@ import { dubaiDayStart, emailDomain, normalizeEmail, rampedCap } from "./mailer"
 import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "./config";
 import { findOwnPosition } from "./visibility/search";
 import { urlsWorthPinging } from "./visibility";
+import { safeRedirectPath, trackLinksInHtml } from "./tracking";
 import { LANDING_SLUGS, landingContent } from "@/content/landings";
 import {
   classifyQuery,
@@ -781,5 +782,56 @@ describe("indexing API guard rails", () => {
   it("builds the Arabic path for Arabic articles", () => {
     const urls = urlsWorthPinging([{ slug: "guide", locale: "ar" }], [], 5);
     expect(urls[0]).toContain("/ar/insights/guide");
+  });
+});
+
+describe("click tracking cannot become an open redirect", () => {
+  it("accepts our own paths", () => {
+    expect(safeRedirectPath("/providers")).toBe("/providers");
+    expect(safeRedirectPath("%2Fo%2Fabc")).toBe("/o/abc");
+    expect(safeRedirectPath("/get-matched?utm=x")).toBe("/get-matched?utm=x");
+  });
+
+  it("refuses anything that leaves the site", () => {
+    // A tracker on a domain that sends mail is exactly what a phisher wants.
+    expect(safeRedirectPath("https://evil.example")).toBeNull();
+    expect(safeRedirectPath("//evil.example")).toBeNull();
+    expect(safeRedirectPath("%2F%2Fevil.example")).toBeNull();
+    expect(safeRedirectPath("http://evil.example")).toBeNull();
+    expect(safeRedirectPath("javascript:alert(1)")).toBeNull();
+    expect(safeRedirectPath("")).toBeNull();
+  });
+
+  it("refuses separators some parsers treat as a slash", () => {
+    expect(safeRedirectPath("/\\evil.example")).toBeNull();
+    expect(safeRedirectPath("/a\nb")).toBeNull();
+    expect(safeRedirectPath("/a\rb")).toBeNull();
+  });
+
+  it("refuses malformed percent-encoding rather than guessing", () => {
+    expect(safeRedirectPath("%E0%A4%A")).toBeNull();
+  });
+});
+
+describe("link rewriting in outreach HTML", () => {
+  const ORIGIN = "https://uaeasp.ae";
+  const TOKEN = "11111111-2222-3333-4444-555555555555";
+
+  it("routes our own links through the tracker", () => {
+    const html = '<a href="https://uaeasp.ae/o/abc">see</a>';
+    const out = trackLinksInHtml(html, TOKEN, ORIGIN);
+    expect(out).toContain("/api/outreach/click?t=" + TOKEN);
+    expect(out).toContain(encodeURIComponent("/o/abc"));
+  });
+
+  it("never touches the unsubscribe link", () => {
+    // An opt-out that depends on a tracker is an opt-out with a way to fail.
+    const html = '<a href="https://uaeasp.ae/api/outreach/unsubscribe?t=x">unsubscribe</a>';
+    expect(trackLinksInHtml(html, TOKEN, ORIGIN)).toBe(html);
+  });
+
+  it("leaves third-party links alone", () => {
+    const html = '<a href="https://mof.gov.ae/e-invoicing">MoF</a>';
+    expect(trackLinksInHtml(html, TOKEN, ORIGIN)).toBe(html);
   });
 });

@@ -51,6 +51,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: "Growth",
     items: [
+      { href: "/admin/inbox", label: "Inbox", adminOnly: true, badge: "replies" },
       { href: "/admin/agents", label: "Agents", adminOnly: true, exact: true },
       { href: "/admin/agents/approvals", label: "Approvals", adminOnly: true, badge: "approvals" },
       { href: "/admin/agents/prospects", label: "Prospects", adminOnly: true, badge: "contactable" },

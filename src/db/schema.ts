@@ -495,6 +495,14 @@ export const outreachMessages = pgTable(
     claimedAt: timestamp("claimed_at", { withTimezone: true }),
     sentAt: timestamp("sent_at", { withTimezone: true }),
     receivedAt: timestamp("received_at", { withTimezone: true }),
+    /** Opaque per-message token used by the open pixel and click redirect. */
+    trackToken: uuid("track_token").notNull().defaultRandom().unique(),
+    /** Engagement. Opens are approximate — image proxies and blocked images
+     *  both distort them — so clicks are the number worth trusting. */
+    openedAt: timestamp("opened_at", { withTimezone: true }),
+    openCount: integer("open_count").notNull().default(0),
+    firstClickAt: timestamp("first_click_at", { withTimezone: true }),
+    clickCount: integer("click_count").notNull().default(0),
     error: text("error"),
     aiMeta: jsonb("ai_meta"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
