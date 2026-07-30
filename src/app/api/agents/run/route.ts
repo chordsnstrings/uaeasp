@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  let body: { agent?: string; kind?: string; drain?: boolean };
+  let body: { agent?: string; kind?: string; drain?: boolean; payload?: unknown };
   try {
     body = (await req.json()) as typeof body;
   } catch {
@@ -59,9 +59,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Some jobs need an argument — a test conversation needs the address to
+  // write to. Forwarded verbatim; every handler validates its own payload.
+  const payload =
+    body.payload && typeof body.payload === "object" && !Array.isArray(body.payload)
+      ? (body.payload as Record<string, unknown>)
+      : {};
+
   await enqueue({
     agent: agent as AgentKey,
     kind,
+    payload,
     // Timestamped so an operator can always re-run, unlike the scheduler's
     // per-week keys — that is the entire point of this endpoint.
     dedupeKey: `manual:${agent}:${kind}:${Date.now()}`,
