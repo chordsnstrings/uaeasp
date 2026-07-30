@@ -18,6 +18,7 @@ import { appointmentDeadlineFor, mandateTimelineLines } from "@/content/mandate"
 import { getAgentConfig, type AgentConfig } from "../config";
 import {
   isSuppressed,
+  normalizeEmail,
   remainingSendsToday,
   sendOutreachMessage,
   unsubscribeUrl,
@@ -791,10 +792,150 @@ export const flushApproved: AgentHandler = async (_task, ctx) => {
   return { itemsIn: rows.length, itemsOut: sent, summary: { sent } };
 };
 
+
+/**
+ * Seed one conversation against an address you control, and send it.
+ *
+ * The inbound leg — reply arrives, gets matched to its thread, gets classified,
+ * gets answered — is the only part of the pipeline that cannot be proven
+ * without a real round trip. A raw SES send will not do it: with no thread and
+ * no Message-ID to reference, an inbound reply has nothing to match against and
+ * is dropped. So this creates a genuine prospect, contact, thread and outbound
+ * message, and sends through the normal mailer.
+ *
+ * Not a bypass. It routes through sendOutreachMessage, so the suppression list,
+ * the daily cap and the warm-up ramp all still apply. It only skips the
+ * approval queue, because an operator invoking this job by name IS the
+ * approval — and it refuses any address not given explicitly.
+ */
+export const testConversation: AgentHandler = async (task, ctx) => {
+  const payload = task.payload as {
+    email?: string;
+    companyName?: string;
+    website?: string;
+    contactName?: string;
+  };
+  const config = await getAgentConfig();
+  const email = normalizeEmail(String(payload.email ?? ""));
+  if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email)) {
+    return { itemsIn: 0, itemsOut: 0, summary: { reason: "a valid email is required" } };
+  }
+  if (await isSuppressed(email)) {
+    return { itemsIn: 1, itemsOut: 0, summary: { reason: "address is suppressed" } };
+  }
+
+  const name = String(payload.companyName ?? "Test Company").slice(0, 200);
+  const website = payload.website ? String(payload.website).slice(0, 300) : null;
+
+  // Reuse the prospect on a repeat run rather than accumulating duplicates.
+  const [existing] = await db
+    .select()
+    .from(prospects)
+    .where(eq(prospects.name, name))
+    .limit(1);
+
+  let prospectId: string;
+  if (existing) {
+    prospectId = existing.id;
+  } else {
+    const [created] = await db
+      .insert(prospects)
+      .values({
+        name,
+        website,
+        domain: website ? website.replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0] : null,
+        emirate: "dubai",
+        sector: "test",
+        status: "contactable",
+        source: "test",
+      })
+      .returning({ id: prospects.id });
+    prospectId = created.id;
+  }
+
+  await db
+    .insert(prospectContacts)
+    .values({
+      prospectId,
+      email,
+      name: payload.contactName ?? null,
+      verification: "mx_ok",
+      verifiedAt: new Date(),
+      priority: 0,
+    })
+    .onConflictDoNothing();
+
+  // A fresh thread every run, so each test is its own conversation.
+  const [thread] = await db
+    .insert(outreachThreads)
+    .values({
+      prospectId,
+      campaign: "test",
+      toEmail: email,
+      status: "active",
+      stepIndex: 0,
+    })
+    .returning();
+
+  const [prospect] = await db
+    .select()
+    .from(prospects)
+    .where(eq(prospects.id, prospectId))
+    .limit(1);
+
+  const draft =
+    (await writeDraft(prospect, config, 0, ctx, firstName(payload.contactName))) ??
+    fallbackDraft(prospect, config, 0);
+  const bodyText = appendSignature(draft.body, config, thread.token);
+
+  const [row] = await db
+    .insert(outreachMessages)
+    .values({
+      threadId: thread.id,
+      direction: "outbound",
+      status: "scheduled",
+      stepIndex: 0,
+      subject: draft.subject,
+      bodyText,
+      bodyHtml: textToHtml(bodyText),
+      toEmail: email,
+      scheduledFor: new Date(),
+    })
+    .returning({ id: outreachMessages.id });
+
+  const outcome = await sendOutreachMessage(row.id);
+  await db
+    .update(outreachThreads)
+    .set({
+      status: outcome.sent ? "awaiting_reply" : "active",
+      lastOutboundAt: outcome.sent ? new Date() : null,
+      subject: draft.subject,
+      updatedAt: new Date(),
+    })
+    .where(eq(outreachThreads.id, thread.id));
+
+  ctx.log(
+    `test conversation → ${email}: ${outcome.sent ? "sent" : `not sent (${outcome.reason})`}`,
+  );
+  return {
+    itemsIn: 1,
+    itemsOut: outcome.sent ? 1 : 0,
+    summary: {
+      to: email,
+      sent: outcome.sent,
+      reason: outcome.reason ?? null,
+      threadId: thread.id,
+      subject: draft.subject,
+      personalised: !draft.needsReview,
+    },
+  };
+};
+
 export const conversationalistHandlers: Record<string, AgentHandler> = {
   start_sequence: startSequence,
   send_message: sendMessage,
   handle_reply: handleReply,
   tick,
   flush_approved: flushApproved,
+  test_conversation: testConversation,
 };
