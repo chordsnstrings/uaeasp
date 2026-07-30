@@ -375,9 +375,15 @@ export default async function ProspectDetailPage({
             return (
               <Row key={c.id}>
                 <Cell>
+                  {c.name && (
+                    <p className="text-sm font-semibold text-ink-900">
+                      {c.name}
+                      {c.role && <span className="font-normal text-ink-500"> · {c.role}</span>}
+                    </p>
+                  )}
                   <p
                     className={`num break-all ${
-                      isBlocked ? "text-ink-400 line-through" : "text-ink-900"
+                      isBlocked ? "text-ink-400 line-through" : c.name ? "text-ink-500" : "text-ink-900"
                     }`}
                     dir="ltr"
                   >
@@ -386,8 +392,16 @@ export default async function ProspectDetailPage({
                   <p className="mt-1 flex flex-wrap items-center gap-1.5">
                     {i === 0 && !isBlocked && <Badge tone="brand">primary</Badge>}
                     {isBlocked && <Badge tone="danger">suppressed</Badge>}
+                    {/* Say plainly whether this address reaches a person, since
+                        that is what decides how the email can be written. */}
                     <span className="text-[11px] text-ink-500">
-                      {c.name ?? c.role ?? (c.isRoleAccount ? "shared mailbox" : "personal")}
+                      {c.name
+                        ? "named person"
+                        : c.role
+                          ? c.role
+                          : c.isRoleAccount
+                            ? "shared mailbox"
+                            : "personal mailbox, name unknown"}
                     </span>
                   </p>
                 </Cell>

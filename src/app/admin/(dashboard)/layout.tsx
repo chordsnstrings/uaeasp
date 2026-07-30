@@ -2,7 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { articles, leads, outreachMessages, prospects, scrapeRuns } from "@/db/schema";
+import {
+  articles,
+  leads,
+  outreachMessages,
+  outreachThreads,
+  prospects,
+  scrapeRuns,
+} from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { LogoMark } from "@/components/icons";
 import { AdminNav, type NavCounts } from "@/components/admin/AdminNav";
@@ -20,7 +27,7 @@ export const dynamic = "force-dynamic";
 async function navCounts(): Promise<NavCounts> {
   try {
     const dayAgo = new Date(Date.now() - 86_400_000);
-    const [approvals, drafts, newLeads, contactable, failedScrapes] = await Promise.all([
+    const [approvals, drafts, newLeads, contactable, failedScrapes, replies] = await Promise.all([
       db
         .select({ n: sql<number>`count(*)::int` })
         .from(outreachMessages)
@@ -46,6 +53,10 @@ async function navCounts(): Promise<NavCounts> {
             gte(scrapeRuns.startedAt, dayAgo),
           ),
         ),
+      db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(outreachThreads)
+        .where(eq(outreachThreads.status, "replied")),
     ]);
     return {
       approvals: approvals[0]?.n ?? 0,
@@ -53,6 +64,7 @@ async function navCounts(): Promise<NavCounts> {
       newLeads: newLeads[0]?.n ?? 0,
       contactable: contactable[0]?.n ?? 0,
       failedScrapes: failedScrapes[0]?.n ?? 0,
+      replies: replies[0]?.n ?? 0,
     };
   } catch {
     return {};

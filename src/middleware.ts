@@ -25,6 +25,11 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Personalised outreach pages live outside the locale tree. Without this,
+  // next-intl rewrites /o/<token> to /en/o/<token>, which does not exist, and
+  // every link we mail out 404s.
+  if (pathname === "/o" || pathname.startsWith("/o/")) return NextResponse.next();
+
   return intlMiddleware(request);
 }
 

@@ -36,6 +36,23 @@ interface CountRow {
   count: number;
 }
 
+interface OutreachRow {
+  sent: number;
+  opened: number;
+  clicked: number;
+  replied: number;
+  converted: number;
+  bounced: number;
+  unsubscribed: number;
+}
+
+interface OutreachDayRow {
+  day: string;
+  sent: number;
+  opened: number;
+  clicked: number;
+}
+
 interface FunnelRow {
   sessions: number;
   engaged: number;
@@ -185,8 +202,23 @@ export default async function AnalyticsPage() {
   // history still counts.
   const visitorExpr = sql.raw("coalesce(visitor_id, session_id)");
 
-  const [daily, topPages, entryPages, exitPages, transitions, topReferrers, topUtm, devices, locales, events, funnels, totals] =
-    await Promise.all([
+  const [
+    daily,
+    topPages,
+    entryPages,
+    exitPages,
+    transitions,
+    topReferrers,
+    topUtm,
+    devices,
+    locales,
+    events,
+    funnels,
+    totals,
+    outreach,
+    outreachDaily,
+    outreachPages,
+  ] = await Promise.all([
       rows<DailyRow>(sql`
         SELECT to_char(created_at AT TIME ZONE 'Asia/Dubai', 'YYYY-MM-DD') AS day,
                count(*) FILTER (WHERE type = 'pageview')::int AS pageviews,
@@ -271,6 +303,38 @@ export default async function AnalyticsPage() {
                count(*) FILTER (WHERE type = 'pageview')::int AS pageviews,
                count(DISTINCT session_id) FILTER (WHERE type = 'event' AND name IN ('lead_submitted','quiz_completed'))::int AS converting
         FROM analytics_events WHERE created_at > ${since}`),
+    // Outreach engagement. Opens are a floor, not a truth — image proxies
+    // inflate them and blocked images hide them — so clicks carry the weight.
+    rows<OutreachRow>(sql`
+      SELECT count(*) FILTER (WHERE m.status = 'sent')::int AS sent,
+             count(*) FILTER (WHERE m.opened_at IS NOT NULL)::int AS opened,
+             count(*) FILTER (WHERE m.first_click_at IS NOT NULL)::int AS clicked,
+             count(DISTINCT t.id) FILTER (WHERE t.status IN ('replied','converted'))::int AS replied,
+             count(DISTINCT t.id) FILTER (WHERE t.status = 'converted')::int AS converted,
+             count(DISTINCT t.id) FILTER (WHERE t.status = 'bounced')::int AS bounced,
+             count(DISTINCT t.id) FILTER (WHERE t.status = 'unsubscribed')::int AS unsubscribed
+      FROM outreach_messages m
+      JOIN outreach_threads t ON t.id = m.thread_id
+      WHERE m.direction = 'outbound' AND m.created_at > ${since}`),
+    rows<OutreachDayRow>(sql`
+      SELECT to_char(sent_at AT TIME ZONE 'Asia/Dubai', 'YYYY-MM-DD') AS day,
+             count(*)::int AS sent,
+             count(*) FILTER (WHERE opened_at IS NOT NULL)::int AS opened,
+             count(*) FILTER (WHERE first_click_at IS NOT NULL)::int AS clicked
+      FROM outreach_messages
+      WHERE direction = 'outbound' AND status = 'sent' AND sent_at > ${since}
+      GROUP BY 1 ORDER BY 1`),
+    // Which link a click actually went to. A click on the personalised page
+    // and a click on the directory mean different things, and a bare counter
+    // cannot tell them apart.
+    rows<CountRow>(sql`
+      SELECT CASE WHEN last_click_path LIKE '/o/%' THEN '/o/… (their own page)'
+                  ELSE last_click_path END AS key,
+             count(*)::int AS count
+      FROM outreach_messages
+      WHERE direction = 'outbound' AND last_click_path IS NOT NULL
+        AND created_at > ${since}
+      GROUP BY 1 ORDER BY 2 DESC LIMIT 8`),
     ]);
 
   const t = totals[0] ?? { avgDailyVisitors: 0, sessions: 0, pageviews: 0, converting: 0 };
@@ -313,6 +377,31 @@ export default async function AnalyticsPage() {
   const eventTotal = sum(events.map((d) => d.count));
 
   const visitSite = <ButtonLink href="/">Open the public site</ButtonLink>;
+
+  // Outreach engagement. Rates are quoted against messages actually sent, and
+  // the open rate is captioned as a floor rather than a measurement — Gmail
+  // pre-fetches images and other clients block them outright, so it is wrong
+  // in both directions and only clicks are worth acting on.
+  const mail = outreach[0] ?? {
+    sent: 0,
+    opened: 0,
+    clicked: 0,
+    replied: 0,
+    converted: 0,
+    bounced: 0,
+    unsubscribed: 0,
+  };
+  const pct = (n: number) => (mail.sent ? `${Math.round((n / mail.sent) * 100)}%` : "—");
+  const mailSeries = outreachDaily.map((d) => ({
+    label: new Date(`${d.day}T00:00:00Z`).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+    }),
+    sent: d.sent,
+    opened: d.opened,
+    clicked: d.clicked,
+  }));
+  const clickTotal = outreachPages.reduce((sum, r) => sum + r.count, 0);
 
   return (
     <>
@@ -650,6 +739,106 @@ export default async function AnalyticsPage() {
             emptyAction={visitSite}
           />
         </div>
+      </section>
+
+      <section>
+        <SectionTitle
+          hint={`Outbound email over the last ${DAYS} days. Opens are a floor, not a measurement — some clients pre-fetch the image and others block it — so read clicks as the real signal of interest.`}
+        >
+          Outreach
+        </SectionTitle>
+        {mail.sent === 0 ? (
+          <Card>
+            <EmptyState
+              title="No email sent in this window"
+              body="Once the Conversationalist starts sending, delivery, opens, clicks and replies appear here. Individual conversations are in the inbox."
+              action={
+                <ButtonLink href="/admin/inbox" variant="primary">
+                  Open inbox
+                </ButtonLink>
+              }
+            />
+          </Card>
+        ) : (
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+              <StatCard
+                label="Emails sent"
+                value={mail.sent.toLocaleString()}
+                spark={mailSeries.map((d) => d.sent)}
+                tone="brand"
+                hint="Outbound messages accepted by SES."
+              />
+              <StatCard
+                label="Opened"
+                value={pct(mail.opened)}
+                spark={mailSeries.map((d) => d.opened)}
+                tone="info"
+                hint={`${mail.opened.toLocaleString()} of ${mail.sent.toLocaleString()}. Treat as a lower bound.`}
+              />
+              <StatCard
+                label="Clicked"
+                value={pct(mail.clicked)}
+                spark={mailSeries.map((d) => d.clicked)}
+                tone={mail.clicked > 0 ? "positive" : "neutral"}
+                hint={`${mail.clicked.toLocaleString()} chose to go somewhere. This is the number to trust.`}
+              />
+              <StatCard
+                label="Replied"
+                value={mail.replied.toLocaleString()}
+                tone={mail.replied > 0 ? "positive" : "neutral"}
+                hint={`${mail.converted.toLocaleString()} became a lead.`}
+                href="/admin/inbox"
+              />
+              <StatCard
+                label="Bounced or opted out"
+                value={(mail.bounced + mail.unsubscribed).toLocaleString()}
+                tone={mail.bounced + mail.unsubscribed > 0 ? "warning" : "neutral"}
+                hint={`${mail.bounced} bounced, ${mail.unsubscribed} unsubscribed. Both suppress the address permanently.`}
+              />
+            </div>
+
+            <div className="mt-4 grid gap-6 xl:grid-cols-3">
+              <Card className="xl:col-span-2">
+                <SectionTitle hint="Sent, opened and clicked by day, bucketed in Asia/Dubai time.">
+                  Engagement by day
+                </SectionTitle>
+                {mailSeries.length === 0 ? (
+                  <EmptyState
+                    title="Nothing sent yet in this window"
+                    body="Daily bars appear from the first send onwards."
+                  />
+                ) : (
+                  <div className="space-y-5">
+                    {[
+                      { key: "sent" as const, label: "Sent", tone: "brand" as Tone },
+                      { key: "opened" as const, label: "Opened", tone: "info" as Tone },
+                      { key: "clicked" as const, label: "Clicked", tone: "positive" as Tone },
+                    ].map((p) => (
+                      <div key={p.key}>
+                        <p className="mb-1 text-xs font-semibold text-ink-500">{p.label}</p>
+                        <ColumnChart
+                          points={mailSeries.map((d) => ({ label: d.label, value: d[p.key] }))}
+                          tone={p.tone}
+                          height={p.key === "sent" ? 120 : 84}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+              <ListCard
+                title="Where the clicks went"
+                hint="The last link each recipient followed. Their own page means the personalised one."
+                data={outreachPages}
+                tone="positive"
+                denom={clickTotal}
+                emptyTitle="No clicks recorded yet"
+                emptyBody="Every link we send is attributable. The first click will show its destination here."
+              />
+            </div>
+          </>
+        )}
       </section>
     </>
   );

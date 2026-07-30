@@ -69,8 +69,14 @@ const AGENT_META = [
 
 const MANUAL_JOBS = [
   { agent: "prospector", kind: "daily_plan", label: "Prospector — start a discovery sweep" },
+  { agent: "prospector", kind: "find_direct", label: "Prospector — hunt for named contacts" },
   { agent: "conversationalist", kind: "tick", label: "Conversationalist — run follow-ups" },
   { agent: "conversationalist", kind: "flush_approved", label: "Conversationalist — send approved" },
+  {
+    agent: "conversationalist",
+    kind: "redraft_stale",
+    label: "Conversationalist — rewrite drafts written under old rules",
+  },
   { agent: "visibility", kind: "weekly", label: "Visibility — full weekly cycle" },
   { agent: "visibility", kind: "rank_check", label: "Visibility — check rankings" },
   { agent: "visibility", kind: "draft_article", label: "Visibility — draft an article" },
