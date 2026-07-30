@@ -4,7 +4,7 @@ import { asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { outreachMessages, outreachThreads, prospects } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { ApprovalCard } from "@/components/admin/AgentConsole";
+import { ApprovalCard, ApproveAllForm } from "@/components/admin/AgentConsole";
 import {
   Badge,
   BarList,
@@ -19,6 +19,9 @@ import {
 } from "@/components/admin/ui";
 
 export const dynamic = "force-dynamic";
+
+/** Mirrors the server action's own ceiling, so the button never over-promises. */
+const BULK_APPROVE_LIMIT = 200;
 
 const MINUTE = 60_000;
 const HOUR = 3_600_000;
@@ -61,7 +64,7 @@ export default async function ApprovalsPage() {
   const session = await auth();
   if (session?.user?.role !== "admin") redirect("/admin");
 
-  const [rows, pendingTotal] = await Promise.all([
+  const [rows, pendingTotal, bulkCounts] = await Promise.all([
     db
       .select({
         message: outreachMessages,
@@ -80,10 +83,28 @@ export default async function ApprovalsPage() {
       .select({ n: sql<number>`count(*)::int` })
       .from(outreachMessages)
       .where(eq(outreachMessages.status, "pending_approval")),
+    // Split the queue into what may be approved unread and what may not. A
+    // draft written before the current rules, or one the writer itself
+    // flagged, is exactly the kind that a bulk approve must not sweep up.
+    db
+      .select({
+        eligible: sql<number>`count(*) FILTER (
+          WHERE ${outreachMessages.approvedAt} IS NULL
+            AND ${outreachMessages.bodyRaw} IS NOT NULL
+            AND ${outreachMessages.error} IS NULL
+        )::int`,
+        needsReading: sql<number>`count(*) FILTER (
+          WHERE ${outreachMessages.bodyRaw} IS NULL OR ${outreachMessages.error} IS NOT NULL
+        )::int`,
+      })
+      .from(outreachMessages)
+      .where(eq(outreachMessages.status, "pending_approval")),
   ]);
 
   const now = Date.now();
   const total = pendingTotal[0]?.n ?? rows.length;
+  const eligible = Math.min(bulkCounts[0]?.eligible ?? 0, BULK_APPROVE_LIMIT);
+  const needsReading = bulkCounts[0]?.needsReading ?? 0;
   const ages = rows.map((r) => now - new Date(r.message.createdAt).getTime());
   const oldest = ages.length ? Math.max(...ages) : 0;
   const stale = ages.filter((a) => a >= DAY).length;
@@ -132,6 +153,27 @@ export default async function ApprovalsPage() {
           </>
         }
       />
+
+      {total > 0 && (
+        <Card>
+          <SectionTitle
+            hint="Approves everything the writer produced under the current rules. Anything written earlier, or flagged for review, is left for you to read."
+          >
+            Clear the queue
+          </SectionTitle>
+          <ApproveAllForm eligible={eligible} skipped={needsReading} />
+          {needsReading > 0 && (
+            <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800 ring-1 ring-inset ring-amber-200">
+              <span className="num font-semibold">{needsReading}</span> of these were written before
+              the current rules or failed the personalisation check. Run{" "}
+              <span className="font-semibold">
+                Conversationalist — rewrite drafts written under old rules
+              </span>{" "}
+              from the agent console to bring them up to date, then approve.
+            </p>
+          )}
+        </Card>
+      )}
 
       {rows.length > 0 && (
         <section>
@@ -248,6 +290,7 @@ export default async function ApprovalsPage() {
                           id: message.id,
                           subject: message.subject,
                           bodyText: message.bodyText,
+                          bodyHtml: message.bodyHtml,
                           toEmail: message.toEmail ?? thread.toEmail,
                           campaign: thread.campaign,
                           company: prospectName,

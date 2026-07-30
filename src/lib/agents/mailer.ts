@@ -10,7 +10,7 @@ import {
 import { absoluteUrl } from "@/lib/site";
 import { getAgentConfig, type AgentConfig } from "./config";
 import { sesSend } from "./ses";
-import { composeBody } from "./compose";
+import { composeBody, textToHtml } from "./compose";
 
 /**
  * The only path outbound agent email may take.
@@ -236,10 +236,17 @@ export async function sendOutreachMessage(messageRowId: string): Promise<SendOut
   // must reflect today's call to action, opt-out and tracking rather than
   // whatever was current when it was written. Only the wrapper is rebuilt — the
   // argument the approver read is untouched.
+  // A message with a stored raw body is rebuilt from the parts. One without —
+  // drafted before the split — still gets its HTML re-rendered from its own
+  // text, so the recipient sees a labelled link and a one-word opt-out instead
+  // of raw URLs. The wording is untouched; only the rendering improves.
   const composed = message.bodyRaw
     ? composeBody(message.bodyRaw, config, thread.token, message.trackToken)
-    : { text: message.bodyText, html: message.bodyHtml ?? undefined };
-  if (message.bodyRaw && composed.text !== message.bodyText) {
+    : {
+        text: message.bodyText,
+        html: textToHtml(message.bodyText, message.trackToken),
+      };
+  if (composed.text !== message.bodyText || composed.html !== message.bodyHtml) {
     await db
       .update(outreachMessages)
       .set({ bodyText: composed.text, bodyHtml: composed.html })
