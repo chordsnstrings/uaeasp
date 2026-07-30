@@ -205,6 +205,16 @@ describe("composing a message at send time", () => {
     expect(visible).not.toMatch(/https?:\/\//);
   });
 
+  it("labels links even when the body carries Windows line endings", () => {
+    // A stray \r left the "Label: URL" match failing on its end anchor, so the
+    // link silently fell back to printing the URL — the exact defect this
+    // renderer exists to remove, reappearing for some inputs only.
+    const line = `See what applies to you: ${"https://uaeasp.ae/o/abc"}`;
+    for (const body of [line, `${line}\r`, line.replace(/\n/g, "\r\n")]) {
+      expect(textToHtml(body, track)).toContain(">See what applies to you</a>");
+    }
+  });
+
   it("labels links in legacy drafts too, from the text alone", () => {
     // The 200-odd drafts written before the parts were kept separately still
     // have to render cleanly, or fixing this would mean rewriting all of them.

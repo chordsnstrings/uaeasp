@@ -70,7 +70,7 @@ export function renderHtml(
   parts: { body: string; ctaUrl: string; ctaLabel: string; signature: string; optOutUrl: string },
   trackToken?: string,
 ): string {
-  const paragraphs = parts.body
+  const paragraphs = normalizeNewlines(parts.body)
     .trim()
     .split(/\n{2,}/)
     .map((para) => `<p style="margin:0 0 14px">${escapeHtml(para).replace(/\n/g, "<br />")}</p>`)
@@ -109,6 +109,18 @@ export function renderHtml(
   ].join("");
 }
 
+/**
+ * Collapse CRLF and lone CR to LF before anything reads line structure.
+ *
+ * Without this a body that arrived with Windows line endings leaves a stray
+ * \r at the end of every line, the "Label: URL" match fails on its end anchor,
+ * and the link quietly falls back to printing the URL — the exact defect this
+ * renderer exists to remove, reappearing only for some inputs.
+ */
+function normalizeNewlines(value: string): string {
+  return value.replace(/\r\n?/g, "\n");
+}
+
 /** Our own absolute URL down to the path the click tracker redirects to. */
 function pathOf(url: string): string {
   return url.startsWith(SITE_URL) ? url.slice(SITE_URL.length) || "/" : "/";
@@ -132,7 +144,7 @@ export function textToHtml(text: string, trackToken?: string): string {
     return `<a href="${escapeHtml(href)}" style="color:#0f766e">${escapeHtml(short)}</a>`;
   };
 
-  const rendered = text
+  const rendered = normalizeNewlines(text)
     .split("\n")
     .map((line) => {
       // "See what applies to you: https://…" — the words are a far better
