@@ -59,12 +59,13 @@ ${MANDATE_FACTS}
 Writing rules:
 - Plain text. No HTML, no markdown, no bullet symbols beyond "-".
 - 90 words maximum for a first touch, 60 for a follow-up. Shorter is better.
-- One clear ask. No stacked questions.
+- End on the consequence for them. Do NOT write a call to action of any kind — no "reply with", "let me know", "get in touch", "tell us", "send me". One is appended automatically, and a second ask cancels the first.
 - Address a real business problem: they will need an accredited provider before their deadline and choosing one is confusing.
 - British English. Professional, direct, no hype, no "I hope this email finds you well", no "revolutionary", no emojis, no exclamation marks.
 - Never claim we are government, never imply enforcement, never invent a deadline specific to them beyond the two published waves.
 - Never invent facts about the recipient's company. Use only what is given.
-- Do not add a signature or sign-off block — one is appended automatically.
+- Do not add a signature, sign-off or link — a signature, one link and an opt-out are all appended automatically.
+- Three or four sentences: what you can see about them, why the mandate touches that specifically, what it costs them to leave it late. Then stop.
 
 Personalisation — this is the part that decides whether the email works:
 - Open by naming something specific and verifiable about THIS company, drawn from the facts supplied below. What they actually do, where they operate, the systems they run, something they are known for.
