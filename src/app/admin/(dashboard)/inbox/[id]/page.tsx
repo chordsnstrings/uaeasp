@@ -3,6 +3,8 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { outreachMessages, outreachThreads, prospects } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { getAgentConfig } from "@/lib/agents/config";
+import { previewHtml } from "@/lib/agents/compose";
 import { EMIRATE_LABELS, formatDateTime } from "@/components/admin/status";
 import { ApprovalCard } from "@/components/admin/AgentConsole";
 import {
@@ -67,6 +69,9 @@ export default async function ConversationPage({
     .from(outreachMessages)
     .where(eq(outreachMessages.threadId, id))
     .orderBy(asc(outreachMessages.createdAt));
+
+  // Needed to render a preview the same way the send path will.
+  const config = await getAgentConfig();
 
   const opens = messages.reduce((s, m) => s + (m.openCount ?? 0), 0);
   const clicks = messages.reduce((s, m) => s + (m.clickCount ?? 0), 0);
@@ -137,7 +142,7 @@ export default async function ConversationPage({
                     id: m.id,
                     subject: m.subject,
                     bodyText: m.bodyText,
-                    bodyHtml: m.bodyHtml,
+                    bodyHtml: previewHtml(m, config, thread.token),
                     toEmail: m.toEmail ?? thread.toEmail,
                     campaign: thread.campaign,
                     company: prospect?.name ?? null,

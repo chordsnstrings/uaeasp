@@ -23,7 +23,7 @@ import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "./config";
 import { findOwnPosition } from "./visibility/search";
 import { urlsWorthPinging } from "./visibility";
 import { safeRedirectPath, trackLinksInHtml } from "./tracking";
-import { appendSignature, composeBody, needsRecompose, textToHtml } from "./compose";
+import { appendSignature, composeBody, needsRecompose, previewHtml, textToHtml } from "./compose";
 import { LANDING_SLUGS, landingContent } from "@/content/landings";
 import {
   classifyQuery,
@@ -214,6 +214,29 @@ describe("composing a message at send time", () => {
     expect(html).toContain(">unsubscribe</a>");
     const visible = html.replace(/<[^>]+>/g, " ");
     expect(visible).not.toMatch(/https?:\/\/[^\s]{30}/);
+  });
+
+  it("previews a legacy draft the way it will actually be sent", () => {
+    // The tab says "what they will see". For a draft with no stored raw body
+    // that must mean the re-rendered HTML, not the raw-URL version it happens
+    // to have been saved with — otherwise the preview lies about 250 of them.
+    const legacyText = appendSignature("Hi Layla.", config, thread);
+    const shown = previewHtml(
+      { bodyRaw: null, bodyText: legacyText, trackToken: track },
+      config,
+      thread,
+    );
+    expect(shown).toBe(textToHtml(legacyText, track));
+    expect(shown).toContain(">See what applies to you</a>");
+    expect(shown).toContain(">unsubscribe</a>");
+
+    // And a modern draft previews as the parts-built version.
+    const modern = previewHtml(
+      { bodyRaw: "Hi Layla.", bodyText: "ignored", trackToken: track },
+      config,
+      thread,
+    );
+    expect(modern).toBe(composeBody("Hi Layla.", config, thread, track).html);
   });
 
   it("recognises a message written before the wrapper was separable", () => {

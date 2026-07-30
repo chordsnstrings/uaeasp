@@ -183,6 +183,25 @@ export function composeBody(
   };
 }
 
+/**
+ * Exactly what the send path will transmit, without sending it.
+ *
+ * The approval screen promises "what they will see", and that promise is only
+ * kept if the preview is built the way the send is. Reading the stored HTML
+ * instead would show the rendering a message was drafted with — which, for
+ * anything written before the parts were split, is precisely the old raw-URL
+ * version we no longer send.
+ */
+export function previewHtml(
+  message: { bodyRaw: string | null; bodyText: string; trackToken: string },
+  config: AgentConfig,
+  threadToken: string,
+): string {
+  return message.bodyRaw
+    ? composeBody(message.bodyRaw, config, threadToken, message.trackToken).html
+    : textToHtml(message.bodyText, message.trackToken);
+}
+
 export function needsRecompose(message: { bodyRaw: string | null }): boolean {
   return message.bodyRaw === null;
 }
