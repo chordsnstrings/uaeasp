@@ -94,6 +94,7 @@ export default async function ProspectsPage({
   const emirate = params.emirate;
   const sector = params.sector?.trim();
   const contactable = params.contactable;
+  const named = params.named;
   const q = params.q?.trim();
   const sort = params.sort === "newest" ? "newest" : "score";
   const page = Math.max(1, Number(params.page ?? 1) || 1);
@@ -111,6 +112,16 @@ export default async function ProspectsPage({
   const hasContact = sql`EXISTS (SELECT 1 FROM prospect_contacts pc WHERE pc.prospect_id = ${prospects.id})`;
   if (contactable === "yes") conditions.push(hasContact);
   else if (contactable === "no") conditions.push(sql`NOT ${hasContact}`);
+
+  // Whether we can open the email with a person's name rather than "Hello,".
+  // Worth its own filter: it is the single biggest difference between outreach
+  // that reads as addressed and outreach that reads as blasted.
+  const hasNamed = sql`EXISTS (
+    SELECT 1 FROM prospect_contacts pc
+    WHERE pc.prospect_id = ${prospects.id} AND pc.name IS NOT NULL AND pc.is_role_account = false
+  )`;
+  if (named === "yes") conditions.push(hasNamed);
+  else if (named === "no") conditions.push(sql`NOT ${hasNamed}`);
 
   if (q) {
     const pattern = `%${q}%`;
@@ -131,7 +142,8 @@ export default async function ProspectsPage({
       ? [desc(prospects.createdAt)]
       : [sql`${prospects.score} DESC NULLS LAST`, desc(prospects.createdAt)];
 
-  const [rows, countRow, counts, sectorRows, addressableRow, sectorCounts] = await Promise.all([
+  const [rows, countRow, counts, sectorRows, addressableRow, namedRow, sectorCounts] =
+    await Promise.all([
     db
       .select({
         prospect: prospects,
@@ -161,6 +173,7 @@ export default async function ProspectsPage({
     // not just the slice currently on screen. Both are unfiltered on purpose:
     // they are the denominator the filtered count is read against.
     db.select({ count: sql<number>`count(*)::int` }).from(prospects).where(hasContact),
+    db.select({ count: sql<number>`count(*)::int` }).from(prospects).where(hasNamed),
     db
       .select({ sector: prospects.sector, n: sql<number>`count(*)::int` })
       .from(prospects)
@@ -199,7 +212,17 @@ export default async function ProspectsPage({
 
   const filterHref = (patch: Record<string, string | undefined>) => {
     const next = new URLSearchParams();
-    const merged = { status, emirate, sector, contactable, q, sort, page: undefined, ...patch };
+    const merged = {
+      status,
+      emirate,
+      sector,
+      contactable,
+      named,
+      q,
+      sort,
+      page: undefined,
+      ...patch,
+    };
     for (const [key, value] of Object.entries(merged)) {
       if (value && !(key === "sort" && value === "score")) next.set(key, String(value));
     }
@@ -219,7 +242,9 @@ export default async function ProspectsPage({
   const allProspects = counts.reduce((sum, c) => sum + c.n, 0);
   const addressable = addressableRow[0]?.count ?? 0;
   const addressableShare = allProspects ? Math.round((addressable / allProspects) * 100) : 0;
-  const filtered = Boolean(status || emirate || sector || contactable || q);
+  const namedCount = namedRow[0]?.count ?? 0;
+  const namedShare = addressable ? Math.round((namedCount / addressable) * 100) : 0;
+  const filtered = Boolean(status || emirate || sector || contactable || named || q);
 
   const rangeStart = totalCount === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const rangeEnd = (page - 1) * PAGE_SIZE + rows.length;
@@ -302,6 +327,17 @@ export default async function ProspectsPage({
             hint={`${addressableShare}% of everything found`}
             tone="info"
             href={scopeHref({ contactable: "yes" })}
+          />
+          <StatCard
+            label="Reachable by name"
+            value={namedCount.toLocaleString()}
+            hint={
+              addressable
+                ? `${namedShare}% of addressable — the rest are shared mailboxes`
+                : "No addresses on file yet"
+            }
+            tone={namedShare >= 40 ? "positive" : "warning"}
+            href={scopeHref({ named: "yes" })}
           />
           <StatCard
             label="Rejected"
@@ -457,6 +493,16 @@ export default async function ProspectsPage({
             <option value="yes">Has an address</option>
             <option value="no">No address found</option>
           </select>
+          <select
+            name="named"
+            defaultValue={named ?? ""}
+            aria-label="Filter by whether we know the contact's name"
+            className={inputClass}
+          >
+            <option value="">Any contact</option>
+            <option value="yes">Named person</option>
+            <option value="no">Shared mailbox only</option>
+          </select>
           <select name="sort" defaultValue={sort} aria-label="Sort order" className={inputClass}>
             <option value="score">Highest score</option>
             <option value="newest">Newest first</option>
@@ -537,9 +583,21 @@ export default async function ProspectsPage({
               <Cell>
                 {primary ? (
                   <>
+                    {primary.name && (
+                      <p className="text-xs font-semibold text-ink-900">
+                        {primary.name}
+                        {primary.role && (
+                          <span className="font-normal text-ink-500"> · {primary.role}</span>
+                        )}
+                      </p>
+                    )}
                     <p
                       className={`num break-all text-xs ${
-                        suppressed ? "text-ink-400 line-through" : "text-ink-900"
+                        suppressed
+                          ? "text-ink-400 line-through"
+                          : primary.name
+                            ? "text-ink-500"
+                            : "text-ink-900"
                       }`}
                       dir="ltr"
                     >
@@ -549,6 +607,9 @@ export default async function ProspectsPage({
                       <Badge tone={VERIFICATION_TONE[primary.verification] ?? "neutral"}>
                         {VERIFICATION_LABEL[primary.verification] ?? primary.verification}
                       </Badge>
+                      {primary.name && !primary.isRoleAccount && (
+                        <Badge tone="positive">named contact</Badge>
+                      )}
                       {primary.isRoleAccount && <Badge tone="neutral">shared mailbox</Badge>}
                       {suppressed && <Badge tone="danger">suppressed</Badge>}
                     </p>

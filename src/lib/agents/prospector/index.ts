@@ -1,4 +1,4 @@
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   EMIRATES,
@@ -17,9 +17,12 @@ import type { AgentContext, AgentHandler } from "../types";
 import { buildSweepQueries, searchPlaces, type PlaceResult } from "./places";
 import {
   buildSiteDigest,
+  contactRank,
   crawlSite,
+  findDirectContacts,
   registrableDomain,
   verifyEmail,
+  type FoundContact,
 } from "./crawl";
 
 /**
@@ -260,6 +263,67 @@ export function toProfile(scoring: Scoring | null): ProspectProfile | null {
   return empty ? null : profile;
 }
 
+/**
+ * Persist what a crawl found, preferring people over mailboxes.
+ *
+ * Two properties matter here. Ordering: `priority` is derived from the same
+ * rank the crawler sorts by, so the contact the Conversationalist picks (the
+ * lowest priority) is the best one we know of — a named person on their own
+ * domain, not whichever info@ happened to be found first.
+ *
+ * And updating: this upserts rather than ignoring conflicts. A second pass
+ * that finally learns a contact's name must be able to record it, or the
+ * first crawl's ignorance would be permanent. Existing values are only ever
+ * replaced by better ones — a known name is never overwritten with a blank.
+ */
+async function saveContacts(
+  prospectId: string,
+  website: string,
+  found: FoundContact[],
+): Promise<{ usable: number; named: number }> {
+  const domain = registrableDomain(website) ?? "";
+  let usable = 0;
+  let named = 0;
+
+  for (const [i, contact] of found.entries()) {
+    const email = normalizeEmail(contact.email);
+    if (await isSuppressed(email)) continue;
+    const verification = await verifyEmail(email);
+    if (verification === "invalid") continue;
+    // Rank dominates; discovery order only breaks ties within a rank.
+    const priority = contactRank(contact, domain) * 100 + i;
+    await db
+      .insert(prospectContacts)
+      .values({
+        prospectId,
+        email,
+        name: contact.name,
+        role: contact.role,
+        isRoleAccount: contact.isRoleAccount,
+        verification,
+        verifiedAt: new Date(),
+        sourceUrl: contact.sourceUrl,
+        priority,
+      })
+      .onConflictDoUpdate({
+        target: [prospectContacts.prospectId, prospectContacts.email],
+        set: {
+          name: sql`coalesce(excluded.name, ${prospectContacts.name})`,
+          role: sql`coalesce(excluded.role, ${prospectContacts.role})`,
+          verification: sql`excluded.verification`,
+          verifiedAt: sql`excluded.verified_at`,
+          sourceUrl: sql`coalesce(excluded.source_url, ${prospectContacts.sourceUrl})`,
+          // Never demote: a re-crawl that failed to see the team page must not
+          // undo what an earlier one learned.
+          priority: sql`least(${prospectContacts.priority}, excluded.priority)`,
+        },
+      });
+    usable += 1;
+    if (contact.name) named += 1;
+  }
+  return { usable, named };
+}
+
 /** Crawl one prospect for contacts, verify, score, and route it onward. */
 export const enrich: AgentHandler = async (task, ctx) => {
   const { prospectId } = task.payload as { prospectId: string };
@@ -277,26 +341,18 @@ export const enrich: AgentHandler = async (task, ctx) => {
   const config = await getAgentConfig();
   const { contacts: found, pages } = await crawlSite(prospect.website);
   const siteDigest = buildSiteDigest(pages);
-  let usable = 0;
+  const { usable, named } = await saveContacts(prospectId, prospect.website, found);
 
-  for (const [i, contact] of found.entries()) {
-    const email = normalizeEmail(contact.email);
-    if (await isSuppressed(email)) continue;
-    const verification = await verifyEmail(email);
-    if (verification === "invalid") continue;
-    await db
-      .insert(prospectContacts)
-      .values({
-        prospectId,
-        email,
-        isRoleAccount: contact.isRoleAccount,
-        verification,
-        verifiedAt: new Date(),
-        sourceUrl: contact.sourceUrl,
-        priority: i * 10 + (contact.isRoleAccount ? 50 : 0),
-      })
-      .onConflictDoNothing();
-    usable += 1;
+  // Only a shared mailbox to show for it: go looking for a person before this
+  // prospect ever gets written to, so the first email can open with a name.
+  if (usable > 0 && named === 0) {
+    await enqueue({
+      agent: "prospector",
+      kind: "find_direct",
+      payload: { prospectId },
+      dedupeKey: `find-direct:${prospectId}`,
+      priority: 140,
+    });
   }
 
   // Qualify with AI when available; without it, keep the prospect for a human
@@ -367,6 +423,82 @@ export const enrich: AgentHandler = async (task, ctx) => {
   };
 };
 
+/**
+ * Second pass for a prospect we can only reach through a shared mailbox.
+ *
+ * Enqueued by `enrich` when the fixed-path crawl named nobody, and by the
+ * daily plan for the backlog of prospects enriched before we looked for
+ * names at all. It never sends anything and never rejects a prospect: the
+ * worst outcome is that we learn nothing and the info@ we already had stays
+ * the best address on file.
+ */
+export const findDirect: AgentHandler = async (task, ctx) => {
+  const { prospectId } = (task.payload ?? {}) as { prospectId?: string };
+
+  // Called with no prospect, it fans out over the backlog instead. That is what
+  // makes it usable as a one-click job from the console: "go and find me some
+  // real people" without having to name one first.
+  if (!prospectId) {
+    const backlog = await prospectsWithoutNamedContact(25);
+    for (const row of backlog) {
+      await enqueue({
+        agent: "prospector",
+        kind: "find_direct",
+        payload: { prospectId: row.id },
+        dedupeKey: `find-direct:manual:${row.id}`,
+        priority: 110,
+      });
+    }
+    ctx.log(`queued ${backlog.length} prospects for a named-contact hunt`);
+    return { itemsIn: backlog.length, itemsOut: backlog.length, summary: { queued: backlog.length } };
+  }
+
+  const [prospect] = await db
+    .select()
+    .from(prospects)
+    .where(eq(prospects.id, prospectId))
+    .limit(1);
+  if (!prospect?.website) {
+    return { itemsIn: 0, itemsOut: 0, summary: { reason: "no website" } };
+  }
+
+  const found = await findDirectContacts(prospect.website);
+  const { usable, named } = await saveContacts(prospectId, prospect.website, found);
+  await db
+    .update(prospects)
+    .set({ lastCrawledAt: new Date(), updatedAt: new Date() })
+    .where(eq(prospects.id, prospectId));
+
+  ctx.log(
+    named > 0
+      ? `${prospect.name}: found ${named} named contact(s) on their people pages`
+      : `${prospect.name}: no named contact found, keeping the shared mailbox`,
+  );
+  return { itemsIn: 1, itemsOut: named, summary: { contacts: usable, named } };
+};
+
+/** Prospects whose best known address is still a shared mailbox. */
+async function prospectsWithoutNamedContact(limit: number): Promise<{ id: string }[]> {
+  return db
+    .select({ id: prospects.id })
+    .from(prospects)
+    .where(
+      and(
+        inArray(prospects.status, ["contactable", "enriched"]),
+        sql`${prospects.website} is not null`,
+        sql`exists (select 1 from prospect_contacts pc where pc.prospect_id = ${prospects.id})`,
+        sql`not exists (
+          select 1 from prospect_contacts pc
+          where pc.prospect_id = ${prospects.id}
+            and pc.name is not null
+            and pc.is_role_account = false
+        )`,
+      ),
+    )
+    .orderBy(sql`${prospects.score} DESC NULLS LAST`)
+    .limit(limit);
+}
+
 async function reject(prospectId: string, reason: string): Promise<void> {
   await db
     .update(prospects)
@@ -398,12 +530,33 @@ export const dailyPlan: AgentHandler = async (_task, ctx: AgentContext) => {
       priority: 130,
     });
   }
-  ctx.log(`daily plan: sweep queued, ${stalled.length} stalled prospects re-queued`);
-  return { itemsIn: 0, itemsOut: stalled.length, summary: { requeued: stalled.length } };
+  // Work the backlog down a little each day: prospects we can only reach via a
+  // shared mailbox, best-scoring first, get a second look for a real person.
+  const anonymous = await prospectsWithoutNamedContact(15);
+  for (const row of anonymous) {
+    await enqueue({
+      agent: "prospector",
+      kind: "find_direct",
+      payload: { prospectId: row.id },
+      dedupeKey: `find-direct:${today}:${row.id}`,
+      priority: 110,
+    });
+  }
+
+  ctx.log(
+    `daily plan: sweep queued, ${stalled.length} stalled prospects re-queued, ` +
+      `${anonymous.length} queued for a named contact`,
+  );
+  return {
+    itemsIn: 0,
+    itemsOut: stalled.length + anonymous.length,
+    summary: { requeued: stalled.length, findingDirect: anonymous.length },
+  };
 };
 
 export const prospectorHandlers: Record<string, AgentHandler> = {
   daily_plan: dailyPlan,
   sweep,
   enrich,
+  find_direct: findDirect,
 };

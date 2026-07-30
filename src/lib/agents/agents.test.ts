@@ -2,11 +2,20 @@ import { describe, expect, it } from "vitest";
 import { buildRawMessage, encodeHeaderWord, sanitizeAddress } from "./ses";
 import { decodeQuotedPrintable, htmlToText, parseEmail, stripQuotedReply } from "./mime";
 import {
+  attributeContact,
+  cleanName,
+  corroborates,
+  contactRank,
+  htmlToLines,
   isJunkAddress,
+  isPersonName,
   isRoleAccount,
+  nameFromLocalPart,
   parseRobots,
+  peoplePageLinks,
   registrableDomain,
   robotsAllows,
+  type FoundContact,
 } from "./prospector/crawl";
 import { buildSweepQueries, parseEmirate } from "./prospector/places";
 import { dubaiDayStart, emailDomain, normalizeEmail, rampedCap } from "./mailer";
@@ -173,11 +182,154 @@ describe("contact discovery", () => {
     expect(isRoleAccount("layla@example.ae")).toBe(false);
   });
 
+  it("recognises a person's name and refuses everything else", () => {
+    expect(isPersonName("Layla Haddad")).toBe(true);
+    expect(isPersonName("Mohammed Al Rashid")).toBe(true);
+    expect(isPersonName("Dr. Anita Menon")).toBe(true);
+    // Labels that a naive "text near the address" rule would happily accept.
+    expect(isPersonName("Contact Us")).toBe(false);
+    expect(isPersonName("Sales Team")).toBe(false);
+    expect(isPersonName("Dubai Office")).toBe(false);
+    expect(isPersonName("Head Office")).toBe(false);
+    expect(isPersonName("Get In Touch")).toBe(false);
+    expect(isPersonName("Al Noor Trading LLC")).toBe(false);
+    // A single word is never enough: "Ahmed" and "Accounts" look identical.
+    expect(isPersonName("Ahmed")).toBe(false);
+    expect(isPersonName("Call 971 4 555 1234")).toBe(false);
+    expect(isPersonName("write to sales@x.ae")).toBe(false);
+  });
+
+  it("strips honorifics from an accepted name", () => {
+    expect(cleanName("Dr. Anita Menon")).toBe("Anita Menon");
+    expect(cleanName("  Eng Omar   Farouk ")).toBe("Omar Farouk");
+    expect(cleanName("Layla Haddad")).toBe("Layla Haddad");
+  });
+
+  it("infers a name from the mailbox only when it names two people-parts", () => {
+    expect(nameFromLocalPart("layla.haddad@x.ae")).toBe("Layla Haddad");
+    expect(nameFromLocalPart("omar_farouk@x.ae")).toBe("Omar Farouk");
+    // Bare local parts are ambiguous, so we refuse to guess.
+    expect(nameFromLocalPart("ahmed@x.ae")).toBeNull();
+    // Separators around non-name words prove nothing about a person.
+    expect(nameFromLocalPart("sales.dubai@x.ae")).toBeNull();
+    expect(nameFromLocalPart("info.uae@x.ae")).toBeNull();
+    expect(nameFromLocalPart("a1.b2@x.ae")).toBeNull();
+  });
+
+  it("reads the name and role off a team card", () => {
+    const html = `
+      <div class="card">
+        <h3>Layla Haddad</h3>
+        <p>Finance Manager</p>
+        <a href="mailto:l.haddad@alnoor.ae">l.haddad@alnoor.ae</a>
+      </div>`;
+    const got = attributeContact(html, htmlToLines(html), "l.haddad@alnoor.ae");
+    expect(got.name).toBe("Layla Haddad");
+    expect(got.role).toBe("Finance Manager");
+  });
+
+  it("reads a single-line listing", () => {
+    const html = "<p>Omar Farouk - Group CFO - omar@alnoor.ae</p>";
+    const got = attributeContact(html, htmlToLines(html), "omar@alnoor.ae");
+    expect(got.name).toBe("Omar Farouk");
+    expect(got.role).toBe("Group CFO");
+  });
+
+  it("prefers the name a site states in structured data", () => {
+    const html = `
+      <script type="application/ld+json">
+      {"@type":"Organization","employee":[
+        {"@type":"Person","name":"Anita Menon","jobTitle":"Head of Finance","email":"mailto:info@alnoor.ae"}
+      ]}
+      </script>
+      <p>Contact Us</p><p>info@alnoor.ae</p>`;
+    const got = attributeContact(html, htmlToLines(html), "info@alnoor.ae");
+    expect(got.name).toBe("Anita Menon");
+    expect(got.role).toBe("Head of Finance");
+  });
+
+  it("takes no name rather than a wrong one", () => {
+    const html = `<h2>Contact Us</h2><p>Head Office</p><p>info@alnoor.ae</p>`;
+    expect(attributeContact(html, htmlToLines(html), "info@alnoor.ae").name).toBeNull();
+  });
+
+  it("requires the mailbox to back up a name read off the layout", () => {
+    // The real failure this rule exists for: a page heading sitting above a
+    // department mailbox, seen live on a UAE logistics site.
+    const html = `<h2>Digital Technologies</h2><p>commercial@gulftainer.com</p>`;
+    const got = attributeContact(html, htmlToLines(html), "commercial@gulftainer.com");
+    expect(got.name).toBeNull();
+
+    expect(corroborates("Layla Haddad", "l.haddad@x.ae")).toBe(true);
+    expect(corroborates("Layla Haddad", "lh@x.ae")).toBe(true);
+    expect(corroborates("Omar Farouk", "omar@x.ae")).toBe(true);
+    expect(corroborates("Digital Technologies", "commercial@x.ae")).toBe(false);
+    expect(corroborates("Layla Haddad", "info@x.ae")).toBe(false);
+  });
+
+  it("still trusts a name the site states outright, uncorroborated", () => {
+    // A mailto label is the site binding the two together, so no corroboration
+    // is needed — and here none is possible.
+    const html = `<a href="mailto:accounts.dxb@alnoor.ae">Priya Nair</a>`;
+    expect(attributeContact(html, htmlToLines(html), "accounts.dxb@alnoor.ae").name).toBe(
+      "Priya Nair",
+    );
+  });
+
+  it("treats department mailboxes as shared, not personal", () => {
+    for (const local of ["commercial", "communications", "hr", "careers", "operations"]) {
+      expect(isRoleAccount(`${local}@example.ae`)).toBe(true);
+    }
+  });
+
+  it("ranks a named person on their own domain above every shared mailbox", () => {
+    const make = (over: Partial<FoundContact>): FoundContact => ({
+      email: "x@alnoor.ae",
+      name: null,
+      role: null,
+      isRoleAccount: false,
+      sourceUrl: "https://alnoor.ae/contact",
+      ...over,
+    });
+    const named = make({ email: "l.haddad@alnoor.ae", name: "Layla Haddad" });
+    const anonymous = make({ email: "ahmed@alnoor.ae" });
+    const shared = make({ email: "info@alnoor.ae", isRoleAccount: true });
+    const offDomain = make({ email: "layla@gmail.com", name: "Layla Haddad" });
+
+    expect(contactRank(named, "alnoor.ae")).toBe(0);
+    expect(contactRank(anonymous, "alnoor.ae")).toBe(1);
+    expect(contactRank(offDomain, "alnoor.ae")).toBe(2);
+    expect(contactRank(shared, "alnoor.ae")).toBe(4);
+    // The whole point: sorting puts the person first.
+    const sorted = [shared, anonymous, offDomain, named]
+      .sort((a, b) => contactRank(a, "alnoor.ae") - contactRank(b, "alnoor.ae"))
+      .map((c) => c.email);
+    expect(sorted[0]).toBe("l.haddad@alnoor.ae");
+    expect(sorted.at(-1)).toBe("info@alnoor.ae");
+  });
+
+  it("follows only same-origin links that suggest a people page", () => {
+    const html = `
+      <a href="/about/our-leadership">Our Leadership</a>
+      <a href="/en/team">Team</a>
+      <a href="https://linkedin.com/company/x/people">Our team on LinkedIn</a>
+      <a href="/brochure-team.pdf">Team brochure</a>
+      <a href="/products">Products</a>
+      <a href="/en/team">Team</a>`;
+    expect(peoplePageLinks(html, "https://alnoor.ae")).toEqual([
+      "/about/our-leadership",
+      "/en/team",
+    ]);
+  });
+
   it("rejects addresses that are never worth mailing", () => {
     expect(isJunkAddress("noreply@example.ae")).toBe(true);
     expect(isJunkAddress("postmaster@example.ae")).toBe(true);
     expect(isJunkAddress("someone@sentry.io")).toBe(true);
     expect(isJunkAddress("a1b2c3d4e5f6a7b8@example.ae")).toBe(true);
+    // Seen live: a mailto: href with an encoded space. The domain is real, so
+    // MX verification would wave it through and we would only learn on bounce.
+    expect(isJunkAddress("%20advisory@example.ae")).toBe(true);
     expect(isJunkAddress("finance@example.ae")).toBe(false);
   });
 

@@ -231,7 +231,14 @@ export const startSequence: AgentHandler = async (task, ctx) => {
     })
     .returning();
 
-  const draft = await writeDraft(prospect, config, 0, ctx, firstName(contact.name));
+  const draft = await writeDraft(
+    prospect,
+    config,
+    0,
+    ctx,
+    firstName(contact.name),
+    contact.role,
+  );
   if (!draft) {
     // No personalised draft, and a generic first touch is not worth sending.
     // Retry later: the enrich pass may yet fill in what we are missing.
@@ -254,7 +261,12 @@ export const startSequence: AgentHandler = async (task, ctx) => {
 };
 
 /** Everything we know about this company, laid out for the writer. */
-function prospectBrief(prospect: Prospect, contactName: string | null, step: number): string {
+function prospectBrief(
+  prospect: Prospect,
+  contactName: string | null,
+  step: number,
+  contactRole: string | null = null,
+): string {
   const profile = (prospect.profile ?? null) as ProspectProfile | null;
   const lines = [
     `Company: ${prospect.name}`,
@@ -264,6 +276,9 @@ function prospectBrief(prospect: Prospect, contactName: string | null, step: num
     `Estimated size: ${prospect.sizeHint ?? "unknown"}`,
     `Likely mandate wave: ${prospect.mandateWave ?? "unknown"}`,
     contactName ? `Contact first name: ${contactName}` : "Contact name: not known",
+    // Their job decides what they care about: a finance lead hears "penalties
+    // and the appointment deadline", an IT lead hears "integration".
+    contactRole ? `Their role: ${contactRole}` : "Their role: not known",
   ];
   if (profile) {
     lines.push("", "Facts taken from their own website:");
@@ -337,11 +352,12 @@ async function writeDraft(
   step: number,
   ctx: { addTokens: (n: number, model?: string) => void; log?: (m: string) => void },
   contactName: string | null = null,
+  contactRole: string | null = null,
 ): Promise<Draft | null> {
   const result = await chat(
     [
       { role: "system", content: systemPrompt(config, step) },
-      { role: "user", content: prospectBrief(prospect, contactName, step) },
+      { role: "user", content: prospectBrief(prospect, contactName, step, contactRole) },
     ],
     { temperature: 0.4, maxTokens: 700, job: "email" },
   );
