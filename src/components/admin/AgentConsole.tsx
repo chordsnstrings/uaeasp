@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import {
+  approveAllAction,
   approveMessageAction,
   publishArticleAction,
   queueJobAction,
@@ -9,6 +10,7 @@ import {
   runTickAction,
   saveAgentConfigAction,
   saveModelRoutingAction,
+  setApprovalModeAction,
   suppressEmailAction,
   testSesAction,
   toggleAgentAction,
@@ -384,12 +386,16 @@ export function ApprovalCard({
     company: string | null;
     intent?: string | null;
     createdAt: string;
+    /** What the recipient's mail client will actually render. */
+    bodyHtml?: string | null;
   };
 }) {
   const [approveState, approve, approving] = useActionState(approveMessageAction, undefined);
   const [rejectState, reject, rejecting] = useActionState(rejectMessageAction, undefined);
   const [body, setBody] = useState(message.bodyText);
   const [subject, setSubject] = useState(message.subject ?? "");
+  const [view, setView] = useState<"edit" | "preview">("edit");
+  const edited = body !== message.bodyText;
 
   return (
     <article className="rounded-xl border border-ink-200 bg-white p-5">
@@ -417,13 +423,63 @@ export function ApprovalCard({
           className={inputClass}
           aria-label="Subject"
         />
-        <textarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          rows={10}
-          className={`${inputClass} font-mono text-[13px] leading-relaxed`}
-          aria-label="Message body"
-        />
+        {/* Two views, because they are genuinely different messages. The
+            editable one is the plain-text part, where every URL has to be
+            spelled out — a text-only client has nowhere else to put them. The
+            preview is the HTML part, which is what almost every recipient
+            actually sees, and the only place the difference is visible. */}
+        <div className="flex items-center gap-1.5">
+          {(["edit", "preview"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setView(mode)}
+              aria-pressed={view === mode}
+              className={`press rounded-md px-2.5 py-1 text-xs font-semibold ring-1 ring-inset transition-colors ${
+                view === mode
+                  ? "bg-ink-900 text-white ring-ink-900"
+                  : "bg-white text-ink-600 ring-ink-200 hover:bg-ink-50"
+              }`}
+            >
+              {mode === "edit" ? "Plain text (editable)" : "What they will see"}
+            </button>
+          ))}
+        </div>
+
+        {view === "edit" ? (
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            rows={10}
+            className={`${inputClass} font-mono text-[13px] leading-relaxed`}
+            aria-label="Message body"
+          />
+        ) : (
+          <div className="rounded-xl border border-ink-200 bg-white p-5">
+            {message.bodyHtml ? (
+              <>
+                <div
+                  className="email-preview"
+                  // Our own renderer's output, escaped at the point it was
+                  // built. Rendering it is the only way to show the operator
+                  // the message they are actually approving.
+                  dangerouslySetInnerHTML={{ __html: message.bodyHtml }}
+                />
+                {edited && (
+                  <p className="mt-4 border-t border-ink-200/70 pt-3 text-[11px] text-amber-700">
+                    You have edited the text. The preview still shows the saved
+                    version — your edit is rebuilt into HTML when you approve.
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-xs text-ink-500">
+                No HTML version stored. It is rebuilt from the text when this sends, so the
+                recipient still gets a labelled link rather than a raw URL.
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-ink-200/70 pt-4">
@@ -657,5 +713,146 @@ export function AgentSwitch({
       </button>
       {state?.error && <p className="mt-1 text-[10px] text-red-600">{state.error}</p>}
     </form>
+  );
+}
+
+
+/**
+ * Approve the whole queue at once.
+ *
+ * The count in the label is the number that will actually be armed, not the
+ * number of rows on the page — drafts written under old rules and drafts the
+ * writer flagged are excluded server-side, and saying so up front is the
+ * difference between a shortcut and a trap. The confirm step spells out the
+ * consequence in plain words because this one is not undoable: approved mail
+ * goes to real companies.
+ */
+export function ApproveAllForm({ eligible, skipped }: { eligible: number; skipped: number }) {
+  const [state, action, pending] = useActionState(approveAllAction, undefined);
+
+  if (eligible === 0) {
+    return (
+      <p className="text-xs text-ink-500">
+        {skipped > 0
+          ? `Nothing can be bulk-approved: all ${skipped} need a person to read them.`
+          : "Nothing waiting."}
+      </p>
+    );
+  }
+
+  return (
+    <form
+      action={action}
+      onSubmit={(event) => {
+        const message =
+          `Approve and send ${eligible} email${eligible === 1 ? "" : "s"} to real companies?` +
+          (skipped > 0 ? `\n\n${skipped} will be skipped — they still need reading.` : "") +
+          "\n\nThis cannot be undone.";
+        if (!confirm(message)) event.preventDefault();
+      }}
+      className="flex flex-wrap items-center gap-3"
+    >
+      <input type="hidden" name="expected" value={eligible} />
+      <button
+        type="submit"
+        disabled={pending}
+        className="press rounded-xl bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-ink-800 disabled:opacity-50"
+      >
+        {pending ? "Approving…" : `Approve all ${eligible}`}
+      </button>
+      {skipped > 0 && (
+        <span className="text-xs text-ink-500">
+          {skipped} skipped — written under old rules or flagged for review.
+        </span>
+      )}
+      {state?.error && <span className="text-xs font-medium text-red-600">{state.error}</span>}
+      {state?.detail && <span className="text-xs font-medium text-emerald-700">{state.detail}</span>}
+    </form>
+  );
+}
+
+const APPROVAL_MODES = [
+  {
+    value: "manual",
+    label: "Manual",
+    blurb: "Nothing sends until you approve it.",
+  },
+  {
+    value: "first_touch",
+    label: "First touch",
+    blurb: "Opening emails send themselves. Replies wait for you.",
+  },
+  {
+    value: "auto",
+    label: "Autonomous",
+    blurb: "Writes and sends without review, including replies.",
+  },
+] as const;
+
+/**
+ * How much of the outreach runs unattended.
+ *
+ * Three states rather than a switch, because the middle one is the setting
+ * most people actually want: let the opening email go, keep a human on the
+ * replies, where a wrong answer costs more. Moving to Autonomous asks for
+ * confirmation — it is the only option here that puts unread email in front
+ * of a customer.
+ */
+export function AutonomyControl({ mode }: { mode: string }) {
+  const [state, action, pending] = useActionState(setApprovalModeAction, undefined);
+  const current = APPROVAL_MODES.find((m) => m.value === mode) ?? APPROVAL_MODES[0];
+
+  return (
+    <div className="mt-3 rounded-lg border border-ink-200/70 bg-white p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-400">
+        Autonomy
+      </p>
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
+        {APPROVAL_MODES.map((option) => {
+          const active = option.value === mode;
+          return (
+            <form
+              key={option.value}
+              action={action}
+              onSubmit={(event) => {
+                if (
+                  option.value === "auto" &&
+                  !confirm(
+                    "Let the Conversationalist send email to real companies without anyone reading it first?\n\nYou can switch back at any time, but messages already sent cannot be recalled.",
+                  )
+                ) {
+                  event.preventDefault();
+                }
+              }}
+            >
+              <input type="hidden" name="mode" value={option.value} />
+              <button
+                type="submit"
+                disabled={pending || active}
+                aria-pressed={active}
+                className={`press rounded-md px-2.5 py-1.5 text-xs font-semibold ring-1 ring-inset transition-colors disabled:cursor-default ${
+                  active
+                    ? option.value === "auto"
+                      ? "bg-amber-50 text-amber-900 ring-amber-300"
+                      : "bg-ink-900 text-white ring-ink-900"
+                    : "bg-white text-ink-600 ring-ink-200 hover:bg-ink-50 hover:text-ink-900"
+                }`}
+              >
+                {option.label}
+              </button>
+            </form>
+          );
+        })}
+      </div>
+      <p className="mt-2 text-[11px] leading-relaxed text-ink-500">
+        {pending ? "Saving…" : current.blurb}
+      </p>
+      {mode === "auto" && (
+        <p className="mt-1 text-[11px] font-medium text-amber-700">
+          Email is leaving unread. The daily cap and the suppression list still apply.
+        </p>
+      )}
+      {state?.error && <p className="mt-1 text-[11px] text-red-600">{state.error}</p>}
+    </div>
   );
 }

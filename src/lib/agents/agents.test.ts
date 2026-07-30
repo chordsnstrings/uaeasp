@@ -185,19 +185,35 @@ describe("composing a message at send time", () => {
 
   it("tracks our own links and the open, but never the opt-out", () => {
     const { html } = composeBody("Hi Layla.", config, thread, track);
-    // The call-to-action is rewritten through the click tracker...
     expect(html).toContain(`/api/outreach/click?t=${track}`);
-    // ...the pixel is present...
     expect(html).toContain(`/api/outreach/open?t=${track}`);
-    // ...and the opt-out still points straight at unsubscribe, never through
-    // a tracker that could fail and strand someone who asked to leave.
+    // The opt-out still points straight at unsubscribe, never through a
+    // tracker that could fail and strand someone who asked to leave.
     expect(html).toMatch(/href="[^"]*\/api\/outreach\/unsubscribe[^"]*"/);
     expect(html).not.toMatch(/click\?t=[^"]*unsubscribe/);
   });
 
-  it("renders the opt-out as a word, not a wall of URL", () => {
-    const { html } = composeBody("Hi Layla.", config, thread, track);
+  it("gives every link words instead of a URL", () => {
+    const { text, html } = composeBody("Hi Layla.", config, thread, track);
+    // Plain text must spell the URLs out — nowhere else to put them.
+    expect(text).toContain(`/o/${thread}`);
+    // HTML must not: this is what made the emails look automated.
+    expect(html).toContain(">See what applies to you</a>");
     expect(html).toContain(">unsubscribe</a>");
+    // No raw URL is ever printed as visible text in the HTML part.
+    const visible = html.replace(/<[^>]+>/g, " ");
+    expect(visible).not.toMatch(/https?:\/\//);
+  });
+
+  it("labels links in legacy drafts too, from the text alone", () => {
+    // The 200-odd drafts written before the parts were kept separately still
+    // have to render cleanly, or fixing this would mean rewriting all of them.
+    const legacy = appendSignature("Hi Layla.", config, thread);
+    const html = textToHtml(legacy, track);
+    expect(html).toContain(">See what applies to you</a>");
+    expect(html).toContain(">unsubscribe</a>");
+    const visible = html.replace(/<[^>]+>/g, " ");
+    expect(visible).not.toMatch(/https?:\/\/[^\s]{30}/);
   });
 
   it("recognises a message written before the wrapper was separable", () => {

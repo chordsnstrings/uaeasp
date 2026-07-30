@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { AGENT_KEYS, articles, outreachMessages, visibilityTargets } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
@@ -19,6 +19,17 @@ import { testSesConnection } from "@/lib/agents/ses";
 import { AI_JOBS, setJobModels, type AiJob } from "@/lib/ai/models";
 
 type ActionState = { ok?: boolean; error?: string; detail?: string } | undefined;
+
+/** One click should not be able to arm an unbounded number of sends. */
+const BULK_APPROVE_LIMIT = 200;
+
+const APPROVAL_MODES = ["manual", "first_touch", "auto"] as const;
+
+const APPROVAL_MODE_CONFIRMATION: Record<string, string> = {
+  manual: "Manual: nothing sends until you approve it.",
+  first_touch: "First touch: opening emails send themselves, replies wait for you.",
+  auto: "Autonomous: outreach now sends without review. Watch the inbox.",
+};
 
 export async function saveAgentConfigAction(
   _prev: ActionState,
@@ -109,6 +120,44 @@ export async function toggleAgentAction(
   revalidatePath("/admin");
   const label = agent === "agents" ? "Master switch" : agent;
   return { ok: true, detail: `${label} ${next ? "switched on" : "switched off"}.` };
+}
+
+/**
+ * How much of the outreach the Conversationalist may do unattended.
+ *
+ * Its own action rather than a field on the settings form, for the same reason
+ * as the on/off switch: this is the setting most worth changing quickly and
+ * least worth changing by accident, so it writes one key and records who did
+ * it. Moving to "auto" means email leaves without anyone reading it, which is
+ * why the choice is spelled out on the card rather than hidden in a dropdown.
+ */
+export async function setApprovalModeAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const admin = await requireAdmin();
+  const mode = String(formData.get("mode") ?? "");
+  if (!APPROVAL_MODES.includes(mode as (typeof APPROVAL_MODES)[number])) {
+    return { error: "Unknown approval mode." };
+  }
+
+  try {
+    await setAgentConfig({
+      outreachApprovalMode: mode as AgentConfig["outreachApprovalMode"],
+    });
+  } catch {
+    return { error: "Could not change the approval mode." };
+  }
+  await writeAudit({
+    userId: admin.id,
+    action: "agents.approval_mode",
+    entity: "agent_config",
+    diff: { outreachApprovalMode: mode },
+  });
+  revalidatePath("/admin/agents");
+  revalidatePath("/admin");
+  revalidatePath("/admin/agents/approvals");
+  return { ok: true, detail: APPROVAL_MODE_CONFIRMATION[mode] };
 }
 
 export async function testSesAction(
@@ -225,6 +274,91 @@ export async function approveMessageAction(
   return outcome.sent
     ? { ok: true, detail: "Approved and sent." }
     : { ok: true, detail: `Approved. Queued to send (${outcome.reason ?? "pending"}).` };
+}
+
+/**
+ * Approve everything that is safe to approve, in one click.
+ *
+ * "Everything" is doing real work here, because two kinds of draft sit in this
+ * queue and only one of them should ever go out unread:
+ *
+ * - A message written before the current rules (no stored raw body) carries the
+ *   old shape — no link to the recipient's own page, a full-URL opt-out, no
+ *   tracking. Bulk-approving those is exactly the mistake this button would
+ *   otherwise make easy, so they are skipped and counted.
+ * - A message the writer itself flagged (`error` set) failed the
+ *   personalisation check. It exists because a human has to look at it.
+ *
+ * What survives is marked approved and left for the sender to pick up rather
+ * than transmitted inline. Sending hundreds of messages inside one request
+ * would blow the request budget and ignore the daily cap; the queue already
+ * respects both.
+ */
+export async function approveAllAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const admin = await requireAdmin();
+  // The page renders the count it is asking to approve. If the queue has moved
+  // on since, the operator is agreeing to something they did not see.
+  const expected = Number(formData.get("expected") ?? -1);
+
+  const eligible = await db
+    .select({ id: outreachMessages.id })
+    .from(outreachMessages)
+    .where(
+      and(
+        eq(outreachMessages.direction, "outbound"),
+        eq(outreachMessages.status, "pending_approval"),
+        isNull(outreachMessages.approvedAt),
+        isNotNull(outreachMessages.bodyRaw),
+        isNull(outreachMessages.error),
+      ),
+    )
+    .limit(BULK_APPROVE_LIMIT);
+
+  if (!eligible.length) {
+    return { ok: true, detail: "Nothing was eligible — every draft here still needs a person." };
+  }
+  if (expected >= 0 && expected !== eligible.length) {
+    return {
+      error: `The queue changed: ${eligible.length} are now eligible, not ${expected}. Reload and check before approving.`,
+    };
+  }
+
+  const ids = eligible.map((row) => row.id);
+  const approved = await db
+    .update(outreachMessages)
+    .set({ status: "scheduled", approvedBy: admin.id, approvedAt: new Date() })
+    .where(
+      and(
+        inArray(outreachMessages.id, ids),
+        // Re-checked at write time: between the read above and here, another
+        // admin may have approved or rejected some of these.
+        eq(outreachMessages.status, "pending_approval"),
+      ),
+    )
+    .returning({ id: outreachMessages.id });
+
+  await enqueue({
+    agent: "conversationalist",
+    kind: "flush_approved",
+    dedupeKey: `flush:bulk:${Date.now()}`,
+    priority: 30,
+  });
+
+  await writeAudit({
+    userId: admin.id,
+    action: "agents.message.approve_all",
+    entity: "outreach_message",
+    diff: { approved: approved.length },
+  });
+  revalidatePath("/admin/agents/approvals");
+  revalidatePath("/admin");
+  return {
+    ok: true,
+    detail: `Approved ${approved.length}. They send on the queue, inside the daily cap.`,
+  };
 }
 
 export async function rejectMessageAction(

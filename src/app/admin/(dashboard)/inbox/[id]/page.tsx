@@ -137,6 +137,7 @@ export default async function ConversationPage({
                     id: m.id,
                     subject: m.subject,
                     bodyText: m.bodyText,
+                    bodyHtml: m.bodyHtml,
                     toEmail: m.toEmail ?? thread.toEmail,
                     campaign: thread.campaign,
                     company: prospect?.name ?? null,

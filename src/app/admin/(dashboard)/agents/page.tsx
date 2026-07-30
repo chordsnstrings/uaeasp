@@ -21,6 +21,7 @@ import { dubaiDay, formatDateTime } from "@/components/admin/status";
 import {
   AgentConfigForm,
   AgentSwitch,
+  AutonomyControl,
   ModelRoutingForm,
   QueueJobForm,
   TestSesForm,
@@ -353,6 +354,11 @@ export default async function AgentsPage() {
                   <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800 ring-1 ring-inset ring-amber-200">
                     Needs: {agent.state.missing.join(", ")}
                   </p>
+                )}
+                {/* Only the Conversationalist can act on the outside world by
+                    itself, so it is the only card that needs this. */}
+                {agent.key === "conversationalist" && agent.state.enabled && (
+                  <AutonomyControl mode={config.outreachApprovalMode} />
                 )}
               </div>
             ))}
