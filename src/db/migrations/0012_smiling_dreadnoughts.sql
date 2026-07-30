@@ -1,0 +1,1 @@
+ALTER TABLE "outreach_messages" ADD COLUMN "body_raw" text;

@@ -10,6 +10,7 @@ import {
 import { absoluteUrl } from "@/lib/site";
 import { getAgentConfig, type AgentConfig } from "./config";
 import { sesSend } from "./ses";
+import { composeBody } from "./compose";
 
 /**
  * The only path outbound agent email may take.
@@ -230,11 +231,26 @@ export async function sendOutreachMessage(messageRowId: string): Promise<SendOut
     .orderBy(sql`${outreachMessages.createdAt} DESC`)
     .limit(1);
 
+  // Rebuild the wrapper from the writer's own words against the rules in force
+  // right now. A draft can sit in the approval queue for days, and what we send
+  // must reflect today's call to action, opt-out and tracking rather than
+  // whatever was current when it was written. Only the wrapper is rebuilt — the
+  // argument the approver read is untouched.
+  const composed = message.bodyRaw
+    ? composeBody(message.bodyRaw, config, thread.token, message.trackToken)
+    : { text: message.bodyText, html: message.bodyHtml ?? undefined };
+  if (message.bodyRaw && composed.text !== message.bodyText) {
+    await db
+      .update(outreachMessages)
+      .set({ bodyText: composed.text, bodyHtml: composed.html })
+      .where(eq(outreachMessages.id, message.id));
+  }
+
   const result = await sesSend({
     to,
     subject: message.subject ?? thread.subject ?? "Following up",
-    text: message.bodyText,
-    html: message.bodyHtml ?? undefined,
+    text: composed.text,
+    html: composed.html ?? undefined,
     messageId,
     inReplyTo: message.inReplyTo ?? previous?.messageId ?? null,
     references: message.inReplyTo ?? previous?.messageId

@@ -479,6 +479,11 @@ export const outreachMessages = pgTable(
     }).notNull(),
     stepIndex: integer("step_index"),
     subject: text("subject"),
+    /** The writer's own words, without signature, CTA or opt-out.
+     *  Kept separately so the wrapper can be rebuilt at send time against the
+     *  current rules — a draft written last week must not go out carrying last
+     *  week's call to action. Null on rows created before this existed. */
+    bodyRaw: text("body_raw"),
     bodyText: text("body_text").notNull(),
     bodyHtml: text("body_html"),
     fromEmail: text("from_email"),
@@ -503,6 +508,10 @@ export const outreachMessages = pgTable(
     openCount: integer("open_count").notNull().default(0),
     firstClickAt: timestamp("first_click_at", { withTimezone: true }),
     clickCount: integer("click_count").notNull().default(0),
+    /** Where the most recent click went. A click on the personalised page and
+     *  a click on the directory mean different things, and the counter alone
+     *  cannot tell them apart. */
+    lastClickPath: text("last_click_path"),
     error: text("error"),
     aiMeta: jsonb("ai_meta"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

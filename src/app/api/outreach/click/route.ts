@@ -31,6 +31,9 @@ export async function GET(req: NextRequest) {
           // A click proves delivery, so it also backfills an open that image
           // blocking would otherwise have hidden.
           openedAt: sql`COALESCE(${outreachMessages.openedAt}, now())`,
+          // Which link, not just how many. The validated path only — never the
+          // raw parameter, which is attacker-controlled.
+          lastClickPath: target ?? "/",
         })
         .where(eq(outreachMessages.trackToken, token));
     } catch {

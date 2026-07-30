@@ -1,0 +1,1 @@
+ALTER TABLE "outreach_messages" ADD COLUMN "last_click_path" text;

@@ -13,8 +13,8 @@ import {
 import { chat, extractJson } from "@/lib/ai/chat";
 import type { ProspectProfile } from "../prospector";
 import { getSalesNotifyEmails, sendEmail } from "@/lib/email";
-import { absoluteUrl, SITE_NAME, SITE_URL } from "@/lib/site";
-import { openPixelUrl, trackLinksInHtml } from "../tracking";
+import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { appendSignature, textToHtml } from "../compose";
 import { appointmentDeadlineFor, mandateTimelineLines } from "@/content/mandate";
 import { getAgentConfig, type AgentConfig } from "../config";
 import {
@@ -22,7 +22,6 @@ import {
   normalizeEmail,
   remainingSendsToday,
   sendOutreachMessage,
-  unsubscribeUrl,
 } from "../mailer";
 import { enqueue } from "../queue";
 import type { AgentHandler } from "../types";
@@ -47,18 +46,6 @@ ${mandateTimelineLines()
 - E-invoices must be issued through an accredited service provider using the PINT AE format and the Peppol 5-corner model.
 - Our directory at uaeasp.ae lists every accredited provider and is free to use.
 - We are an independent directory. We are not the Ministry of Finance, the FTA, or a provider ourselves.`;
-
-function senderBlock(config: AgentConfig): string {
-  return [
-    config.senderName,
-    config.senderTitle,
-    config.companyLegalName || SITE_NAME,
-    absoluteUrl("/"),
-    config.companyAddress,
-  ]
-    .filter(Boolean)
-    .join("\n");
-}
 
 function systemPrompt(config: AgentConfig, step: number): string {
   return `You write short B2B emails for ${config.companyLegalName || SITE_NAME}, an independent directory of UAE Ministry of Finance accredited e-invoicing service providers.
@@ -125,51 +112,6 @@ export function firstName(name: string | null | undefined): string | null {
   }
   return first;
 }
-
-/**
- * The plain-text body: message, one link worth clicking, signature, opt-out.
- *
- * The personalised page carries the argument the email cannot — their deadline,
- * their emirate, a real shortlist — so the email's job is to earn one click,
- * not to explain everything. Previously there was no link at all in the body,
- * which left the recipient nothing to do except reply.
- */
-function appendSignature(body: string, config: AgentConfig, threadToken: string): string {
-  const signature = senderBlock(config);
-  const cta = `See what applies to you: ${absoluteUrl(`/o/${threadToken}`)}`;
-  const optOut = `Unsubscribe: ${unsubscribeUrl(threadToken)}`;
-  return [body.trim(), cta, signature, optOut].filter(Boolean).join("\n\n");
-}
-
-/**
- * The HTML body.
- *
- * Two things the old version got wrong. Every URL was printed in full, so the
- * opt-out rendered as a wall of hex that dominated a ninety-word email. And
- * nothing was attributable, so there was no way to tell a message that landed
- * from one that was read. Long links now render as short anchors, and our own
- * links are rewritten to the click tracker — except the unsubscribe, which is
- * never routed through anything that could fail.
- */
-function textToHtml(text: string, trackToken?: string): string {
-  const escaped = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/(https?:\/\/[^\s<]+)/g, (url) => {
-      const label = url.includes("/api/outreach/unsubscribe")
-        ? "unsubscribe"
-        : url.replace(/^https?:\/\//, "").replace(/\/$/, "");
-      const short = label.length > 48 ? `${label.slice(0, 45)}…` : label;
-      return `<a href="${url}" style="color:#0f766e">${short}</a>`;
-    });
-  const html = `<div style="font:15px/1.6 -apple-system,Segoe UI,sans-serif;color:#0f172a;white-space:pre-wrap">${escaped}</div>`;
-  if (!trackToken) return html;
-  return `${trackLinksInHtml(html, trackToken, SITE_URL)}<img src="${openPixelUrl(
-    trackToken,
-  )}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0" />`;
-}
-
 
 /**
  * Re-render the HTML body once the row exists.
@@ -403,6 +345,7 @@ async function queueOutbound(
       status: autoSend ? "scheduled" : "pending_approval",
       stepIndex: step,
       subject: draft.subject,
+      bodyRaw: draft.body,
       bodyText,
       bodyHtml: textToHtml(bodyText),
       toEmail: thread.toEmail,
@@ -602,6 +545,7 @@ export const handleReply: AgentHandler = async (task, ctx) => {
       direction: "outbound",
       status: autoSend ? "scheduled" : "pending_approval",
       subject: draft.subject || `Re: ${thread.subject ?? "your enquiry"}`,
+      bodyRaw: draft.body,
       bodyText,
       bodyHtml: textToHtml(bodyText),
       toEmail: thread.toEmail,
@@ -958,6 +902,7 @@ export const testConversation: AgentHandler = async (task, ctx) => {
       status: "scheduled",
       stepIndex: 0,
       subject: draft.subject,
+      bodyRaw: draft.body,
       bodyText,
       bodyHtml: textToHtml(bodyText),
       toEmail: email,
@@ -995,6 +940,122 @@ export const testConversation: AgentHandler = async (task, ctx) => {
   };
 };
 
+/**
+ * Bring drafts written under the old rules up to the current ones.
+ *
+ * A draft is a snapshot of whatever the writer and the wrapper were doing on
+ * the day it was made. Rules have since changed — emails now open with a name,
+ * carry a link to a personalised page, and are tracked — but a message already
+ * sitting in the approval queue still holds the old text and would send it.
+ *
+ * `bodyRaw` is the marker: nothing written before the split has it. For each
+ * stale message this rewrites the body with the current writer, which now has
+ * the contact's name and role to work with. Two rules keep it safe:
+ *
+ * - Approval never survives a rewrite. A human approved specific words; new
+ *   words need a new approval, so the row goes back to pending_approval.
+ * - A message that cannot be rewritten is held rather than sent. It is still
+ *   stale, and a generic email going out unattended is the thing we are trying
+ *   to stop, so it waits for a person instead.
+ */
+export const redraftStale: AgentHandler = async (_task, ctx) => {
+  const config = await getAgentConfig();
+  const stale = await db
+    .select({ message: outreachMessages, thread: outreachThreads, prospect: prospects })
+    .from(outreachMessages)
+    .innerJoin(outreachThreads, eq(outreachMessages.threadId, outreachThreads.id))
+    .leftJoin(prospects, eq(outreachThreads.prospectId, prospects.id))
+    .where(
+      and(
+        eq(outreachMessages.direction, "outbound"),
+        sql`${outreachMessages.bodyRaw} is null`,
+        // Sent and in-flight messages are history — only what has not left yet
+        // can still be fixed.
+        sql`${outreachMessages.status} IN ('draft','pending_approval','scheduled')`,
+      ),
+    )
+    .orderBy(asc(outreachMessages.createdAt))
+    .limit(25);
+
+  if (!stale.length) {
+    ctx.log("no stale drafts left");
+    return { itemsIn: 0, itemsOut: 0, summary: { rewritten: 0, held: 0 } };
+  }
+
+  let rewritten = 0;
+  let held = 0;
+
+  for (const { message, thread, prospect } of stale) {
+    const [contact] = thread.contactId
+      ? await db
+          .select({ name: prospectContacts.name, role: prospectContacts.role })
+          .from(prospectContacts)
+          .where(eq(prospectContacts.id, thread.contactId))
+          .limit(1)
+      : [];
+
+    const draft = prospect
+      ? await writeDraft(
+          prospect,
+          config,
+          message.stepIndex ?? 0,
+          ctx,
+          firstName(contact?.name),
+          contact?.role ?? null,
+        )
+      : null;
+
+    if (!draft) {
+      await db
+        .update(outreachMessages)
+        .set({
+          status: "pending_approval",
+          approvedAt: null,
+          approvedBy: null,
+          error: "written before the current rules and could not be rewritten — review before sending",
+        })
+        .where(eq(outreachMessages.id, message.id));
+      held += 1;
+      continue;
+    }
+
+    const bodyText = appendSignature(draft.body, config, thread.token);
+    await db
+      .update(outreachMessages)
+      .set({
+        subject: draft.subject,
+        bodyRaw: draft.body,
+        bodyText,
+        bodyHtml: textToHtml(bodyText, message.trackToken),
+        status: "pending_approval",
+        approvedAt: null,
+        approvedBy: null,
+        error: draft.needsReview ?? null,
+      })
+      .where(eq(outreachMessages.id, message.id));
+    rewritten += 1;
+  }
+
+  // More to do: come back for the next batch rather than doing it all at once,
+  // since each rewrite costs a model call.
+  if (stale.length === 25) {
+    await enqueue({
+      agent: "conversationalist",
+      kind: "redraft_stale",
+      runAfter: new Date(Date.now() + 60_000),
+      dedupeKey: `redraft-stale:${Date.now()}`,
+      priority: 90,
+    });
+  }
+
+  ctx.log(`rewrote ${rewritten} stale draft(s), held ${held} for review`);
+  return {
+    itemsIn: stale.length,
+    itemsOut: rewritten,
+    summary: { rewritten, held, moreQueued: stale.length === 25 },
+  };
+};
+
 export const conversationalistHandlers: Record<string, AgentHandler> = {
   start_sequence: startSequence,
   send_message: sendMessage,
@@ -1002,4 +1063,5 @@ export const conversationalistHandlers: Record<string, AgentHandler> = {
   tick,
   flush_approved: flushApproved,
   test_conversation: testConversation,
+  redraft_stale: redraftStale,
 };

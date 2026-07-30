@@ -23,6 +23,7 @@ import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "./config";
 import { findOwnPosition } from "./visibility/search";
 import { urlsWorthPinging } from "./visibility";
 import { safeRedirectPath, trackLinksInHtml } from "./tracking";
+import { appendSignature, composeBody, needsRecompose, textToHtml } from "./compose";
 import { LANDING_SLUGS, landingContent } from "@/content/landings";
 import {
   classifyQuery,
@@ -166,6 +167,59 @@ describe("inbound email parsing", () => {
 
   it("cuts at a signature delimiter", () => {
     expect(stripQuotedReply("Interested.\n--\nSent from my phone")).toBe("Interested.");
+  });
+});
+
+describe("composing a message at send time", () => {
+  const config = { ...DEFAULT_AGENT_CONFIG, senderName: "Sam", companyAddress: "" } as AgentConfig;
+  const thread = "11111111-1111-1111-1111-111111111111";
+  const track = "22222222-2222-2222-2222-222222222222";
+
+  it("wraps the writer's words with a link, a signature and an opt-out", () => {
+    const text = appendSignature("Hi Layla, one thing about your deadline.", config, thread);
+    expect(text).toContain("Hi Layla, one thing about your deadline.");
+    expect(text).toContain(`/o/${thread}`);
+    expect(text).toContain("Sam");
+    expect(text).toContain("/api/outreach/unsubscribe");
+  });
+
+  it("tracks our own links and the open, but never the opt-out", () => {
+    const { html } = composeBody("Hi Layla.", config, thread, track);
+    // The call-to-action is rewritten through the click tracker...
+    expect(html).toContain(`/api/outreach/click?t=${track}`);
+    // ...the pixel is present...
+    expect(html).toContain(`/api/outreach/open?t=${track}`);
+    // ...and the opt-out still points straight at unsubscribe, never through
+    // a tracker that could fail and strand someone who asked to leave.
+    expect(html).toMatch(/href="[^"]*\/api\/outreach\/unsubscribe[^"]*"/);
+    expect(html).not.toMatch(/click\?t=[^"]*unsubscribe/);
+  });
+
+  it("renders the opt-out as a word, not a wall of URL", () => {
+    const { html } = composeBody("Hi Layla.", config, thread, track);
+    expect(html).toContain(">unsubscribe</a>");
+  });
+
+  it("recognises a message written before the wrapper was separable", () => {
+    // The whole point of the marker: legacy rows can be found and fixed.
+    expect(needsRecompose({ bodyRaw: null })).toBe(true);
+    expect(needsRecompose({ bodyRaw: "Hi Layla." })).toBe(false);
+  });
+
+  it("rebuilds the same message from the same raw body", () => {
+    // Send-time recomposition must be deterministic, or every send would
+    // rewrite the row and the audit trail would churn for no reason.
+    const a = composeBody("Hi Layla.", config, thread, track);
+    const b = composeBody("Hi Layla.", config, thread, track);
+    expect(a.text).toBe(b.text);
+    expect(a.html).toBe(b.html);
+  });
+
+  it("escapes the writer's text before it becomes HTML", () => {
+    const html = textToHtml('a <script>alert(1)</script> & "quote"');
+    expect(html).not.toContain("<script>");
+    expect(html).toContain("&lt;script&gt;");
+    expect(html).toContain("&amp;");
   });
 });
 
