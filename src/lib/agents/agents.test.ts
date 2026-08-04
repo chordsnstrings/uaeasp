@@ -19,7 +19,12 @@ import {
 } from "./prospector/crawl";
 import { buildSweepQueries, parseEmirate } from "./prospector/places";
 import { BOUNCE_HALT_RATE, dubaiDayStart, emailDomain, normalizeEmail, rampedCap } from "./mailer";
-import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "./config";
+import {
+  DEFAULT_AGENT_CONFIG,
+  PARTNER_SECTORS,
+  isPartnerSector,
+  type AgentConfig,
+} from "./config";
 import { findOwnPosition } from "./visibility/search";
 import { urlsWorthPinging } from "./visibility";
 import { safeRedirectPath, trackLinksInHtml } from "./tracking";
@@ -174,6 +179,50 @@ describe("inbound email parsing", () => {
 
   it("cuts at a signature delimiter", () => {
     expect(stripQuotedReply("Interested.\n--\nSent from my phone")).toBe("Interested.");
+  });
+});
+
+describe("who we are writing to", () => {
+  it("separates referral partners from businesses that must appoint a provider", () => {
+    // Both stay in the sweep — an accounting firm is worth writing to. The
+    // point is that it is a different conversation, and sending it the
+    // compliance pitch is what produced "a free shortlist for your SME
+    // clients" inside a sequence written for the SME.
+    for (const sector of [
+      "accounting firm",
+      "audit firm",
+      "tax consultant",
+      "business setup consultant",
+      "corporate services provider",
+      "management consultancy",
+      "ERP implementation company",
+      "IT system integrator",
+    ]) {
+      expect(isPartnerSector(sector)).toBe(true);
+    }
+    for (const sector of [
+      "freight forwarding company",
+      "general contracting company",
+      "trading company",
+      "manufacturing company",
+    ]) {
+      expect(isPartnerSector(sector)).toBe(false);
+    }
+  });
+
+  it("treats an unknown or missing sector as a direct buyer", () => {
+    // Failing closed here means the safer pitch: never assume a stranger is a
+    // partner and write to them about clients they may not have.
+    expect(isPartnerSector(null)).toBe(false);
+    expect(isPartnerSector("")).toBe(false);
+    expect(isPartnerSector("something we have never swept")).toBe(false);
+  });
+
+  it("keeps every partner sector in the swept list", () => {
+    // A sector classified as a partner but absent from the sweep would be dead
+    // configuration; one in the sweep but unclassified gets the wrong pitch.
+    const swept = new Set(DEFAULT_AGENT_CONFIG.prospectorSectors.split(",").map((s) => s.trim()));
+    for (const sector of PARTNER_SECTORS) expect(swept.has(sector)).toBe(true);
   });
 });
 

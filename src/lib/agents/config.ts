@@ -131,22 +131,27 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   placesApiKey: "",
   prospectorDailyDiscoveryCap: 150,
   // Swept as "{sector} in {Emirate}, UAE", so each entry has to read like a
-  // business type someone would search for.
-  //
-  // Aimed at businesses that will themselves be told to appoint a provider —
-  // sectors where UAE companies routinely clear the AED 50m Phase 1 threshold
-  // and issue B2B invoices in volume. Phase 1 goes live in January 2027, which
-  // makes those the only prospects with a reason to act this year.
-  //
-  // Professional-services firms were removed. They are the distribution
-  // channel, not the buyer: a third of the list was accounting firms, business
-  // setup consultants and corporate services providers, and the emails ended
-  // up pitching them a shortlist for their clients. That is a partnership
-  // conversation and it does not belong in the same sweep as a compliance one.
-  //
+  // business type someone would search for. Two audiences, deliberately kept
+  // in one list but written to differently — see PARTNER_SECTORS below:
+  //   1. channel partners — an audit firm or ERP implementer has hundreds of
+  //      clients who all need a provider, so one relationship reaches far more
+  //      businesses than one recipient ever does. They are pitched a referral
+  //      relationship, not a shortlist for themselves;
+  //   2. sectors where UAE companies routinely clear the AED 50m Phase 1
+  //      threshold and issue B2B invoices in volume — freight, contracting,
+  //      distribution — who are pitched the shortlist directly;
+  //   3. general trading and manufacturing, which land in Phase 2.
   // Consumer-facing sectors are deliberately absent: they invoice individuals,
   // so a shortlist is worth little to them and they score low anyway.
   prospectorSectors: [
+    "accounting firm",
+    "audit firm",
+    "tax consultant",
+    "business setup consultant",
+    "corporate services provider",
+    "management consultancy",
+    "ERP implementation company",
+    "IT system integrator",
     "freight forwarding company",
     "customs clearance agency",
     "logistics company",
@@ -164,6 +169,7 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
     "retail chain",
   ].join(","),
   prospectorEmirates: "dubai,abu-dhabi,sharjah,ajman,ras-al-khaimah,fujairah,umm-al-quwain",
+
   prospectorMinScore: 55,
 
   searchApiProvider: "none",
@@ -305,4 +311,32 @@ export function agentReadiness(
     if (!config.agentsEnabled) map[key].enabled = false;
   }
   return map;
+}
+
+/**
+ * Sectors whose businesses are far more valuable as referrers than as buyers.
+ *
+ * An accounting firm needs an e-invoicing provider like anyone else, but it
+ * also has hundreds of clients who each need one, and it is the person those
+ * clients will ask. Pitching it a shortlist for its own invoices is the small
+ * version of the conversation, and it is what the outreach had drifted into —
+ * subject lines offering "a free shortlist for your SME clients" sent through
+ * a sequence written to persuade a company to sort out its own compliance.
+ *
+ * Keeping them in the sweep is right. Writing to them as though they were the
+ * end customer is not.
+ */
+export const PARTNER_SECTORS = new Set([
+  "accounting firm",
+  "audit firm",
+  "tax consultant",
+  "business setup consultant",
+  "corporate services provider",
+  "management consultancy",
+  "ERP implementation company",
+  "IT system integrator",
+]);
+
+export function isPartnerSector(sector: string | null | undefined): boolean {
+  return !!sector && PARTNER_SECTORS.has(sector.trim());
 }

@@ -16,7 +16,7 @@ import { getSalesNotifyEmails, sendEmail } from "@/lib/email";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { appendSignature, textToHtml } from "../compose";
 import { appointmentDeadlineFor, mandateTimelineLines } from "@/content/mandate";
-import { getAgentConfig, type AgentConfig } from "../config";
+import { getAgentConfig, isPartnerSector, type AgentConfig } from "../config";
 import {
   isSuppressed,
   normalizeEmail,
@@ -46,6 +46,29 @@ ${mandateTimelineLines()
 - E-invoices must be issued through an accredited service provider using the PINT AE format and the Peppol 5-corner model.
 - Our directory at uaeasp.ae lists every accredited provider and is free to use.
 - We are an independent directory. We are not the Ministry of Finance, the FTA, or a provider ourselves.`;
+
+/**
+ * What we are actually asking this recipient for.
+ *
+ * An accounting firm and a freight forwarder are both worth writing to, and
+ * both are in the sweep, but they are not the same conversation. The firm's
+ * own invoices are the small version of it: what matters is the hundred-odd
+ * clients who will ask them which provider to use. Writing one email for both
+ * is how the outreach ended up sending "a free shortlist for your SME clients"
+ * inside a sequence built to persuade a company to fix its own compliance.
+ */
+function audienceRules(partner: boolean): string {
+  if (!partner) {
+    return `AUDIENCE — this company will have to appoint a provider itself.
+- Write about their own invoicing: their volume, their systems, their deadline.
+- The value is that choosing between 42 accredited providers is genuinely hard and we have already done the comparison.`;
+  }
+  return `AUDIENCE — this is a professional-services firm. Their clients are the ones who will need providers, and this firm is who those clients will ask.
+- Do NOT pitch them a shortlist for their own invoices. That is the small version of the conversation and it reads as though we have not understood what they do.
+- Write to them as the adviser they are: their clients are about to ask them which accredited provider to use, and they will need an answer that is current.
+- The offer is that we keep the accredited list current and will put together shortlists for their clients, free, under their name if they want it.
+- Their own compliance may be worth one clause at most. It is not the subject.`;
+}
 
 function systemPrompt(config: AgentConfig, step: number): string {
   return `You write short B2B emails for ${config.companyLegalName || SITE_NAME}, an independent directory of UAE Ministry of Finance accredited e-invoicing service providers.
@@ -219,6 +242,7 @@ function prospectBrief(
   step: number,
   contactRole: string | null = null,
 ): string {
+  const partner = isPartnerSector(prospect.sector);
   const profile = (prospect.profile ?? null) as ProspectProfile | null;
   const lines = [
     `Company: ${prospect.name}`,
@@ -242,6 +266,7 @@ function prospectBrief(
   } else {
     lines.push("", "We could not read their website. Keep it short and do not pretend to know them.");
   }
+  lines.push("", audienceRules(partner));
   lines.push("", step > 0 ? `This is follow-up number ${step}.` : "This is the first contact.");
   return lines.join("\n");
 }
