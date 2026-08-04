@@ -147,10 +147,19 @@ export const startSequence: AgentHandler = async (task, ctx) => {
     .limit(1);
   if (existing) return { itemsIn: 1, itemsOut: 0, summary: { reason: "already sequenced" } };
 
+  // Only addresses whose domain resolved to a live MX record. "risky" means
+  // the DNS lookup failed or timed out, and mailing those is a large part of
+  // how a 6.4% bounce rate happens — which is the number that gets a sending
+  // account suspended, taking transactional mail down with it.
   const [contact] = await db
     .select()
     .from(prospectContacts)
-    .where(eq(prospectContacts.prospectId, prospectId))
+    .where(
+      and(
+        eq(prospectContacts.prospectId, prospectId),
+        eq(prospectContacts.verification, "mx_ok"),
+      ),
+    )
     .orderBy(asc(prospectContacts.priority))
     .limit(1);
   if (!contact) return { itemsIn: 1, itemsOut: 0, summary: { reason: "no contact" } };

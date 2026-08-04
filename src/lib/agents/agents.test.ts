@@ -18,7 +18,7 @@ import {
   type FoundContact,
 } from "./prospector/crawl";
 import { buildSweepQueries, parseEmirate } from "./prospector/places";
-import { dubaiDayStart, emailDomain, normalizeEmail, rampedCap } from "./mailer";
+import { BOUNCE_HALT_RATE, dubaiDayStart, emailDomain, normalizeEmail, rampedCap } from "./mailer";
 import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "./config";
 import { findOwnPosition } from "./visibility/search";
 import { urlsWorthPinging } from "./visibility";
@@ -174,6 +174,33 @@ describe("inbound email parsing", () => {
 
   it("cuts at a signature delimiter", () => {
     expect(stripQuotedReply("Interested.\n--\nSent from my phone")).toBe("Interested.");
+  });
+});
+
+describe("bounce protection", () => {
+  // The rate that matters is Amazon's: review at 5%, suspension at 10%, and a
+  // suspension takes transactional mail with it. Halting at 4% leaves headroom.
+  const health = (sent: number, bounced: number) => {
+    const rate = sent ? bounced / sent : 0;
+    return { sent, bounced, rate, halted: sent >= 50 && rate > BOUNCE_HALT_RATE };
+  };
+
+  it("halts before the rate reaches Amazon's review threshold", () => {
+    expect(BOUNCE_HALT_RATE).toBeLessThan(0.05);
+    // The live figure that prompted this: 7 bounces in 109 sends.
+    expect(health(109, 7).halted).toBe(true);
+    expect(health(109, 4).halted).toBe(false);
+  });
+
+  it("ignores a rate computed from too few sends", () => {
+    // Two bounces in twenty is 10% and means nothing.
+    expect(health(20, 2).rate).toBeCloseTo(0.1);
+    expect(health(20, 2).halted).toBe(false);
+  });
+
+  it("does not halt a clean list", () => {
+    expect(health(200, 0).halted).toBe(false);
+    expect(health(0, 0).halted).toBe(false);
   });
 });
 

@@ -113,7 +113,11 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   snsTopicArn: "",
   replyToEmail: "",
 
-  outreachDailyCap: 200,
+  // 75/day is the published ceiling for professional-services cold outreach on
+  // one sending domain. The previous 200 was 2.7x that, and a 6.4% bounce rate
+  // against Amazon's 5% review threshold is what over-sending buys you — a
+  // suspension there would take the lead-notification mail down with it.
+  outreachDailyCap: 75,
   outreachWarmupStartCap: 20,
   // Compounds once per day we actually send on. At 1.12 the ramp reaches the
   // 200/day ceiling in about three weeks of sending; at the previous 1.4 it got
@@ -127,25 +131,22 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   placesApiKey: "",
   prospectorDailyDiscoveryCap: 150,
   // Swept as "{sector} in {Emirate}, UAE", so each entry has to read like a
-  // business type someone would search for. Three groups, in priority order:
-  //   1. channel partners — an audit firm or ERP implementer has hundreds of
-  //      clients who all need a provider, so one relationship reaches far more
-  //      businesses than one recipient ever does;
-  //   2. sectors where UAE companies routinely clear the AED 50m Phase 1
-  //      threshold and issue B2B invoices in volume — freight, contracting,
-  //      distribution;
-  //   3. general trading and manufacturing, which land in Phase 2.
+  // business type someone would search for.
+  //
+  // Aimed at businesses that will themselves be told to appoint a provider —
+  // sectors where UAE companies routinely clear the AED 50m Phase 1 threshold
+  // and issue B2B invoices in volume. Phase 1 goes live in January 2027, which
+  // makes those the only prospects with a reason to act this year.
+  //
+  // Professional-services firms were removed. They are the distribution
+  // channel, not the buyer: a third of the list was accounting firms, business
+  // setup consultants and corporate services providers, and the emails ended
+  // up pitching them a shortlist for their clients. That is a partnership
+  // conversation and it does not belong in the same sweep as a compliance one.
+  //
   // Consumer-facing sectors are deliberately absent: they invoice individuals,
   // so a shortlist is worth little to them and they score low anyway.
   prospectorSectors: [
-    "accounting firm",
-    "audit firm",
-    "tax consultant",
-    "business setup consultant",
-    "corporate services provider",
-    "management consultancy",
-    "ERP implementation company",
-    "IT system integrator",
     "freight forwarding company",
     "customs clearance agency",
     "logistics company",

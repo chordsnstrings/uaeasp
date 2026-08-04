@@ -8,7 +8,11 @@ export interface IntegrationSystem {
 
 export const INTEGRATION_SYSTEMS: IntegrationSystem[] = [
   { key: "sap", name: "SAP (ECC / S/4HANA)", tier: "enterprise" },
-  { key: "oracle", name: "Oracle (EBS / Fusion / NetSuite)", tier: "enterprise" },
+  { key: "oracle", name: "Oracle (E-Business Suite / Fusion)", tier: "enterprise" },
+  // Split out of the Oracle bundle: Search Console shows 143 impressions in 28
+  // days for NetSuite integration queries in the UAE and nothing on this site
+  // targeting them. A system with its own demand needs its own page.
+  { key: "netsuite", name: "Oracle NetSuite", tier: "enterprise" },
   { key: "dynamics", name: "Microsoft Dynamics 365", tier: "enterprise" },
   { key: "tally", name: "Tally", tier: "sme" },
   { key: "zoho", name: "Zoho Books", tier: "sme" },
@@ -27,6 +31,24 @@ export interface IntegrationCopy {
   timeline: string;
 }
 
+/**
+ * The extra copy a system's own page needs, beyond its card on the hub.
+ *
+ * The hub page puts all twelve systems on one URL, which is why it ranks for
+ * none of them — the same failure /providers has against generic phrases.
+ * A page per system targets one question, the way a provider profile targets
+ * one name, and those rank 5-8.
+ */
+export interface IntegrationPageCopy {
+  metaTitle: string;
+  metaDescription: string;
+  h1: string;
+  intro: string;
+  /** Terms to look for in a provider's own description. Evidence, not claims. */
+  match: string[];
+  faq: { q: string; a: string }[];
+}
+
 export const INTEGRATION_COPY: Record<Locale, Record<string, IntegrationCopy>> = {
   en: {
     sap: {
@@ -37,9 +59,15 @@ export const INTEGRATION_COPY: Record<Locale, Record<string, IntegrationCopy>> =
     },
     oracle: {
       blurb:
-        "Oracle E-Business Suite, Fusion Cloud and NetSuite are all supported by multiple enterprise-focused ASPs. NetSuite typically integrates fastest via SuiteApp-style connectors; EBS integrations lean on middleware.",
+        "Oracle E-Business Suite and Fusion Cloud are both supported by multiple enterprise-focused ASPs. EBS integrations lean on middleware; Fusion has more direct API options.",
       route: "Vendor connector, Oracle Integration Cloud, or API integration against the ASP's endpoints.",
-      timeline: "3–6 months for EBS/Fusion; 6–10 weeks for NetSuite",
+      timeline: "3–6 months for EBS/Fusion",
+    },
+    netsuite: {
+      blurb:
+        "NetSuite is usually the fastest enterprise ERP to connect, because SuiteApp-style connectors and SuiteTalk REST let a provider read invoice data without middleware. The work is normally mapping your NetSuite invoice records to PINT AE fields rather than building transport.",
+      route: "SuiteApp connector, SuiteTalk REST/SOAP, or SuiteScript posting to the ASP's API.",
+      timeline: "6–10 weeks including field mapping and UAT",
     },
     dynamics: {
       blurb:
@@ -111,9 +139,15 @@ export const INTEGRATION_COPY: Record<Locale, Record<string, IntegrationCopy>> =
     },
     oracle: {
       blurb:
-        "تحظى أنظمة Oracle E-Business Suite وFusion Cloud وNetSuite بدعم عدة مزودين موجهين للمؤسسات. يتكامل NetSuite عادة أسرع عبر موصلات على نمط SuiteApp، بينما تعتمد تكاملات EBS على الوسيط.",
+        "تحظى أنظمة Oracle E-Business Suite وFusion Cloud بدعم عدة مزودين موجهين للمؤسسات. تعتمد تكاملات EBS على الوسيط، بينما يوفر Fusion خيارات ربط مباشرة أكثر.",
       route: "موصل من المزود، أو Oracle Integration Cloud، أو ربط برمجي مباشر بواجهات المزود.",
-      timeline: "3–6 أشهر لـ EBS/Fusion؛ و6–10 أسابيع لـ NetSuite",
+      timeline: "3–6 أشهر لـ EBS/Fusion",
+    },
+    netsuite: {
+      blurb:
+        "يُعد NetSuite عادةً أسرع أنظمة تخطيط الموارد المؤسسية في الربط، إذ تتيح الموصلات على نمط SuiteApp وواجهات SuiteTalk REST للمزود قراءة بيانات الفواتير دون وسيط. العمل الأساسي هو مطابقة حقول فواتير NetSuite مع حقول PINT AE، لا بناء قناة النقل.",
+      route: "موصل SuiteApp، أو SuiteTalk REST/SOAP، أو SuiteScript يرسل إلى واجهة المزود.",
+      timeline: "6–10 أسابيع تشمل مطابقة الحقول واختبار القبول",
     },
     dynamics: {
       blurb:
@@ -177,3 +211,121 @@ export const INTEGRATION_COPY: Record<Locale, Record<string, IntegrationCopy>> =
     },
   },
 };
+
+/**
+ * Per-system page copy.
+ *
+ * `match` holds the terms we look for in a provider's own description. Nothing
+ * on the page claims a provider supports a system — it reports that the
+ * provider says so, and links to the profile so the reader can check. The
+ * distinction matters: we are a directory, and an invented integration claim
+ * would be worse than an empty list.
+ */
+export const INTEGRATION_PAGES: Record<Locale, Record<string, IntegrationPageCopy>> = {
+  en: {
+    netsuite: {
+      metaTitle: "NetSuite E-Invoicing in the UAE — Accredited Providers & Integration",
+      metaDescription:
+        "How Oracle NetSuite connects to UAE e-invoicing: SuiteApp connectors, SuiteTalk REST, PINT AE field mapping and realistic timelines. Which accredited providers name NetSuite.",
+      h1: "NetSuite e-invoicing in the UAE",
+      intro:
+        "If you run Oracle NetSuite in the UAE, your invoices will have to leave through a Ministry of Finance accredited service provider once your phase begins. NetSuite is generally the least painful enterprise ERP to connect, but the work is not zero and it is not the transport layer — it is getting your invoice records to line up with the PINT AE fields the Ministry expects.",
+      match: ["netsuite", "suiteapp", "suitetalk"],
+      faq: [
+        {
+          q: "Does NetSuite handle UAE e-invoicing on its own?",
+          a: "No. NetSuite can produce the invoice, but under the UAE mandate the invoice has to be transmitted through an accredited service provider on the Peppol network in PINT AE format. NetSuite is the source system; the provider is the channel.",
+        },
+        {
+          q: "How long does a NetSuite e-invoicing integration take?",
+          a: "Typically six to ten weeks, most of which is mapping NetSuite invoice records to PINT AE fields and user acceptance testing rather than building the connection itself. Heavily customised NetSuite accounts take longer.",
+        },
+        {
+          q: "How does a provider connect to NetSuite?",
+          a: "Usually a SuiteApp-style connector installed in your account, SuiteTalk REST or SOAP calls, or a SuiteScript that posts invoices to the provider's API. Which one you get depends on the provider, so ask before you sign.",
+        },
+      ],
+    },
+    sap: {
+      metaTitle: "SAP E-Invoicing in the UAE — Accredited Providers & Integration Routes",
+      metaDescription:
+        "Connecting SAP ECC or S/4HANA to UAE e-invoicing: packaged connectors, PI/PO and BTP middleware, IDoc mapping, and which accredited providers name SAP.",
+      h1: "SAP e-invoicing in the UAE",
+      intro:
+        "SAP estates are the most involved integrations on this list, and the most worth getting right first time. Several accredited providers maintain packaged SAP connectors and have run large ZATCA rollouts in Saudi Arabia — the question worth asking is not whether they support SAP, but whether they have done your exact version with your customisations.",
+      match: ["sap", "s/4hana", "s4hana", "ecc"],
+      faq: [
+        {
+          q: "Can SAP send UAE e-invoices without a provider?",
+          a: "No. SAP can generate and format the invoice, but the mandate requires transmission through an accredited service provider using PINT AE over Peppol. SAP Document Compliance still needs an accredited channel at the UAE end.",
+        },
+        {
+          q: "How long does an SAP e-invoicing project take?",
+          a: "Three to six months is normal once data cleanup, field mapping and UAT are included. A heavily customised ECC estate can run longer; a clean S/4HANA implementation can be faster.",
+        },
+        {
+          q: "What should I ask an SAP-capable provider for?",
+          a: "Reference clients on your specific version, whether the connector is packaged or bespoke, and who owns the middleware. Ask before you shortlist, not after.",
+        },
+      ],
+    },
+    tally: {
+      metaTitle: "Tally E-Invoicing in the UAE — Accredited Providers & How It Connects",
+      metaDescription:
+        "How Tally connects to UAE e-invoicing under the Ministry of Finance mandate, what the integration involves, realistic timelines, and which accredited providers name Tally.",
+      h1: "Tally e-invoicing in the UAE",
+      intro:
+        "Tally is one of the most widely used accounting systems among UAE SMEs, which makes it one of the most commonly asked-about integrations. It is also one of the quicker ones: most providers offering Tally support do it through a connector or TDL extension rather than a bespoke build.",
+      match: ["tally"],
+      faq: [
+        {
+          q: "Will Tally support UAE e-invoicing directly?",
+          a: "Tally can produce the invoice, but it still has to be transmitted through a Ministry of Finance accredited service provider in PINT AE format. Check with your provider which Tally releases their connector supports.",
+        },
+        {
+          q: "How quickly can Tally be connected?",
+          a: "Often a few weeks, since most Tally integrations use an existing connector or TDL extension rather than a bespoke build. Confirm the timeline with the provider against your own Tally version.",
+        },
+      ],
+    },
+    zoho: {
+      metaTitle: "Zoho Books E-Invoicing in the UAE — Accredited Providers & Integration",
+      metaDescription:
+        "How Zoho Books connects to UAE e-invoicing, what the mandate requires, and which Ministry of Finance accredited providers name Zoho in their own description.",
+      h1: "Zoho Books e-invoicing in the UAE",
+      intro:
+        "Zoho Books is common among UAE small businesses and generally straightforward to connect, usually through the provider's API or an existing Zoho marketplace extension. As with every system on this list, Zoho produces the invoice but an accredited provider has to carry it.",
+      match: ["zoho"],
+      faq: [
+        {
+          q: "Does Zoho Books handle UAE e-invoicing by itself?",
+          a: "No. Under the mandate the invoice has to be transmitted through a Ministry of Finance accredited service provider in PINT AE format over Peppol. Zoho is the source system.",
+        },
+      ],
+    },
+    quickbooks: {
+      metaTitle: "QuickBooks E-Invoicing in the UAE — Accredited Providers & Integration",
+      metaDescription:
+        "Connecting QuickBooks to UAE e-invoicing under the Ministry of Finance mandate: what is required, what it involves, and which accredited providers name QuickBooks.",
+      h1: "QuickBooks e-invoicing in the UAE",
+      intro:
+        "QuickBooks is widely used by smaller UAE businesses and is usually connected through the provider's API rather than a packaged connector. The mandate applies the same way it does to any other system: the invoice has to leave through an accredited provider.",
+      match: ["quickbooks"],
+      faq: [
+        {
+          q: "Can QuickBooks send UAE e-invoices on its own?",
+          a: "No. QuickBooks can raise the invoice, but transmission has to go through a Ministry of Finance accredited service provider using PINT AE over the Peppol network.",
+        },
+      ],
+    },
+  },
+  ar: {},
+};
+
+/** English copy is the fallback while an Arabic page is unwritten. */
+export function integrationPageCopy(locale: Locale, key: string): IntegrationPageCopy | null {
+  return INTEGRATION_PAGES[locale]?.[key] ?? INTEGRATION_PAGES.en[key] ?? null;
+}
+
+/** Systems that have a page of their own, in the order they appear on the hub. */
+export const INTEGRATION_PAGE_KEYS = Object.keys(INTEGRATION_PAGES.en);
