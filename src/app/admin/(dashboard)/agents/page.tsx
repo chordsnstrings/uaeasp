@@ -81,6 +81,11 @@ const MANUAL_JOBS = [
   { agent: "visibility", kind: "weekly", label: "Visibility — full weekly cycle" },
   { agent: "visibility", kind: "rank_check", label: "Visibility — check rankings" },
   { agent: "visibility", kind: "draft_article", label: "Visibility — draft an article" },
+  {
+    agent: "visibility",
+    kind: "draft_batch",
+    label: "Visibility — cover the open gaps (one page per question)",
+  },
   { agent: "visibility", kind: "find_mentions", label: "Visibility — find link targets" },
   { agent: "analyst", kind: "weekly_report", label: "Analyst — generate the weekly report" },
 ];

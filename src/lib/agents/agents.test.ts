@@ -46,6 +46,7 @@ import {
   isHubPath,
   needsDedicatedPage,
   parseServiceAccount,
+  queryIntent,
   type SearchAnalyticsRow,
 } from "./visibility/gsc";
 import { dubaiHour, refreshIsDue } from "./maintenance";
@@ -179,6 +180,46 @@ describe("inbound email parsing", () => {
 
   it("cuts at a signature delimiter", () => {
     expect(stripQuotedReply("Interested.\n--\nSent from my phone")).toBe("Interested.");
+  });
+});
+
+describe("clustering search gaps", () => {
+  // Live data: 251 gap rows collapse to 68 intents, 18 of which carry 94% of
+  // the impressions. Writing one page per keyword would mean ~5 near-identical
+  // pages per question, which is the definition of a doorway page.
+  it("treats the same question asked differently as one intent", () => {
+    const same = [
+      "e invoice provider",
+      "e-invoice service providers",
+      "e invoicing companies",
+      "einvoicing solution providers",
+      "e invoicing service provider",
+    ].map(queryIntent);
+    expect(new Set(same).size).toBe(1);
+  });
+
+  it("collapses word order, plurals and the accredited/approved synonym", () => {
+    expect(queryIntent("accredited service provider uae")).toBe(
+      queryIntent("approved service providers in the UAE"),
+    );
+    expect(queryIntent("asp list uae e invoicing")).toBe(
+      queryIntent("list of ASPs for e-invoicing in UAE"),
+    );
+  });
+
+  it("keeps genuinely different questions apart", () => {
+    const pricing = queryIntent("asp pricing uae e-invoicing");
+    const penalties = queryIntent("uae e-invoicing penalties");
+    const timeline = queryIntent("uae e-invoicing timeline");
+    const netsuite = queryIntent("netsuite integration services uae");
+    const generic = queryIntent("e invoicing provider");
+    expect(new Set([pricing, penalties, timeline, netsuite, generic]).size).toBe(5);
+  });
+
+  it("does not fold every Arabic query into one bucket", () => {
+    expect(queryIntent("مزودي خدمة الفاتورة الالكترونية")).not.toBe(
+      queryIntent("غرامات الفوترة الإلكترونية"),
+    );
   });
 });
 
