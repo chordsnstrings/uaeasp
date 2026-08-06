@@ -200,8 +200,14 @@ interface ArticleDraft {
 }
 
 /** Write the highest-value missing page as a draft article. */
-export const draftArticle: AgentHandler = async (_task, ctx) => {
+export const draftArticle: AgentHandler = async (task, ctx) => {
   const config = await getAgentConfig();
+  // The daily and weekly caps pace the unattended scheduler, so one bad run
+  // cannot fill the review queue overnight. A batch a person started has its
+  // own explicit ceiling (MAX_BATCH_DRAFTS) and a person watching it, so the
+  // pacing caps would only make the button look broken — it stopped after two
+  // pages with 94 gaps still open and no way to ask for more.
+  const paced = !(task.payload as { ignoreDailyCap?: boolean } | undefined)?.ignoreDailyCap;
   // Two ceilings, both on drafts rather than publications: an unreviewed
   // backlog stops the agent writing more, which is the behaviour we want.
   const dayAgo = new Date(Date.now() - 86_400_000);
@@ -216,10 +222,10 @@ export const draftArticle: AgentHandler = async (_task, ctx) => {
       .from(articles)
       .where(and(eq(articles.agentGenerated, true), gte(articles.createdAt, weekAgo))),
   ]);
-  if (Number(today[0]?.count ?? 0) >= config.visibilityDailyDraftCap) {
+  if (paced && Number(today[0]?.count ?? 0) >= config.visibilityDailyDraftCap) {
     return { itemsIn: 0, itemsOut: 0, summary: { reason: "daily draft cap reached" } };
   }
-  if (Number(thisWeek[0]?.count ?? 0) >= config.visibilityWeeklyDraftCap) {
+  if (paced && Number(thisWeek[0]?.count ?? 0) >= config.visibilityWeeklyDraftCap) {
     return { itemsIn: 0, itemsOut: 0, summary: { reason: "weekly draft cap reached" } };
   }
 
@@ -869,8 +875,12 @@ export const draftBatch: AgentHandler = async (task, ctx) => {
   // run. Stop instead of burning the remaining attempts on it.
   const attempted = new Set<string>();
 
+  // The batch is bounded by `limit` and by MAX_BATCH_DRAFTS, so the scheduler's
+  // pacing caps would only stop it short of what was asked for.
+  const inner = { ...task, payload: { ignoreDailyCap: true } };
+
   for (let i = 0; i < limit; i += 1) {
-    const outcome = await draftArticle(task, ctx);
+    const outcome = await draftArticle(inner, ctx);
     const summary = (outcome.summary ?? {}) as { reason?: string; keyword?: string };
     if (summary.reason) {
       reasons.push(summary.reason);
