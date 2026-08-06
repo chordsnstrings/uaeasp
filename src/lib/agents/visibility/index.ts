@@ -291,7 +291,21 @@ export const draftArticle: AgentHandler = async (_task, ctx) => {
     .onConflictDoNothing()
     .returning({ id: articles.id });
 
-  if (inserted) {
+  // A slug collision means a page for this question already exists, written by
+  // an earlier run. The gap is covered either way, and marking it is the part
+  // that matters: on the first live batch, onConflictDoNothing left `inserted`
+  // undefined, the keyword stayed open, the next iteration picked the same one,
+  // and the run rewrote the same NetSuite page until it gave up — 111 gaps in,
+  // 111 gaps out.
+  const [page] = inserted
+    ? [inserted]
+    : await db
+        .select({ id: articles.id })
+        .from(articles)
+        .where(and(eq(articles.slug, slug), eq(articles.locale, gap.locale)))
+        .limit(1);
+
+  if (page) {
     await db
       .update(seoKeywords)
       // The whole cluster is covered by this one page, not just the phrase
@@ -306,10 +320,13 @@ export const draftArticle: AgentHandler = async (_task, ctx) => {
       );
   }
 
+  const also = cluster.length > 1 ? ` and ${cluster.length - 1} more asking the same thing` : "";
   ctx.log(
-    cluster.length > 1
-      ? `drafted "${draft.title}" for "${gap.phrase}" and ${cluster.length - 1} more asking the same thing`
-      : `drafted "${draft.title}" for "${gap.phrase}"`,
+    inserted
+      ? `drafted "${draft.title}" for "${gap.phrase}"${also}`
+      : page
+        ? `"${gap.phrase}"${also} already had /insights/${slug} — marked covered, not rewritten`
+        : `could not store a draft for "${gap.phrase}"`,
   );
   return {
     itemsIn: cluster.length,
@@ -846,13 +863,29 @@ export const draftBatch: AgentHandler = async (task, ctx) => {
   let written = 0;
   let covered = 0;
   const reasons: string[] = [];
+  // Every keyword this run has already worked on. If one comes back it means
+  // the last pass failed to mark it covered, and continuing would rewrite the
+  // same page for the rest of the batch — the failure mode of the first live
+  // run. Stop instead of burning the remaining attempts on it.
+  const attempted = new Set<string>();
 
   for (let i = 0; i < limit; i += 1) {
     const outcome = await draftArticle(task, ctx);
-    const reason = (outcome.summary as { reason?: string } | undefined)?.reason;
-    if (reason) {
-      reasons.push(reason);
-      break;
+    const summary = (outcome.summary ?? {}) as { reason?: string; keyword?: string };
+    if (summary.reason) {
+      reasons.push(summary.reason);
+      // An unparseable response is one bad generation, not a reason to abandon
+      // the batch — the next gap is a different prompt. Anything else (cap
+      // reached, no gaps left, AI down) applies to every remaining iteration.
+      if (summary.reason !== "unparseable draft") break;
+      continue;
+    }
+    if (summary.keyword) {
+      if (attempted.has(summary.keyword)) {
+        reasons.push(`no progress on "${summary.keyword}" — stopping before it repeats`);
+        break;
+      }
+      attempted.add(summary.keyword);
     }
     written += outcome.itemsOut;
     covered += outcome.itemsIn;
