@@ -113,7 +113,11 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   snsTopicArn: "",
   replyToEmail: "",
 
-  outreachDailyCap: 200,
+  // 75/day is the published ceiling for professional-services cold outreach on
+  // one sending domain. The previous 200 was 2.7x that, and a 6.4% bounce rate
+  // against Amazon's 5% review threshold is what over-sending buys you — a
+  // suspension there would take the lead-notification mail down with it.
+  outreachDailyCap: 75,
   outreachWarmupStartCap: 20,
   // Compounds once per day we actually send on. At 1.12 the ramp reaches the
   // 200/day ceiling in about three weeks of sending; at the previous 1.4 it got
@@ -127,13 +131,15 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   placesApiKey: "",
   prospectorDailyDiscoveryCap: 150,
   // Swept as "{sector} in {Emirate}, UAE", so each entry has to read like a
-  // business type someone would search for. Three groups, in priority order:
+  // business type someone would search for. Two audiences, deliberately kept
+  // in one list but written to differently — see PARTNER_SECTORS below:
   //   1. channel partners — an audit firm or ERP implementer has hundreds of
   //      clients who all need a provider, so one relationship reaches far more
-  //      businesses than one recipient ever does;
+  //      businesses than one recipient ever does. They are pitched a referral
+  //      relationship, not a shortlist for themselves;
   //   2. sectors where UAE companies routinely clear the AED 50m Phase 1
   //      threshold and issue B2B invoices in volume — freight, contracting,
-  //      distribution;
+  //      distribution — who are pitched the shortlist directly;
   //   3. general trading and manufacturing, which land in Phase 2.
   // Consumer-facing sectors are deliberately absent: they invoice individuals,
   // so a shortlist is worth little to them and they score low anyway.
@@ -163,6 +169,7 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
     "retail chain",
   ].join(","),
   prospectorEmirates: "dubai,abu-dhabi,sharjah,ajman,ras-al-khaimah,fujairah,umm-al-quwain",
+
   prospectorMinScore: 55,
 
   searchApiProvider: "none",
@@ -182,7 +189,10 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   offerHeadline: "A free shortlist of pre-approved e-invoicing providers",
   offerBody:
     "We maintain the complete directory of the 42 e-invoicing service providers accredited by the UAE Ministry of Finance. Tell us your invoice volume and accounting system and we will send back a shortlist of the three that fit — free, no obligation.",
-  offerCta: "Reply with your invoice volume and accounting software",
+  // The label on the one link the email carries. A cold email's job is to earn
+  // a click, not to explain the offer, so this is a promise about what is on
+  // the other side — not an instruction to do something.
+  offerCta: "See which providers fit you",
   bookingLink: "",
 
   reportRecipients: "",
@@ -301,4 +311,32 @@ export function agentReadiness(
     if (!config.agentsEnabled) map[key].enabled = false;
   }
   return map;
+}
+
+/**
+ * Sectors whose businesses are far more valuable as referrers than as buyers.
+ *
+ * An accounting firm needs an e-invoicing provider like anyone else, but it
+ * also has hundreds of clients who each need one, and it is the person those
+ * clients will ask. Pitching it a shortlist for its own invoices is the small
+ * version of the conversation, and it is what the outreach had drifted into —
+ * subject lines offering "a free shortlist for your SME clients" sent through
+ * a sequence written to persuade a company to sort out its own compliance.
+ *
+ * Keeping them in the sweep is right. Writing to them as though they were the
+ * end customer is not.
+ */
+export const PARTNER_SECTORS = new Set([
+  "accounting firm",
+  "audit firm",
+  "tax consultant",
+  "business setup consultant",
+  "corporate services provider",
+  "management consultancy",
+  "ERP implementation company",
+  "IT system integrator",
+]);
+
+export function isPartnerSector(sector: string | null | undefined): boolean {
+  return !!sector && PARTNER_SECTORS.has(sector.trim());
 }

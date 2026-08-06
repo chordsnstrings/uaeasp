@@ -14,7 +14,7 @@ import { agentReadiness, getAgentConfig, AGENT_SECRET_FIELDS } from "@/lib/agent
 import { heartbeatState } from "@/lib/agents/heartbeat";
 import { AI_JOBS, getJobModels } from "@/lib/ai/models";
 import { getConfig } from "@/lib/settings";
-import { dailySendCap, sentToday } from "@/lib/agents/mailer";
+import { BOUNCE_HALT_RATE, bounceHealth, dailySendCap, sentToday } from "@/lib/agents/mailer";
 import { queueDepth } from "@/lib/agents/queue";
 import { absoluteUrl } from "@/lib/site";
 import { dubaiDay, formatDateTime } from "@/components/admin/status";
@@ -81,6 +81,11 @@ const MANUAL_JOBS = [
   { agent: "visibility", kind: "weekly", label: "Visibility — full weekly cycle" },
   { agent: "visibility", kind: "rank_check", label: "Visibility — check rankings" },
   { agent: "visibility", kind: "draft_article", label: "Visibility — draft an article" },
+  {
+    agent: "visibility",
+    kind: "draft_batch",
+    label: "Visibility — cover the open gaps (one page per question)",
+  },
   { agent: "visibility", kind: "find_mentions", label: "Visibility — find link targets" },
   { agent: "analyst", kind: "weekly_report", label: "Analyst — generate the weekly report" },
 ];
@@ -120,7 +125,7 @@ export default async function AgentsPage() {
   const now = Date.now();
   const since14 = new Date(now - 14 * DAY);
 
-  const [depth, runs, counts, cap, used, clock, jobModels, appConfig, runHistory] =
+  const [depth, runs, counts, cap, used, clock, jobModels, appConfig, runHistory, bounces] =
     await Promise.all([
       queueDepth(),
       db.select().from(agentRuns).orderBy(desc(agentRuns.startedAt)).limit(12),
@@ -161,6 +166,7 @@ export default async function AgentsPage() {
           agentRuns.agent,
           agentRuns.status,
         ),
+      bounceHealth(),
     ]);
 
   const fmt = (iso: string | null) => (iso ? formatDateTime(iso) : "never");
@@ -278,6 +284,20 @@ export default async function AgentsPage() {
             value={`${used}/${cap}`}
             tone={used >= cap ? "warning" : "neutral"}
             hint={used >= cap ? "Daily cap reached." : `${Math.max(0, cap - used)} left in today's cap`}
+          />
+          {/* The number that can cost you the whole sending identity, and with
+              it every lead notification. Worth a card of its own. */}
+          <StatCard
+            label="Bounce rate"
+            value={bounces.sent ? `${(bounces.rate * 100).toFixed(1)}%` : "—"}
+            tone={bounces.halted ? "danger" : bounces.rate > BOUNCE_HALT_RATE / 2 ? "warning" : "positive"}
+            hint={
+              bounces.halted
+                ? `Sending halted. ${bounces.bounced} of the last ${bounces.sent} bounced — above the ${(BOUNCE_HALT_RATE * 100).toFixed(0)}% ceiling.`
+                : bounces.sent
+                  ? `${bounces.bounced} of the last ${bounces.sent} sends. Amazon reviews above 5%.`
+                  : "Nothing sent yet."
+            }
           />
 
           {/* Composed locally: StatCard holds one number, this holds four switches. */}

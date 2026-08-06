@@ -144,6 +144,58 @@ export async function remainingSendsToday(config?: AgentConfig): Promise<number>
   return Math.max(0, cap - used);
 }
 
+/**
+ * Amazon reviews a sending account above a 5% bounce rate and suspends above
+ * 10%. A suspension is not confined to cold outreach — every transactional
+ * message leaves through the same identity, so the first thing you lose is the
+ * alert telling you a lead arrived.
+ *
+ * Below this many sends the rate is too noisy to act on: two bounces out of
+ * twenty is 10% and means nothing.
+ */
+export const BOUNCE_HALT_RATE = 0.04;
+const BOUNCE_MIN_SAMPLE = 50;
+
+export interface BounceHealth {
+  sent: number;
+  bounced: number;
+  rate: number;
+  halted: boolean;
+}
+
+/**
+ * Rolling bounce rate over recent sends.
+ *
+ * Deliberately a ratio over the last N messages rather than a lifetime figure:
+ * a list that has gone bad needs to stop sending now, and a good history should
+ * not be allowed to mask it.
+ */
+export async function bounceHealth(sample = 200): Promise<BounceHealth> {
+  const rows = await db
+    .select({ status: outreachMessages.status })
+    .from(outreachMessages)
+    .where(
+      and(
+        eq(outreachMessages.direction, "outbound"),
+        sql`${outreachMessages.status} IN ('sent','failed')`,
+        isNotNull(outreachMessages.sentAt),
+      ),
+    )
+    .orderBy(sql`${outreachMessages.sentAt} DESC`)
+    .limit(sample);
+
+  const sent = rows.length;
+  // A hard bounce closes the thread; the message row is marked failed.
+  const bounced = rows.filter((r) => r.status === "failed").length;
+  const rate = sent ? bounced / sent : 0;
+  return {
+    sent,
+    bounced,
+    rate,
+    halted: sent >= BOUNCE_MIN_SAMPLE && rate > BOUNCE_HALT_RATE,
+  };
+}
+
 export function unsubscribeUrl(token: string): string {
   return absoluteUrl(`/api/outreach/unsubscribe?t=${token}`);
 }
@@ -195,6 +247,16 @@ export async function sendOutreachMessage(messageRowId: string): Promise<SendOut
 
   if ((await remainingSendsToday(config)) <= 0) {
     return { sent: false, reason: "daily cap reached" };
+  }
+
+  // Refuse to make a reputation problem worse. This is checked per message
+  // rather than per batch because the whole point is to stop mid-run.
+  const health = await bounceHealth();
+  if (health.halted) {
+    return {
+      sent: false,
+      reason: `bounce rate ${(health.rate * 100).toFixed(1)}% over the last ${health.sent} sends — sending halted to protect the domain`,
+    };
   }
 
   // Claim the row before touching SES. This single conditional update is what

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, isNull, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   analyticsEvents,
@@ -19,6 +19,7 @@ import type { AgentHandler } from "../types";
 import { findContactEmails, registrableDomain, verifyEmail } from "../prospector/crawl";
 import { findOwnPosition, webSearch, type SearchHit } from "./search";
 import {
+  queryIntent,
   classifyQuery,
   isActionableQuery,
   isConfigured,
@@ -63,6 +64,15 @@ const OUTREACH_BLOCKLIST = [
   "tax.gov.ae",
   "u.ae",
 ];
+
+/**
+ * Hard ceiling on one batch run, whatever the caller asks for.
+ *
+ * Not a cost limit — a page costs a few cents. It is that a young domain
+ * publishing dozens of pages at once looks exactly like scaled content abuse,
+ * and every one of them still has to be read by a person before it goes live.
+ */
+const MAX_BATCH_DRAFTS = 20;
 
 /** Seed keyword set: the queries this business lives or dies by. */
 export const SEED_KEYWORDS: { phrase: string; locale: string; priority: number }[] = [
@@ -213,13 +223,23 @@ export const draftArticle: AgentHandler = async (_task, ctx) => {
     return { itemsIn: 0, itemsOut: 0, summary: { reason: "weekly draft cap reached" } };
   }
 
-  const [gap] = await db
+  const open = await db
     .select()
     .from(seoKeywords)
     .where(and(eq(seoKeywords.hasGap, true), isNull(seoKeywords.coveredByPath)))
-    .orderBy(asc(seoKeywords.priority))
-    .limit(1);
+    .orderBy(asc(seoKeywords.priority));
+  const [gap] = open;
   if (!gap) return { itemsIn: 0, itemsOut: 0, summary: { reason: "no open gaps" } };
+
+  // Every other open gap asking the same question. One page answers all of
+  // them; writing one page each would be a set of near-duplicates competing
+  // with each other for the same result.
+  const intent = queryIntent(gap.phrase);
+  const cluster = open.filter((k) => k.locale === gap.locale && queryIntent(k.phrase) === intent);
+  const alsoTargets = cluster
+    .filter((k) => k.id !== gap.id)
+    .map((k) => k.phrase)
+    .slice(0, 12);
 
   const providerCount = await getActiveProviderCount();
   const result = await chat(
@@ -227,7 +247,17 @@ export const draftArticle: AgentHandler = async (_task, ctx) => {
       { role: "system", content: ARTICLE_SYSTEM },
       {
         role: "user",
-        content: `Target search query: "${gap.phrase}"\nLanguage: ${gap.locale === "ar" ? "Arabic (Modern Standard)" : "English"}\nOur directory currently lists ${providerCount} accredited providers.\nCurrent position for this query: ${gap.lastPosition ?? "not in top 20"}.`,
+        content: [
+          `Target search query: "${gap.phrase}"`,
+          alsoTargets.length
+            ? `The same page must also answer these, which are the same question asked differently — cover them naturally in the body rather than repeating the phrases: ${alsoTargets.map((p) => `"${p}"`).join(", ")}.`
+            : "",
+          `Language: ${gap.locale === "ar" ? "Arabic (Modern Standard)" : "English"}`,
+          `Our directory currently lists ${providerCount} accredited providers.`,
+          `Current position for this query: ${gap.lastPosition ?? "not in top 20"}.`,
+        ]
+          .filter(Boolean)
+          .join("\n"),
       },
     ],
     { temperature: 0.35, maxTokens: 3000, job: "article" },
@@ -264,13 +294,25 @@ export const draftArticle: AgentHandler = async (_task, ctx) => {
   if (inserted) {
     await db
       .update(seoKeywords)
+      // The whole cluster is covered by this one page, not just the phrase
+      // that happened to be first. Otherwise the siblings stay open and the
+      // next run writes a near-duplicate of what was just written.
       .set({ coveredByPath: `/insights/${slug}` })
-      .where(eq(seoKeywords.id, gap.id));
+      .where(
+        inArray(
+          seoKeywords.id,
+          cluster.map((k) => k.id),
+        ),
+      );
   }
 
-  ctx.log(`drafted "${draft.title}" for "${gap.phrase}"`);
+  ctx.log(
+    cluster.length > 1
+      ? `drafted "${draft.title}" for "${gap.phrase}" and ${cluster.length - 1} more asking the same thing`
+      : `drafted "${draft.title}" for "${gap.phrase}"`,
+  );
   return {
-    itemsIn: 1,
+    itemsIn: cluster.length,
     itemsOut: inserted ? 1 : 0,
     summary: { slug, keyword: gap.phrase, needsApproval: true },
   };
@@ -783,7 +825,57 @@ export const pingIndex: AgentHandler = async (task, ctx) => {
   };
 };
 
+/**
+ * Write every open gap in one run, one page per intent.
+ *
+ * The console shows 111 gaps, which reads as 111 pages. It is not: those
+ * keywords collapse to roughly 68 questions, and 18 of them carry 94% of the
+ * impressions. `draft_article` clusters before it writes, so this simply runs
+ * it until the gaps are gone rather than raising a cap and hoping.
+ *
+ * The per-run ceiling stays. A batch that writes fifty pages onto a young
+ * domain in an afternoon is indistinguishable from scaled content abuse, and
+ * the reviewer still has to read every one — an unread backlog is the thing
+ * the daily cap exists to prevent, and a batch button should not be a way
+ * around it.
+ */
+export const draftBatch: AgentHandler = async (task, ctx) => {
+  const payload = (task.payload ?? {}) as { limit?: number };
+  const limit = Math.min(Math.max(1, payload.limit ?? 8), MAX_BATCH_DRAFTS);
+
+  let written = 0;
+  let covered = 0;
+  const reasons: string[] = [];
+
+  for (let i = 0; i < limit; i += 1) {
+    const outcome = await draftArticle(task, ctx);
+    const reason = (outcome.summary as { reason?: string } | undefined)?.reason;
+    if (reason) {
+      reasons.push(reason);
+      break;
+    }
+    written += outcome.itemsOut;
+    covered += outcome.itemsIn;
+  }
+
+  const [remaining] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(seoKeywords)
+    .where(and(eq(seoKeywords.hasGap, true), isNull(seoKeywords.coveredByPath)));
+
+  ctx.log(
+    `drafted ${written} page(s) covering ${covered} keyword(s); ${remaining?.n ?? 0} gaps still open` +
+      (reasons.length ? ` — stopped: ${reasons.join(", ")}` : ""),
+  );
+  return {
+    itemsIn: covered,
+    itemsOut: written,
+    summary: { drafted: written, keywordsCovered: covered, gapsRemaining: remaining?.n ?? 0, reasons },
+  };
+};
+
 export const visibilityHandlers: Record<string, AgentHandler> = {
+  draft_batch: draftBatch,
   weekly,
   seed_keywords: seedKeywords,
   seed_citations: seedCitations,

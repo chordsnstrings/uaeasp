@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getPublicProviders } from "@/lib/data";
 import { getPublishedArticleSlugs } from "@/lib/insights";
 import { GUIDE_SLUGS, GUIDE_UPDATED_ISO } from "@/content/guides";
+import { INTEGRATION_PAGE_KEYS } from "@/content/integrations";
 import { LANDING_SLUGS } from "@/content/landings";
 import { EMIRATES, PROVIDER_CATEGORIES } from "@/db/schema";
 import { absoluteUrl, localePath } from "@/lib/site";
@@ -73,6 +74,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }),
       ),
     entry("/integrations", { priority: 0.7, changeFrequency: "monthly" }),
+    // One page per accounting system — these target the integration queries the
+    // hub page cannot, so they need to be discoverable in their own right.
+    ...INTEGRATION_PAGE_KEYS.map((key) =>
+      entry(`/integrations/${key}`, { priority: 0.8, changeFrequency: "monthly" }),
+    ),
     entry("/resources", { priority: 0.6, changeFrequency: "monthly" }),
     entry("/resources/pint-ae-reference", { priority: 0.7, changeFrequency: "monthly" }),
     entry("/resources/glossary", { priority: 0.6, changeFrequency: "monthly" }),

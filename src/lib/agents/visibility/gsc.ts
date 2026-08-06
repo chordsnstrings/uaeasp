@@ -203,6 +203,75 @@ export function classifyQuery(position: number, hasPage: boolean): QueryAction {
   return "gap";
 }
 
+/**
+ * Collapse a query to the intent behind it.
+ *
+ * "e invoice provider", "e invoicing companies", "e-invoice service providers"
+ * and "einvoicing solution providers" are one question asked four ways. Search
+ * Console reports them as four keywords, and a gap list built from keywords
+ * therefore asks for four pages. Writing them is not thoroughness — four pages
+ * answering the same question are doorway pages, which is the thing search
+ * engines penalise hardest, and on a young domain that is not a risk worth
+ * taking for demand a single page already serves.
+ *
+ * Measured on live data: 251 gap rows collapse to 68 intents, and 18 of those
+ * carry 94% of the impressions.
+ */
+const INTENT_SYNONYMS: Record<string, string> = {
+  asp: "accredited-provider",
+  asps: "accredited-provider",
+  accredited: "accredited-provider",
+  approved: "accredited-provider",
+  preapproved: "accredited-provider",
+  provider: "provider",
+  providers: "provider",
+  vendor: "provider",
+  vendors: "provider",
+  company: "provider",
+  companies: "provider",
+  solution: "provider",
+  solutions: "provider",
+  software: "provider",
+  service: "provider",
+  services: "provider",
+  platform: "provider",
+  platforms: "provider",
+  einvoice: "einvoicing",
+  einvoices: "einvoicing",
+  einvoicing: "einvoicing",
+  invoice: "einvoicing",
+  invoices: "einvoicing",
+  invoicing: "einvoicing",
+  uae: "uae",
+  emirates: "uae",
+  dubai: "uae",
+  abu: "uae",
+  dhabi: "uae",
+  sharjah: "uae",
+  ajman: "uae",
+};
+
+/** Words that carry no intent and only fragment a cluster. */
+const INTENT_STOPWORDS = new Set([
+  "in", "for", "the", "of", "a", "an", "and", "to", "is", "are", "with", "my",
+  "we", "you", "your", "our", "best", "top", "list", "e", "2025", "2026", "2027",
+]);
+
+export function queryIntent(phrase: string): string {
+  const tokens = phrase
+    .toLowerCase()
+    .replace(/[^a-z0-9\u0600-\u06ff ]+/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    // "e-invoicing" and "e invoicing" must reduce to the same token.
+    .map((t) => t.replace(/^e-?/, "e"))
+    .map((t) => INTENT_SYNONYMS[t] ?? t)
+    .filter((t) => !INTENT_STOPWORDS.has(t));
+  // Order carries no meaning to a searcher: "uae asp list" and "list of asps
+  // in uae" are the same request.
+  return [...new Set(tokens)].sort().join("|");
+}
+
 /** Arabic queries carry Arabic-script characters; everything else is English. */
 export function localeOf(phrase: string): "en" | "ar" {
   return /[؀-ۿ]/.test(phrase) ? "ar" : "en";

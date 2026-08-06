@@ -18,12 +18,24 @@ import {
   type FoundContact,
 } from "./prospector/crawl";
 import { buildSweepQueries, parseEmirate } from "./prospector/places";
-import { dubaiDayStart, emailDomain, normalizeEmail, rampedCap } from "./mailer";
-import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "./config";
+import { BOUNCE_HALT_RATE, dubaiDayStart, emailDomain, normalizeEmail, rampedCap } from "./mailer";
+import {
+  DEFAULT_AGENT_CONFIG,
+  PARTNER_SECTORS,
+  isPartnerSector,
+  type AgentConfig,
+} from "./config";
 import { findOwnPosition } from "./visibility/search";
 import { urlsWorthPinging } from "./visibility";
 import { safeRedirectPath, trackLinksInHtml } from "./tracking";
-import { appendSignature, composeBody, needsRecompose, textToHtml } from "./compose";
+import {
+  appendSignature,
+  composeBody,
+  ctaLabel,
+  needsRecompose,
+  previewHtml,
+  textToHtml,
+} from "./compose";
 import { LANDING_SLUGS, landingContent } from "@/content/landings";
 import {
   classifyQuery,
@@ -34,6 +46,7 @@ import {
   isHubPath,
   needsDedicatedPage,
   parseServiceAccount,
+  queryIntent,
   type SearchAnalyticsRow,
 } from "./visibility/gsc";
 import { dubaiHour, refreshIsDue } from "./maintenance";
@@ -170,6 +183,117 @@ describe("inbound email parsing", () => {
   });
 });
 
+describe("clustering search gaps", () => {
+  // Live data: 251 gap rows collapse to 68 intents, 18 of which carry 94% of
+  // the impressions. Writing one page per keyword would mean ~5 near-identical
+  // pages per question, which is the definition of a doorway page.
+  it("treats the same question asked differently as one intent", () => {
+    const same = [
+      "e invoice provider",
+      "e-invoice service providers",
+      "e invoicing companies",
+      "einvoicing solution providers",
+      "e invoicing service provider",
+    ].map(queryIntent);
+    expect(new Set(same).size).toBe(1);
+  });
+
+  it("collapses word order, plurals and the accredited/approved synonym", () => {
+    expect(queryIntent("accredited service provider uae")).toBe(
+      queryIntent("approved service providers in the UAE"),
+    );
+    expect(queryIntent("asp list uae e invoicing")).toBe(
+      queryIntent("list of ASPs for e-invoicing in UAE"),
+    );
+  });
+
+  it("keeps genuinely different questions apart", () => {
+    const pricing = queryIntent("asp pricing uae e-invoicing");
+    const penalties = queryIntent("uae e-invoicing penalties");
+    const timeline = queryIntent("uae e-invoicing timeline");
+    const netsuite = queryIntent("netsuite integration services uae");
+    const generic = queryIntent("e invoicing provider");
+    expect(new Set([pricing, penalties, timeline, netsuite, generic]).size).toBe(5);
+  });
+
+  it("does not fold every Arabic query into one bucket", () => {
+    expect(queryIntent("مزودي خدمة الفاتورة الالكترونية")).not.toBe(
+      queryIntent("غرامات الفوترة الإلكترونية"),
+    );
+  });
+});
+
+describe("who we are writing to", () => {
+  it("separates referral partners from businesses that must appoint a provider", () => {
+    // Both stay in the sweep — an accounting firm is worth writing to. The
+    // point is that it is a different conversation, and sending it the
+    // compliance pitch is what produced "a free shortlist for your SME
+    // clients" inside a sequence written for the SME.
+    for (const sector of [
+      "accounting firm",
+      "audit firm",
+      "tax consultant",
+      "business setup consultant",
+      "corporate services provider",
+      "management consultancy",
+      "ERP implementation company",
+      "IT system integrator",
+    ]) {
+      expect(isPartnerSector(sector)).toBe(true);
+    }
+    for (const sector of [
+      "freight forwarding company",
+      "general contracting company",
+      "trading company",
+      "manufacturing company",
+    ]) {
+      expect(isPartnerSector(sector)).toBe(false);
+    }
+  });
+
+  it("treats an unknown or missing sector as a direct buyer", () => {
+    // Failing closed here means the safer pitch: never assume a stranger is a
+    // partner and write to them about clients they may not have.
+    expect(isPartnerSector(null)).toBe(false);
+    expect(isPartnerSector("")).toBe(false);
+    expect(isPartnerSector("something we have never swept")).toBe(false);
+  });
+
+  it("keeps every partner sector in the swept list", () => {
+    // A sector classified as a partner but absent from the sweep would be dead
+    // configuration; one in the sweep but unclassified gets the wrong pitch.
+    const swept = new Set(DEFAULT_AGENT_CONFIG.prospectorSectors.split(",").map((s) => s.trim()));
+    for (const sector of PARTNER_SECTORS) expect(swept.has(sector)).toBe(true);
+  });
+});
+
+describe("bounce protection", () => {
+  // The rate that matters is Amazon's: review at 5%, suspension at 10%, and a
+  // suspension takes transactional mail with it. Halting at 4% leaves headroom.
+  const health = (sent: number, bounced: number) => {
+    const rate = sent ? bounced / sent : 0;
+    return { sent, bounced, rate, halted: sent >= 50 && rate > BOUNCE_HALT_RATE };
+  };
+
+  it("halts before the rate reaches Amazon's review threshold", () => {
+    expect(BOUNCE_HALT_RATE).toBeLessThan(0.05);
+    // The live figure that prompted this: 7 bounces in 109 sends.
+    expect(health(109, 7).halted).toBe(true);
+    expect(health(109, 4).halted).toBe(false);
+  });
+
+  it("ignores a rate computed from too few sends", () => {
+    // Two bounces in twenty is 10% and means nothing.
+    expect(health(20, 2).rate).toBeCloseTo(0.1);
+    expect(health(20, 2).halted).toBe(false);
+  });
+
+  it("does not halt a clean list", () => {
+    expect(health(200, 0).halted).toBe(false);
+    expect(health(0, 0).halted).toBe(false);
+  });
+});
+
 describe("composing a message at send time", () => {
   const config = { ...DEFAULT_AGENT_CONFIG, senderName: "Sam", companyAddress: "" } as AgentConfig;
   const thread = "11111111-1111-1111-1111-111111111111";
@@ -198,11 +322,21 @@ describe("composing a message at send time", () => {
     // Plain text must spell the URLs out — nowhere else to put them.
     expect(text).toContain(`/o/${thread}`);
     // HTML must not: this is what made the emails look automated.
-    expect(html).toContain(">See what applies to you</a>");
+    expect(html).toContain(">See which providers fit you</a>");
     expect(html).toContain(">unsubscribe</a>");
     // No raw URL is ever printed as visible text in the HTML part.
     const visible = html.replace(/<[^>]+>/g, " ");
     expect(visible).not.toMatch(/https?:\/\//);
+  });
+
+  it("labels links even when the body carries Windows line endings", () => {
+    // A stray \r left the "Label: URL" match failing on its end anchor, so the
+    // link silently fell back to printing the URL — the exact defect this
+    // renderer exists to remove, reappearing for some inputs only.
+    const line = `${ctaLabel(config)}: ${"https://uaeasp.ae/o/abc"}`;
+    for (const body of [line, `${line}\r`, line.replace(/\n/g, "\r\n")]) {
+      expect(textToHtml(body, track)).toContain(">See which providers fit you</a>");
+    }
   });
 
   it("labels links in legacy drafts too, from the text alone", () => {
@@ -210,10 +344,33 @@ describe("composing a message at send time", () => {
     // have to render cleanly, or fixing this would mean rewriting all of them.
     const legacy = appendSignature("Hi Layla.", config, thread);
     const html = textToHtml(legacy, track);
-    expect(html).toContain(">See what applies to you</a>");
+    expect(html).toContain(">See which providers fit you</a>");
     expect(html).toContain(">unsubscribe</a>");
     const visible = html.replace(/<[^>]+>/g, " ");
     expect(visible).not.toMatch(/https?:\/\/[^\s]{30}/);
+  });
+
+  it("previews a legacy draft the way it will actually be sent", () => {
+    // The tab says "what they will see". For a draft with no stored raw body
+    // that must mean the re-rendered HTML, not the raw-URL version it happens
+    // to have been saved with — otherwise the preview lies about 250 of them.
+    const legacyText = appendSignature("Hi Layla.", config, thread);
+    const shown = previewHtml(
+      { bodyRaw: null, bodyText: legacyText, trackToken: track },
+      config,
+      thread,
+    );
+    expect(shown).toBe(textToHtml(legacyText, track));
+    expect(shown).toContain(">See which providers fit you</a>");
+    expect(shown).toContain(">unsubscribe</a>");
+
+    // And a modern draft previews as the parts-built version.
+    const modern = previewHtml(
+      { bodyRaw: "Hi Layla.", bodyText: "ignored", trackToken: track },
+      config,
+      thread,
+    );
+    expect(modern).toBe(composeBody("Hi Layla.", config, thread, track).html);
   });
 
   it("recognises a message written before the wrapper was separable", () => {

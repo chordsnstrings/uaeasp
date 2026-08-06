@@ -16,7 +16,7 @@ import { getSalesNotifyEmails, sendEmail } from "@/lib/email";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { appendSignature, textToHtml } from "../compose";
 import { appointmentDeadlineFor, mandateTimelineLines } from "@/content/mandate";
-import { getAgentConfig, type AgentConfig } from "../config";
+import { getAgentConfig, isPartnerSector, type AgentConfig } from "../config";
 import {
   isSuppressed,
   normalizeEmail,
@@ -47,6 +47,29 @@ ${mandateTimelineLines()
 - Our directory at uaeasp.ae lists every accredited provider and is free to use.
 - We are an independent directory. We are not the Ministry of Finance, the FTA, or a provider ourselves.`;
 
+/**
+ * What we are actually asking this recipient for.
+ *
+ * An accounting firm and a freight forwarder are both worth writing to, and
+ * both are in the sweep, but they are not the same conversation. The firm's
+ * own invoices are the small version of it: what matters is the hundred-odd
+ * clients who will ask them which provider to use. Writing one email for both
+ * is how the outreach ended up sending "a free shortlist for your SME clients"
+ * inside a sequence built to persuade a company to fix its own compliance.
+ */
+function audienceRules(partner: boolean): string {
+  if (!partner) {
+    return `AUDIENCE — this company will have to appoint a provider itself.
+- Write about their own invoicing: their volume, their systems, their deadline.
+- The value is that choosing between 42 accredited providers is genuinely hard and we have already done the comparison.`;
+  }
+  return `AUDIENCE — this is a professional-services firm. Their clients are the ones who will need providers, and this firm is who those clients will ask.
+- Do NOT pitch them a shortlist for their own invoices. That is the small version of the conversation and it reads as though we have not understood what they do.
+- Write to them as the adviser they are: their clients are about to ask them which accredited provider to use, and they will need an answer that is current.
+- The offer is that we keep the accredited list current and will put together shortlists for their clients, free, under their name if they want it.
+- Their own compliance may be worth one clause at most. It is not the subject.`;
+}
+
 function systemPrompt(config: AgentConfig, step: number): string {
   return `You write short B2B emails for ${config.companyLegalName || SITE_NAME}, an independent directory of UAE Ministry of Finance accredited e-invoicing service providers.
 
@@ -59,12 +82,13 @@ ${MANDATE_FACTS}
 Writing rules:
 - Plain text. No HTML, no markdown, no bullet symbols beyond "-".
 - 90 words maximum for a first touch, 60 for a follow-up. Shorter is better.
-- One clear ask. No stacked questions.
+- End on the consequence for them. Do NOT write a call to action of any kind — no "reply with", "let me know", "get in touch", "tell us", "send me". One is appended automatically, and a second ask cancels the first.
 - Address a real business problem: they will need an accredited provider before their deadline and choosing one is confusing.
 - British English. Professional, direct, no hype, no "I hope this email finds you well", no "revolutionary", no emojis, no exclamation marks.
 - Never claim we are government, never imply enforcement, never invent a deadline specific to them beyond the two published waves.
 - Never invent facts about the recipient's company. Use only what is given.
-- Do not add a signature or sign-off block — one is appended automatically.
+- Do not add a signature, sign-off or link — a signature, one link and an opt-out are all appended automatically.
+- Three or four sentences: what you can see about them, why the mandate touches that specifically, what it costs them to leave it late. Then stop.
 
 Personalisation — this is the part that decides whether the email works:
 - Open by naming something specific and verifiable about THIS company, drawn from the facts supplied below. What they actually do, where they operate, the systems they run, something they are known for.
@@ -146,10 +170,19 @@ export const startSequence: AgentHandler = async (task, ctx) => {
     .limit(1);
   if (existing) return { itemsIn: 1, itemsOut: 0, summary: { reason: "already sequenced" } };
 
+  // Only addresses whose domain resolved to a live MX record. "risky" means
+  // the DNS lookup failed or timed out, and mailing those is a large part of
+  // how a 6.4% bounce rate happens — which is the number that gets a sending
+  // account suspended, taking transactional mail down with it.
   const [contact] = await db
     .select()
     .from(prospectContacts)
-    .where(eq(prospectContacts.prospectId, prospectId))
+    .where(
+      and(
+        eq(prospectContacts.prospectId, prospectId),
+        eq(prospectContacts.verification, "mx_ok"),
+      ),
+    )
     .orderBy(asc(prospectContacts.priority))
     .limit(1);
   if (!contact) return { itemsIn: 1, itemsOut: 0, summary: { reason: "no contact" } };
@@ -209,6 +242,7 @@ function prospectBrief(
   step: number,
   contactRole: string | null = null,
 ): string {
+  const partner = isPartnerSector(prospect.sector);
   const profile = (prospect.profile ?? null) as ProspectProfile | null;
   const lines = [
     `Company: ${prospect.name}`,
@@ -232,6 +266,7 @@ function prospectBrief(
   } else {
     lines.push("", "We could not read their website. Keep it short and do not pretend to know them.");
   }
+  lines.push("", audienceRules(partner));
   lines.push("", step > 0 ? `This is follow-up number ${step}.` : "This is the first contact.");
   return lines.join("\n");
 }

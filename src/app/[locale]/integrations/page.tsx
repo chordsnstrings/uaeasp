@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { INTEGRATION_SYSTEMS, INTEGRATION_COPY } from "@/content/integrations";
+import {
+  INTEGRATION_PAGE_KEYS,
+  INTEGRATION_SYSTEMS,
+  INTEGRATION_COPY,
+} from "@/content/integrations";
 import { getActiveProviderCount } from "@/lib/data";
 import { pageMetadata } from "@/lib/metadata";
 import type { Locale } from "@/lib/site";
@@ -58,6 +62,17 @@ export default async function IntegrationsPage({
                   </span>
                 </div>
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-ink-600">{c.blurb}</p>
+                {/* A system with its own page gets a link to it. The hub can
+                    describe twelve things; only a dedicated page can rank for
+                    one of them. */}
+                {INTEGRATION_PAGE_KEYS.includes(sys.key) && (
+                  <Link
+                    href={`/integrations/${sys.key}`}
+                    className="mt-3 inline-flex text-sm font-semibold text-brand-700 hover:text-brand-800"
+                  >
+                    {sys.name} e-invoicing in detail →
+                  </Link>
+                )}
                 <dl className="mt-4 space-y-2 border-t border-ink-100 pt-4 text-sm">
                   <div className="flex gap-2">
                     <dt className="shrink-0 font-semibold text-ink-800">{t("routeLabel")}</dt>

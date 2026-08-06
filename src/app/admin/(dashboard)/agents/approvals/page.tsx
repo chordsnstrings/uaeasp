@@ -4,6 +4,8 @@ import { asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { outreachMessages, outreachThreads, prospects } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { getAgentConfig } from "@/lib/agents/config";
+import { previewHtml } from "@/lib/agents/compose";
 import { ApprovalCard, ApproveAllForm } from "@/components/admin/AgentConsole";
 import {
   Badge,
@@ -64,7 +66,8 @@ export default async function ApprovalsPage() {
   const session = await auth();
   if (session?.user?.role !== "admin") redirect("/admin");
 
-  const [rows, pendingTotal, bulkCounts] = await Promise.all([
+  const [config, rows, pendingTotal, bulkCounts] = await Promise.all([
+    getAgentConfig(),
     db
       .select({
         message: outreachMessages,
@@ -290,7 +293,9 @@ export default async function ApprovalsPage() {
                           id: message.id,
                           subject: message.subject,
                           bodyText: message.bodyText,
-                          bodyHtml: message.bodyHtml,
+                          // Rendered the way the send path will render it,
+                          // not the way it happened to be stored.
+                          bodyHtml: previewHtml(message, config, thread.token),
                           toEmail: message.toEmail ?? thread.toEmail,
                           campaign: thread.campaign,
                           company: prospectName,
