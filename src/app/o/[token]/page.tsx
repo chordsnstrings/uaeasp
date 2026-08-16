@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { OutreachAnalytics, ShortlistRequest } from "@/components/outreach/ShortlistRequest";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { outreachThreads, prospects } from "@/db/schema";
@@ -79,6 +80,7 @@ export default async function OutreachLandingPage({
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
+      <OutreachAnalytics />
       <p className="stamp text-[11px] uppercase tracking-[0.12em] text-brand-700">
         Prepared for {company}
       </p>
@@ -168,20 +170,19 @@ export default async function OutreachLandingPage({
           will send back the three accredited providers that fit, with what each would need
           from you. Free, and we are not a provider.
         </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Link
-            href="/get-matched"
-            className="press rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white"
-          >
-            Get my shortlist
-          </Link>
-          <Link
-            href="/providers"
-            className="press rounded-xl border border-ink-300 bg-white px-5 py-3 text-sm font-semibold text-ink-700"
-          >
-            Browse all {count} providers
-          </Link>
+        {/* The ask lives here rather than behind a link. Sending someone who
+            has already clicked an email to another page and an eleven-field
+            form is how thirty-six visits produced no leads. */}
+        <div className="mt-5">
+          <ShortlistRequest token={token} company={company} />
         </div>
+        <p className="mt-4 text-sm text-ink-500">
+          Or{" "}
+          <Link href="/providers" className="font-semibold text-brand-700 underline">
+            browse all {count} providers
+          </Link>{" "}
+          yourself — the full list is free and needs no details.
+        </p>
       </section>
 
       <p className="mt-8 text-xs leading-relaxed text-ink-400">

@@ -83,6 +83,8 @@ export interface AgentConfig {
   // --- Offer copy the Conversationalist pitches ---
   senderName: string;
   senderTitle: string;
+  /** A direct number in the signature. Optional, and a real commitment. */
+  senderPhone: string;
   companyLegalName: string;
   companyAddress: string;
   offerHeadline: string;
@@ -184,15 +186,18 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
 
   senderName: "",
   senderTitle: "",
+  senderPhone: "",
   companyLegalName: "UAE E-Invoicing Providers",
   companyAddress: "",
   offerHeadline: "A free shortlist of pre-approved e-invoicing providers",
   offerBody:
-    "We maintain the complete directory of the 42 e-invoicing service providers accredited by the UAE Ministry of Finance. Tell us your invoice volume and accounting system and we will send back a shortlist of the three that fit — free, no obligation.",
+    "We maintain the complete directory of every e-invoicing service provider accredited by the UAE Ministry of Finance. Tell us your invoice volume and accounting system and we will send back a shortlist of the three that fit — free, no obligation.",
   // The label on the one link the email carries. A cold email's job is to earn
   // a click, not to explain the offer, so this is a promise about what is on
   // the other side — not an instruction to do something.
-  offerCta: "See which providers fit you",
+  // No count here on purpose: the accredited list grows, and a label baked
+  // with yesterday's number is wrong in the one place we cannot correct.
+  offerCta: "The accredited providers, kept current",
   bookingLink: "",
 
   reportRecipients: "",
