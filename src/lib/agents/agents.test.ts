@@ -464,7 +464,7 @@ describe("composing a message at send time", () => {
     // Plain text must spell the URLs out — nowhere else to put them.
     expect(text).toContain(`/o/${thread}`);
     // HTML must not: this is what made the emails look automated.
-    expect(html).toContain(">See which providers fit you</a>");
+    expect(html).toContain(`>${ctaLabel(config)}</a>`);
     expect(html).toContain(">unsubscribe</a>");
     // No raw URL is ever printed as visible text in the HTML part.
     const visible = html.replace(/<[^>]+>/g, " ");
@@ -477,7 +477,7 @@ describe("composing a message at send time", () => {
     // renderer exists to remove, reappearing for some inputs only.
     const line = `${ctaLabel(config)}: ${"https://uaeasp.ae/o/abc"}`;
     for (const body of [line, `${line}\r`, line.replace(/\n/g, "\r\n")]) {
-      expect(textToHtml(body, track)).toContain(">See which providers fit you</a>");
+      expect(textToHtml(body, track)).toContain(`>${ctaLabel(config)}</a>`);
     }
   });
 
@@ -486,7 +486,7 @@ describe("composing a message at send time", () => {
     // have to render cleanly, or fixing this would mean rewriting all of them.
     const legacy = appendSignature("Hi Layla.", config, thread);
     const html = textToHtml(legacy, track);
-    expect(html).toContain(">See which providers fit you</a>");
+    expect(html).toContain(`>${ctaLabel(config)}</a>`);
     expect(html).toContain(">unsubscribe</a>");
     const visible = html.replace(/<[^>]+>/g, " ");
     expect(visible).not.toMatch(/https?:\/\/[^\s]{30}/);
@@ -503,7 +503,7 @@ describe("composing a message at send time", () => {
       thread,
     );
     expect(shown).toBe(textToHtml(legacyText, track));
-    expect(shown).toContain(">See which providers fit you</a>");
+    expect(shown).toContain(`>${ctaLabel(config)}</a>`);
     expect(shown).toContain(">unsubscribe</a>");
 
     // And a modern draft previews as the parts-built version.

@@ -11,6 +11,7 @@ import {
   type Prospect,
 } from "@/db/schema";
 import { chat, extractJson } from "@/lib/ai/chat";
+import { getActiveProviderCount } from "@/lib/data";
 import type { ProspectProfile } from "../prospector";
 import { getSalesNotifyEmails, sendEmail } from "@/lib/email";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
@@ -81,7 +82,13 @@ function audienceRules(partner: boolean): string {
 - Never suggest they are unprepared, behind, at risk of failing their clients, or that they will not have an answer when asked. Never predict what their clients will do.`;
 }
 
-function systemPrompt(config: AgentConfig, step: number): string {
+/**
+ * @param providerCount how many providers are accredited right now. Passed in
+ * rather than hardcoded: the Ministry's list changes, the site reads it live
+ * from the database everywhere else, and an email that states the wrong number
+ * is wrong in the one place we cannot correct after sending.
+ */
+function systemPrompt(config: AgentConfig, step: number, providerCount: number): string {
   return `You write short B2B emails for ${config.companyLegalName || SITE_NAME}, an independent directory of UAE Ministry of Finance accredited e-invoicing service providers.
 
 What we offer (do not exaggerate it): ${config.offerHeadline}
@@ -147,7 +154,7 @@ The brief gives you facts from the company's own website. They are there to deci
 - Phase 1, annual revenue at or above AED 50 million: appoint an accredited provider by 30 October 2026; e-invoicing live 1 January 2027.
 - Phase 2: appoint by 31 March 2027; live 1 July 2027.
 - Phase 3: live 1 October 2027. Phase 3 has no published appointment date — do not invent one.
-- Voluntary adoption has been open since 1 July 2026. E-invoices must be issued through an accredited provider in PINT AE format over Peppol. There are 42 accredited providers. Today is August 2026.
+- Voluntary adoption has been open since 1 July 2026. E-invoices must be issued through an accredited provider in PINT AE format over Peppol. There are ${providerCount} accredited providers. Today is August 2026.
 - No more than 45 words of the letter may be spent on the mandate, and only on the dates that could actually apply to this reader. Reciting all four phases to everyone is what made half of every previous draft interchangeable.
 - State dates in full, as published. Never "soon", "by 2027 deadlines", "the deadline is approaching", "before it is too late", "time is running out", and never a countdown of weeks or days.
 - Condition the date rather than asserting their phase. If the brief does not establish turnover, say so: "I do not know your turnover, so I cannot tell you whether that one is yours." Admitting the gap is honest, it is courteous, and it hands them a one-line correction to make — which is the most reliable reply hook available.
@@ -158,16 +165,16 @@ Never write, in any wording: "you may struggle", "you risk missing", "wait too l
 Never end on what delay will cost them. The calendar does not need help. The last thing before the sign-off is the ask.
 
 9. WHO WE ARE AND WHO PAYS US — once, in every first email, in about 35 words
-It must carry three things: that uaeasp.ae is an independent directory of the 42 providers accredited by the UAE Ministry of Finance; that it costs the business nothing; and how we are actually paid — providers pay us only when a business asks to be introduced to one. That last clause is not optional. A reader who cannot tell whether we are a regulator, a vendor or a scraper has nobody to reply to, and a free offer from an unknown sender with no stated model reads as bait.
+It must carry three things: that uaeasp.ae is an independent directory of the ${providerCount} providers accredited by the UAE Ministry of Finance; that it costs the business nothing; and how we are actually paid — providers pay us only when a business asks to be introduced to one. That last clause is not optional. A reader who cannot tell whether we are a regulator, a vendor or a scraper has nobody to reply to, and a free offer from an unknown sender with no stated model reads as bait.
 - One short denial clause, not three sentences of them: "not the Ministry, and not a provider ourselves". Never claim, imply or leave open the inference of official status; never imply enforcement; never suggest we act on their behalf with anyone. But do not stack a paragraph of disclaimers — it plants a suspicion the reader did not arrive with and reads as fine print lifted from an advertisement.
 - Vary the wording every time. Never vary the substance and never drop it.
 - This paragraph is also what makes the appended site line make sense. Lead into it. Never instruct them to use it: no "click", "see below", "visit", "have a look", "find out more".
 
 10. WHAT YOU MAY AND MAY NOT CLAIM ABOUT PROVIDERS
-- You may say that there are 42, that they are accredited by the Ministry of Finance, and that e-invoices must be issued through one in PINT AE over Peppol.
-- You may not assert how they differ unless the brief supplies it. "The 42 are not alike on this", "42 options are hard to navigate", "choosing between them is confusing", "some have a live connector and some need middleware" — all forbidden. That is doubt manufactured from facts we do not hold, it is the one thing a provider could write in and dispute, and the first person who replies is exactly the person who will catch it.
+- You may say that there are ${providerCount}, that they are accredited by the Ministry of Finance, and that e-invoices must be issued through one in PINT AE over Peppol.
+- You may not assert how they differ unless the brief supplies it. "The ${providerCount} are not alike on this", "${providerCount} options are hard to navigate", "choosing between them is confusing", "some have a live connector and some need middleware" — all forbidden. That is doubt manufactured from facts we do not hold, it is the one thing a provider could write in and dispute, and the first person who replies is exactly the person who will catch it.
 - Never invent a count, a ranking, a price or a named provider's capability.
-- Never claim a comparison, shortlist or document already exists unless the brief says it does. Offer to prepare it: "I will work out which of the 42 can do that and send you the list", not "I have already been through all 42 for you".
+- Never claim a comparison, shortlist or document already exists unless the brief says it does. Offer to prepare it: "I will work out which of the ${providerCount} can do that and send you the list", not "I have already been through all ${providerCount} for you".
 
 11. THE ASK
 - Exactly one thing, as the last line of the body before the sign-off. At most one question mark in the whole email.
@@ -476,9 +483,13 @@ async function writeDraft(
   contactName: string | null = null,
   contactRole: string | null = null,
 ): Promise<Draft | null> {
+  // Read live rather than assumed. The accredited list grows, the site already
+  // reads it from the database on every page, and only the email was still
+  // asserting a number from the day it was written.
+  const providerCount = await getActiveProviderCount();
   const result = await chat(
     [
-      { role: "system", content: systemPrompt(config, step) },
+      { role: "system", content: systemPrompt(config, step, providerCount) },
       { role: "user", content: prospectBrief(prospect, contactName, step, contactRole) },
     ],
     { temperature: 0.4, maxTokens: 700, job: "email" },
@@ -784,6 +795,7 @@ async function writeReply(
   config: AgentConfig,
   ctx: { addTokens: (n: number, model?: string) => void },
 ): Promise<Draft> {
+  const providerCount = await getActiveProviderCount();
   const history = await db
     .select({
       direction: outreachMessages.direction,
@@ -803,7 +815,7 @@ async function writeReply(
     [
       {
         role: "system",
-        content: `${systemPrompt(config, 1)}
+        content: `${systemPrompt(config, 1, providerCount)}
 
 You are now replying inside an existing conversation. The classified intent of their last message is "${intent}".
 - interested: confirm the next step and ask only for invoice volume and accounting software if not already given. Mention a colleague will follow up.
