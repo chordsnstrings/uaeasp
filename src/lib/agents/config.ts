@@ -195,7 +195,7 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   // The label on the one link the email carries. A cold email's job is to earn
   // a click, not to explain the offer, so this is a promise about what is on
   // the other side — not an instruction to do something.
-  offerCta: "See which providers fit you",
+  offerCta: "The 42 accredited providers, kept current",
   bookingLink: "",
 
   reportRecipients: "",

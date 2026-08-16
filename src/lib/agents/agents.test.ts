@@ -307,6 +307,112 @@ describe("bounce protection", () => {
   });
 });
 
+const APPROVED_SAMPLES = [
+  {
+    "name": "direct buyer",
+    "prospect": {
+      "name": "Gulf Marine Agencies",
+      "emirate": "dubai",
+      "profile": null
+    },
+    "contactName": null,
+    "step": 0,
+    "body": "Dear Gulf Marine Agencies team,\n\nI am writing about the step in the UAE e-invoicing mandate that carries a date this year: appointing an accredited provider.\n\nWhere a company invoices from a free zone entity and a mainland one, the question that decides the shortlist is whether a single accredited provider can issue for both, or whether the appointment has to be made twice. If that is how Gulf Marine is arranged, it is worth settling before the appointment rather than after.\n\nBusinesses at or above AED 50 million in annual revenue appoint by 30 October 2026 and issue from 1 January 2027. I do not know your turnover, so I cannot tell you whether that one is yours.\n\nuaeasp.ae is an independent directory of the 42 accredited providers \u2014 not the Ministry, and not a provider ourselves. It costs you nothing: providers pay us only when a business asks to be introduced.\n\nIf you tell me roughly how many invoices a month the two entities raise between them, I will work out which of the 42 can cover both and send you that.\n\nKind regards,"
+  },
+  {
+    "name": "referral partner",
+    "prospect": {
+      "name": "Al Waha",
+      "emirate": "dubai",
+      "profile": null
+    },
+    "contactName": "Rashid",
+    "step": 0,
+    "body": "Dear Rashid,\n\nYou will know the outline of the mandate already, so I will keep to the part that lands on your clients.\n\nIf you keep most clients' books in Tally rather than a large ERP, this is largely one question answered once instead of client by client: which of the 42 accredited providers will work with what you already run.\n\nThe clients who raise it first will be those at or above AED 50 million: appointment by 30 October 2026, issuing from 1 January 2027.\n\nuaeasp.ae is an independent directory of those 42 \u2014 not the Ministry, and not a provider. It is free to you and to your clients; providers pay us only when a business asks to be introduced.\n\nWhat I would propose is narrow. Send me a client's invoice volume and accounting system and I will come back with the ones that fit, and why \u2014 under Al Waha's name rather than mine if you would rather. What I send goes to you, not to your client.\n\nShall I start with the Tally shortlist and send you that?\n\nKind regards,"
+  },
+  {
+    "name": "follow-up",
+    "prospect": {
+      "name": "Gulf Marine Agencies",
+      "emirate": "dubai",
+      "profile": null
+    },
+    "contactName": null,
+    "step": 1,
+    "body": "Dear Gulf Marine Agencies team,\n\nI wrote earlier about appointing an accredited provider. There is one distinction I should have drawn then.\n\n30 October 2026 is the date for appointing a provider, not for going live \u2014 that is 1 January 2027. The work between the two, connecting the provider to your accounts, mapping invoices to PINT AE and settling how the JAFZA and mainland entities each issue, falls in November and December.\n\nIs this your desk, or should I be writing to a colleague? If you would rather I did not write again, tell me and I will stop.\n\nKind regards,"
+  },
+  {
+    "name": "thin brief",
+    "prospect": {
+      "name": "Falcon Star Trading",
+      "emirate": null,
+      "profile": null
+    },
+    "contactName": null,
+    "step": 0,
+    "body": "Dear Falcon Star Trading team,\n\nI am writing about appointing an accredited e-invoicing provider, which is the step in the mandate with a date on it this year.\n\nI will be straight with you: I could not learn much from your website about how you raise invoices, so I am not going to pretend to know which of the 42 accredited providers would suit you.\n\nWhat I can give you is the calendar. Businesses at or above AED 50 million in annual revenue appoint by 30 October 2026 and issue from 1 January 2027. Below that, appointment is by 31 March 2027 and issuing starts 1 July 2027.\n\nuaeasp.ae is an independent directory of all 42 \u2014 not the Ministry, and not a provider ourselves. It is free; providers pay us only when a business asks to be introduced.\n\nIf you tell me what you raise invoices in and roughly how many a month, I will work out the few that fit and send them over.\n\nKind regards,"
+  }
+] as const;
+
+describe("what the outreach may sound like", () => {
+  // The five emails that actually went out all opened "You provide…", recited
+  // the recipient's own website back at them, and closed on invented worry
+  // ("wait too long, and you might not have the answer"). 1,096 sent, 380
+  // opened, 51 clicked, zero replies. These cases pin the shape that replaced
+  // them, using the samples the rewrite was approved on.
+  const prospect = { name: "Gulf Marine Agencies", emirate: "dubai", profile: null };
+
+  it("rejects an email with no greeting", () => {
+    const body = "You provide port agency services across Fujairah and Dubai. Gulf Marine will need a provider.";
+    expect(personalisationEvidence(body, prospect, null).ok).toBe(false);
+  });
+
+  it("rejects an opening that recites their own business", () => {
+    for (const opener of [
+      "Dear Gulf Marine Agencies team,\n\nYou provide port agency and logistics services.",
+      "Dear team,\n\nWith 37 years in IT and 4,300+ projects delivered, Gulf Marine…",
+      "Dear Gulf Marine Agencies team,\n\nAs a leading logistics provider, Gulf Marine…",
+    ]) {
+      const verdict = personalisationEvidence(opener, prospect, null);
+      expect(verdict.ok).toBe(false);
+    }
+  });
+
+  it("rejects manufactured urgency wherever it appears", () => {
+    const body =
+      "Dear Gulf Marine Agencies team,\n\nI am writing about appointing a provider in Dubai. " +
+      "Wait too long, and you might not have the answer when they need it.";
+    expect(personalisationEvidence(body, prospect, null).reason).toBe("manufactured urgency");
+  });
+
+  it("accepts an email that admits it knows little, without a specific detail", () => {
+    // The honest letter for a company whose site told us nothing. Under the old
+    // check this failed for having "no company-specific detail", which is what
+    // pushed the writer into inventing one.
+    const body =
+      "Dear Gulf Marine Agencies team,\n\nI could not learn much from your website about how " +
+      "you raise invoices, so I am not going to pretend to know which of the 42 would suit you.";
+    expect(personalisationEvidence(body, { name: "Gulf Marine Agencies" }, null).ok).toBe(true);
+  });
+
+  it("accepts the approved samples", () => {
+    // The four emails the rewrite was signed off on, checked against the guards
+    // they were written to satisfy. Each carries the prospect it was written
+    // for — the partner sample greets a person, so the firm cannot be read out
+    // of the salutation.
+    const approved = APPROVED_SAMPLES;
+    for (const sample of approved) {
+      const verdict = personalisationEvidence(
+        sample.body,
+        sample.prospect,
+        sample.contactName,
+        sample.step,
+      );
+      expect([sample.name, verdict]).toEqual([sample.name, { ok: true }]);
+    }
+  });
+});
+
 describe("composing a message at send time", () => {
   const config = { ...DEFAULT_AGENT_CONFIG, senderName: "Sam", companyAddress: "" } as AgentConfig;
   const thread = "11111111-1111-1111-1111-111111111111";
@@ -937,13 +1043,13 @@ describe("outreach personalisation", () => {
 
   it("accepts a draft that cites a fact from their own site", () => {
     const body =
-      "Hello Ahmed,\n\nGulf Freight Systems clears customs at Jebel Ali, so your invoice volume will make the provider choice matter.";
+      "Dear Ahmed,\n\nGulf Freight Systems clears customs at Jebel Ali, so your invoice volume will make the provider choice matter.";
     expect(personalisationEvidence(body, prospect, "Ahmed").ok).toBe(true);
   });
 
   it("rejects a mail-merge draft that only knows the company name", () => {
     const body =
-      "Hello,\n\nUnder the UAE e-invoicing mandate, businesses like Gulf Freight Systems LLC need an accredited service provider.";
+      "Dear Gulf Freight Systems team,\n\nUnder the UAE e-invoicing mandate, businesses like Gulf Freight Systems LLC need an accredited service provider.";
     const result = personalisationEvidence(body, prospect, null);
     expect(result.ok).toBe(false);
     expect(result.reason).toBe("no company-specific detail");
@@ -961,18 +1067,19 @@ describe("outreach personalisation", () => {
   });
 
   it("rejects a draft that never names the company at all", () => {
-    expect(personalisationEvidence("Hello, we maintain a directory.", prospect, null)).toEqual({
-      ok: false,
-      reason: "does not name the company",
-    });
+    expect(
+      personalisationEvidence("Dear Sadiq & Partners,\n\nWe maintain a directory.", prospect, null),
+    ).toEqual({ ok: false, reason: "does not name the company" });
   });
 
   it("counts the contact's own name as evidence we looked", () => {
     const bare = { name: "Acme Trading", emirate: null, profile: null };
-    expect(personalisationEvidence("Hi Fatima, Acme Trading — quick one.", bare, "Fatima").ok).toBe(
+    expect(personalisationEvidence("Dear Fatima,\n\nAcme Trading — quick one.", bare, "Fatima").ok).toBe(
       true,
     );
-    expect(personalisationEvidence("Hello, Acme Trading — quick one.", bare, null).ok).toBe(false);
+    expect(
+      personalisationEvidence("Dear Acme Trading team,\n\nAcme Trading — quick one.", bare, null).ok,
+    ).toBe(false);
   });
 
   it("does not mistake a title or a shared mailbox for a person's name", () => {

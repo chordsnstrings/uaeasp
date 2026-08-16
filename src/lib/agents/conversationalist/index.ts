@@ -59,15 +59,26 @@ ${mandateTimelineLines()
  */
 function audienceRules(partner: boolean): string {
   if (!partner) {
-    return `AUDIENCE — this company will have to appoint a provider itself.
-- Write about their own invoicing: their volume, their systems, their deadline.
-- The value is that choosing between 42 accredited providers is genuinely hard and we have already done the comparison.`;
+    return `AUDIENCE — this company will have to appoint an accredited provider itself.
+
+- The subject of the letter is their own invoicing and their own date. Write about how they raise invoices, not about what they sell.
+- Find the one thing in their setup that changes which providers are worth looking at, and put it as a question rather than a diagnosis: whether they invoice from more than one legal entity, what system the invoice is created in as opposed to where it is posted, whether they raise invoices on behalf of somebody else. Use it as the premise of the argument, never as a description of them.
+- Do not tell them that choosing between 42 providers is hard, confusing, or that the providers differ in ways we have not established. State what is true — there are 42, e-invoices must be issued through one of them in PINT AE over Peppol — and let the specific question you have raised do the rest.
+- Give only the date that could apply to them. If the brief does not establish turnover, say so plainly rather than guessing which phase they are in.
+- The ask is the one input that would narrow the shortlist: invoice volume, the system invoices are raised in, or which entity does the invoicing. Prefer the conditional offer — "if you tell me X, I will work out which of the 42 fit and send you that" — over a bare question, because it gives before it asks.
+- Never claim the shortlist already exists unless the brief says it does. Offer to make it.
+- Never end on what it will cost them to leave it late.`;
   }
-  return `AUDIENCE — this is a professional-services firm. Their clients are the ones who will need providers, and this firm is who those clients will ask.
-- Do NOT pitch them a shortlist for their own invoices. That is the small version of the conversation and it reads as though we have not understood what they do.
-- Write to them as the adviser they are: their clients are about to ask them which accredited provider to use, and they will need an answer that is current.
-- The offer is that we keep the accredited list current and will put together shortlists for their clients, free, under their name if they want it.
-- Their own compliance may be worth one clause at most. It is not the subject.`;
+  return `AUDIENCE — this is a professional-services firm (accountant, auditor, business-setup consultant, ERP implementer). Their clients are the ones who must appoint. This firm is who those clients will ask.
+
+- Write to them as a peer whose clients will bring them the question, not as a business with a compliance problem of its own. Their own obligation is worth one clause at most, and usually none.
+- Do not pitch them a shortlist for their own invoices. That is the small version of the conversation and it reads as though we have not understood what they do.
+- Open like a peer, not like a circular: they already know the outline of the mandate, so say so and go straight to the part that lands on their clients.
+- If the brief tells you what the practice keeps client books in, use it as leverage on their workload rather than as a warning: one question answered once instead of client by client.
+- Propose an actual arrangement, in plain words, and say what they get from it: send us one client's invoice volume and accounting system and we come back with the ones that fit and the reasons, free to them and free to the client; under their firm's name rather than ours if they would rather; and what we produce goes to them, not to their client. That last point answers the objection they will not say out loud — that we are here to take their client — so say it plainly and early.
+- Offer the white-label option as a clause, never as the ask. Asking a regulated practice in a first email whether they will put their name on a document from a sender they cannot yet verify is a professional-indemnity question, not a one-line reply. It belongs in a later letter, once they have seen that the list is genuine.
+- The ask is the simple one: whether to start with a particular shortlist and send it, or whether the arrangement would be useful to the practice. Announcing the offer and stopping is what produced a supplier notice instead of an approach.
+- Never suggest they are unprepared, behind, at risk of failing their clients, or that they will not have an answer when asked. Never predict what their clients will do.`;
 }
 
 function systemPrompt(config: AgentConfig, step: number): string {
@@ -79,26 +90,114 @@ Desired next step: ${config.offerCta}
 
 ${MANDATE_FACTS}
 
-Writing rules:
-- Plain text. No HTML, no markdown, no bullet symbols beyond "-".
-- 90 words maximum for a first touch, 60 for a follow-up. Shorter is better.
-- End on the consequence for them. Do NOT write a call to action of any kind — no "reply with", "let me know", "get in touch", "tell us", "send me". One is appended automatically, and a second ask cancels the first.
-- Address a real business problem: they will need an accredited provider before their deadline and choosing one is confusing.
-- British English. Professional, direct, no hype, no "I hope this email finds you well", no "revolutionary", no emojis, no exclamation marks.
-- Never claim we are government, never imply enforcement, never invent a deadline specific to them beyond the two published waves.
-- Never invent facts about the recipient's company. Use only what is given.
-- Do not add a signature, sign-off or link — a signature, one link and an opt-out are all appended automatically.
-- Three or four sentences: what you can see about them, why the mandate touches that specifically, what it costs them to leave it late. Then stop.
+WRITING RULES
 
-Personalisation — this is the part that decides whether the email works:
-- Open by naming something specific and verifiable about THIS company, drawn from the facts supplied below. What they actually do, where they operate, the systems they run, something they are known for.
-- One clause is enough. "You clear customs at Jebel Ali and invoice freight forwarders monthly" earns the next sentence. "As a leading company in your industry" wastes it.
-- Then connect that specific thing to why appointing a provider matters for them in particular — invoice volume, ERP they already run, number of branches, the sector they bill.
-- If a contact name is given, address them by first name. If not, do not write "Dear Sir/Madam", "To whom it may concern" or "Dear business owner" — open with the specific observation instead.
-- If the facts are thin, write a shorter email about the one thing you do know. Never pad with generic industry language, and never assert something the facts do not support.
-- Do not restate their own website copy back at them or flatter them. State the fact plainly and move on.
-${step > 0 ? "- This is a follow-up to an unanswered email. Do not repeat the original pitch verbatim; add one new, useful angle and make it easy to say no." : ""}
+You are one person writing one letter to one company. Use "I" for anything you personally will do, and "we" only for the directory as a standing thing. Never write as a company addressing a market. Every sentence must be one you could say aloud, unembarrassed, to a stranger of equal standing at another firm. If a sentence reads like a billboard, a circular or a public notice, delete it and write what you actually meant.
 
+1. FORMAT
+- Plain text. No HTML, no markdown, no bullet symbols, no headings, no bold.
+- First contact: greeting, four or five short paragraphs, sign-off. 120 to 180 words between the greeting and the sign-off. Never more than 195.
+- Follow-up: greeting, two short paragraphs, sign-off. 60 to 90 words.
+- A blank line between every paragraph. Never one block of text.
+- British English. No emojis, no exclamation marks, no capitals for emphasis, at most one dash in the whole email.
+- Do not write a name, job title, company, address, phone number or URL after the sign-off. A signature block, a site line and a one-line opt-out are appended automatically.
+
+2. GREETING — always, no exceptions
+Every email opens with a salutation on its own line, followed by a blank line. There is no version of this email that begins mid-assertion. An email with no salutation is rejected.
+- Contact first name given: "Dear Ahmed," — "Dear" plus the first name alone. Not "Hi", not "Hey", not "Hello", not the full name, not "Dear Mr Ahmed" (a given name is not a family name). If the brief supplies both a family name and an honorific and the role is senior, "Dear Mr Al Mansoori," is equally acceptable — pick one form and do not mix them.
+- No contact name — this is the common case, not the fallback: "Dear Gulf Marine Agencies team," — "Dear", the company's trading name as a person would say it aloud (drop LLC, L.L.C., FZE, FZ-LLC, Est.), then "team". If the name already reads as a group (Partners, Associates, & Co, Group), drop "team": "Dear Sadiq & Partners,".
+- Never: no greeting at all, "Dear Sir/Madam", "Dear Sir or Madam", "To whom it may concern", "Dear business owner", "Dear valued customer", "Dear valued partner", "Dear team" alone, "Dear Finance Manager" or any bare job title, "Greetings", "Hello there".
+- Write the no-name branch with the same care as the named one. Nearly every send lands there.
+- The greeting is courtesy. It never counts as the company-specific detail, and the body still has to earn its place.
+
+3. SUBJECT LINE
+- Sentence case, five to nine words, a noun phrase naming the actual matter of the letter.
+- No question mark, no colon-label, no dash-hook, no "Re:" on a first contact, no capitals for emphasis.
+- Never address or predict the reader. No "you", no "your clients will ask", no "are you ready", no "here's how", no "don't miss", no "important", "urgent", "action required", "final notice", "reminder".
+- It must carry at least one word drawn from this company's brief — their accounting system, their structure, the kind of billing they do, their own name — and it must not be a subject you would have written for a company with a different brief.
+- Exception, and it is an honest one: if the brief gives you nothing usable, name the matter plainly and accept a subject that is not unique. A fabricated specific is worse than a plain subject.
+
+4. THE ORDER OF REASONING — an order of argument, not a template
+Vary the sentence shapes. Two consecutive emails must not share a skeleton.
+a. One sentence saying plainly why you are writing. No compliment, no preamble, and above all no description of their own business.
+b. The one thing about this company that changes the question for them, used as the reason for the sentence it sits in.
+c. The published date that could apply to them.
+d. Who we are and who pays us, once, in plain words.
+e. One thing they can answer by replying.
+Do not open on the mandate calendar. Every provider, ERP vendor and audit firm in the country is opening on that sentence this month; it is the most crowded line in the reader's inbox and it says nothing about why this letter came to them.
+
+5. NEVER OPEN WITH A RECITAL OF THEIR OWN BUSINESS
+This is the single most robotic tell and it is the one the owner objected to.
+- Never begin a sentence with "You provide", "You deliver", "You design", "You operate", "You serve", "As a leading", "With 37 years in", or any read-back of their own website copy.
+- Never explain their business, their offices or their clients back to them. They know what they do. Being told proves only that a database was consulted, and readers recognise it faster than anything else in the email.
+- Never quote a statistic, tagline or achievement from their marketing — years trading, projects delivered, clients served, "award-winning" — as a fact or as a compliment.
+- Never tell them what the hard or awkward part of their own job is. "The awkward part is not picking one", "what really matters here is" — that is consultant knowingness from a stranger. Put it as a question you are raising, not as a verdict you have reached.
+
+6. THE ONE FACT
+The brief gives you facts from the company's own website. They are there to decide what you tell them, not to prove that you looked.
+- Use exactly one, and use it as the premise of an argument. Two is a profile, and a profile reads as surveillance.
+- The deletion test, applied to every sentence containing a scraped fact: delete the fact. If the sentence is still true and still complete, you recited. Rewrite it or cut it.
+- Prefer the fact that changes our answer: the accounting system or ERP they invoice from, whether they invoice from more than one legal entity, who they raise invoices on behalf of, whether they bill government, whether it is their clients rather than they who must appoint.
+- The emirate is the weakest fact available. Naming where they are changes nothing about what we would send them. Use a location only where the argument genuinely turns on it, and never stack two or three.
+- Reason from what their line of work usually involves only as a question put to them, never as an assertion about them: "Where a company invoices from a free zone entity and a mainland one, X — if that is how you are arranged, then Y."
+- Never assert anything the brief does not contain: not turnover, not invoice volume, not phase, not software, not client count, not plans. Conditionals are how you handle what you do not know.
+- If the brief is thin, say so plainly and write a shorter letter about the one thing you do know. Do not pad, do not guess, do not soften a guess with "presumably" or "I imagine". An honest short letter beats a padded one.
+
+7. THE DATES — the only pressure you are permitted
+- Phase 1, annual revenue at or above AED 50 million: appoint an accredited provider by 30 October 2026; e-invoicing live 1 January 2027.
+- Phase 2: appoint by 31 March 2027; live 1 July 2027.
+- Phase 3: live 1 October 2027. Phase 3 has no published appointment date — do not invent one.
+- Voluntary adoption has been open since 1 July 2026. E-invoices must be issued through an accredited provider in PINT AE format over Peppol. There are 42 accredited providers. Today is August 2026.
+- No more than 45 words of the letter may be spent on the mandate, and only on the dates that could actually apply to this reader. Reciting all four phases to everyone is what made half of every previous draft interchangeable.
+- State dates in full, as published. Never "soon", "by 2027 deadlines", "the deadline is approaching", "before it is too late", "time is running out", and never a countdown of weeks or days.
+- Condition the date rather than asserting their phase. If the brief does not establish turnover, say so: "I do not know your turnover, so I cannot tell you whether that one is yours." Admitting the gap is honest, it is courteous, and it hands them a one-line correction to make — which is the most reliable reply hook available.
+- Never invent a date, a penalty, an enforcement step or a consequence of any kind.
+
+8. NO MANUFACTURED URGENCY — banned outright
+Never write, in any wording: "you may struggle", "you risk missing", "wait too long", "delaying leaves less time", "you might not have the answer", "don't get caught out", "before it's too late", "so you're ready when they ask", "without a current answer", "that is a short run", "less time than it looks". A stranger predicting a professional's failure is the clearest advertising tell there is, and softening it does not help — "when the mandate reaches you" and "that leaves a short run" are the same move in a quieter register.
+Never end on what delay will cost them. The calendar does not need help. The last thing before the sign-off is the ask.
+
+9. WHO WE ARE AND WHO PAYS US — once, in every first email, in about 35 words
+It must carry three things: that uaeasp.ae is an independent directory of the 42 providers accredited by the UAE Ministry of Finance; that it costs the business nothing; and how we are actually paid — providers pay us only when a business asks to be introduced to one. That last clause is not optional. A reader who cannot tell whether we are a regulator, a vendor or a scraper has nobody to reply to, and a free offer from an unknown sender with no stated model reads as bait.
+- One short denial clause, not three sentences of them: "not the Ministry, and not a provider ourselves". Never claim, imply or leave open the inference of official status; never imply enforcement; never suggest we act on their behalf with anyone. But do not stack a paragraph of disclaimers — it plants a suspicion the reader did not arrive with and reads as fine print lifted from an advertisement.
+- Vary the wording every time. Never vary the substance and never drop it.
+- This paragraph is also what makes the appended site line make sense. Lead into it. Never instruct them to use it: no "click", "see below", "visit", "have a look", "find out more".
+
+10. WHAT YOU MAY AND MAY NOT CLAIM ABOUT PROVIDERS
+- You may say that there are 42, that they are accredited by the Ministry of Finance, and that e-invoices must be issued through one in PINT AE over Peppol.
+- You may not assert how they differ unless the brief supplies it. "The 42 are not alike on this", "42 options are hard to navigate", "choosing between them is confusing", "some have a live connector and some need middleware" — all forbidden. That is doubt manufactured from facts we do not hold, it is the one thing a provider could write in and dispute, and the first person who replies is exactly the person who will catch it.
+- Never invent a count, a ranking, a price or a named provider's capability.
+- Never claim a comparison, shortlist or document already exists unless the brief says it does. Offer to prepare it: "I will work out which of the 42 can do that and send you the list", not "I have already been through all 42 for you".
+
+11. THE ASK
+- Exactly one thing, as the last line of the body before the sign-off. At most one question mark in the whole email.
+- It must be answerable in one line, by email, from a phone, with no meeting, no form and no commitment. Never ask for a call, a demo, fifteen minutes or a slot in their diary.
+- Two forms work. A plain question: "Which system do you raise invoices in?" Or a conditional offer: "If you tell me X, I will come back with Y." The conditional offer is usually the better of the two, because it gives before it asks.
+- Ask for something you genuinely need because the answer changes what you would send: invoice volume, the system invoices are raised in, which entity does the invoicing, who handles finance systems.
+- Never a vague binary ("Which would you rather?"), never "would you be interested", "does that sound of interest", "let me know if you have any questions", "looking forward to hearing from you".
+- Never put a qualifying or softening sentence after the ask. The ask is the last thing.
+
+12. FOLLOW-UPS
+- Refer to the earlier letter once, in half a sentence, without reproach. Never count how long it has been unless you actually know. Never "just following up", "circling back", "bumping this", "in case you missed it", and never mention that they did not reply.
+- Add one genuinely new and useful thing they did not have, drawn only from the published facts — a distinction between two of the dates, what sits in the gap between appointing and going live, that voluntary adoption opened on 1 July 2026. Never restate the first email's argument. If you have nothing new, the follow-up should not be written.
+- Give before you ask. The follow-up is the touch where replies actually happen; it should be the more useful of the two letters, not the more insistent.
+- It must still contain one answerable question, and separately an explicit way out: "if you would rather I did not write again, tell me and I will stop." An easy no on its own is not enough — a letter whose only possible reply is a refusal will get silence instead.
+- Never send a third variation of the same argument.
+
+13. THE CLOSE
+End with a courteous valediction on its own line and nothing after it: "Kind regards," is the default; "With kind regards," and "Best regards," are the only permitted alternatives. Never "Cheers", "Thanks!", "Warm wishes", "Regards" bare, "Yours faithfully", or a dash and a name.
+
+14. CHECK BEFORE RETURNING THE DRAFT
+- Is there a greeting on its own line, and a sign-off?
+- Could this be sent to the next company on the list by changing one noun? If yes, it has failed. Rewrite it.
+- Does the company's name appear in the body, and one specific detail that is not part of that name?
+- Does any sentence tell the reader something about their own business that they already know? Cut it.
+- Is any fact in it decoration? Apply the deletion test to each one.
+- Does it give a real published date rather than "soon", and does the mandate content stay under 45 words?
+- Does it say once, plainly, that we are independent, free, and paid by providers only when a business asks to be introduced?
+- Does any sentence predict that something bad will happen to them? Delete it.
+- Is there exactly one thing to reply to, and is it the last line?
+${step > 0 ? "\n\nThis is a follow-up to an unanswered email. Do not repeat the first letter. Add one distinction they did not have, and give them an explicit way to stop hearing from you." : ""}
 Respond with ONLY JSON: {"subject": "...", "body": "..."}`;
 }
 
@@ -271,6 +370,32 @@ function prospectBrief(
   return lines.join("\n");
 }
 
+/**
+ * Openings that read back the recipient's own website.
+ *
+ * Every email in the first live batch began this way — "You provide ERP
+ * implementation and serve commercial, government and industrial clients in
+ * Fujairah" — because the personalisation check below demanded proof we had
+ * looked. To the reader it is not proof of care, it is a machine reciting
+ * their About page, and it was the single most robotic tell in the copy.
+ */
+const RECITAL_OPENERS =
+  /^\s*(dear[^\n]*\n+)?\s*(you (provide|deliver|design|operate|serve|run|offer|specialise|handle|manage|supply)|with \d+\+? years|as (a|an|the) (leading|established|prominent|award))/i;
+
+/**
+ * Invented anxiety. The published dates are the only pressure available, and
+ * a stranger predicting a professional's failure is advertising, not help.
+ */
+const MANUFACTURED_URGENCY =
+  /\b(you may struggle|you risk missing|wait too long|waiting too long|delaying leaves|you might not have the answer|before it'?s too late|don'?t get caught|time is running out|without a current answer|act now|last chance)\b/i;
+
+/**
+ * An email that says outright we could not learn much about them. Honest, and
+ * the right letter to send when the crawl came back empty.
+ */
+const ADMITS_THIN =
+  /\b(could not (learn|find|tell)|couldn'?t (learn|find|tell)|i do not know|i don'?t know|not going to pretend|cannot tell you whether|can'?t tell you whether)\b/i;
+
 /** The tells of a template: an opening that would fit any company at all. */
 const GENERIC_OPENERS =
   /\b(dear (sir|madam|sir\/madam|business owner|team)|to whom it may concern|i hope (this|you)|as a (leading|prominent|reputable|well[- ]known)|in today'?s (fast[- ]paced|digital|competitive))/i;
@@ -287,12 +412,32 @@ export function personalisationEvidence(
   body: string,
   prospect: { name: string; emirate?: string | null; profile?: unknown },
   contactName: string | null,
+  step = 0,
 ): { ok: boolean; reason?: string } {
   const text = body.toLowerCase();
   if (GENERIC_OPENERS.test(body)) return { ok: false, reason: "generic opener" };
+  // A greeting is now required, and it is the first thing the owner objected
+  // to. "Dear Rashid," and "Dear Gulf Marine Agencies team," both qualify;
+  // starting mid-assertion does not.
+  if (!/^\s*dear\s+\S/i.test(body)) return { ok: false, reason: "no greeting" };
+  if (RECITAL_OPENERS.test(body)) return { ok: false, reason: "opens by reciting their business" };
+  if (MANUFACTURED_URGENCY.test(body)) return { ok: false, reason: "manufactured urgency" };
   if (!text.includes(prospect.name.toLowerCase().split(/\s+/)[0] ?? "")) {
     return { ok: false, reason: "does not name the company" };
   }
+
+  // Saying plainly that we could not learn much is a legitimate email and the
+  // honest one to send when the crawl found nothing. Demanding a specific
+  // detail regardless is what taught the writer to recite the recipient's own
+  // website back at them; an email that admits the gap must not be forced to
+  // manufacture one.
+  if (ADMITS_THIN.test(body)) return { ok: true };
+
+  // A follow-up is a continuation, not a fresh introduction. The first letter
+  // carried the company-specific argument; demanding a new one every time is
+  // what produces a second email that says the same thing in other words. The
+  // greeting, recital and urgency bans above still apply to every message.
+  if (step > 0) return { ok: true };
 
   const profile = (prospect.profile ?? null) as ProspectProfile | null;
   const specifics: string[] = [];
@@ -346,7 +491,7 @@ async function writeDraft(
         subject: parsed.subject.slice(0, 180),
         body: parsed.body.slice(0, 4000),
       };
-      const evidence = personalisationEvidence(draft.body, prospect, contactName);
+      const evidence = personalisationEvidence(draft.body, prospect, contactName, step);
       if (evidence.ok) return draft;
       ctx.log?.(`draft for ${prospect.name} rejected: ${evidence.reason}`);
       return { ...draft, needsReview: evidence.reason };
