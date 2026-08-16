@@ -83,6 +83,8 @@ export interface AgentConfig {
   // --- Offer copy the Conversationalist pitches ---
   senderName: string;
   senderTitle: string;
+  /** A direct number in the signature. Optional, and a real commitment. */
+  senderPhone: string;
   companyLegalName: string;
   companyAddress: string;
   offerHeadline: string;
@@ -184,6 +186,7 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
 
   senderName: "",
   senderTitle: "",
+  senderPhone: "",
   companyLegalName: "UAE E-Invoicing Providers",
   companyAddress: "",
   offerHeadline: "A free shortlist of pre-approved e-invoicing providers",

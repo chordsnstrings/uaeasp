@@ -33,6 +33,7 @@ import {
   composeBody,
   ctaLabel,
   needsRecompose,
+  senderBlock,
   previewHtml,
   textToHtml,
 } from "./compose";
@@ -310,6 +311,29 @@ describe("composing a message at send time", () => {
   const config = { ...DEFAULT_AGENT_CONFIG, senderName: "Sam", companyAddress: "" } as AgentConfig;
   const thread = "11111111-1111-1111-1111-111111111111";
   const track = "22222222-2222-2222-2222-222222222222";
+
+  it("signs with a person, a number and no repetition", () => {
+    const signed = {
+      ...DEFAULT_AGENT_CONFIG,
+      senderName: "Kamran Sarkar",
+      // The easy operator mistake: the company name typed into the title field.
+      senderTitle: "UAE E-Invoicing Providers",
+      companyLegalName: "UAE E-Invoicing Providers",
+      senderPhone: "+971 50 256 2463",
+    } as AgentConfig;
+    const block = senderBlock(signed);
+    expect(block).toContain("Kamran Sarkar");
+    // A number is the cheapest signal that a person will answer.
+    expect(block).toContain("+971 50 256 2463");
+    // …and the company must not appear twice.
+    expect(block.match(/UAE E-Invoicing Providers/g)).toHaveLength(1);
+  });
+
+  it("omits the phone line entirely when nobody will answer it", () => {
+    const block = senderBlock({ ...DEFAULT_AGENT_CONFIG, senderName: "Kamran Sarkar" } as AgentConfig);
+    expect(block).toContain("Kamran Sarkar");
+    expect(block).not.toMatch(/\+?\d{6,}/);
+  });
 
   it("wraps the writer's words with a link, a signature and an opt-out", () => {
     const text = appendSignature("Hi Layla, one thing about your deadline.", config, thread);

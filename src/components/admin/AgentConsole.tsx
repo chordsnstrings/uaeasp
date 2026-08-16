@@ -264,6 +264,12 @@ export function AgentConfigForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <Text name="senderName" label="Sender name" value={config.senderName} hint="The human the email comes from." />
           <Text name="senderTitle" label="Sender title" value={config.senderTitle} />
+          <Text
+            name="senderPhone"
+            label="Sender phone"
+            value={config.senderPhone}
+            hint="Shown under the name. Leave blank if nobody will answer it."
+          />
           <Text name="companyLegalName" label="Company name" value={config.companyLegalName} />
           <Text name="companyAddress" label="Postal address" value={config.companyAddress} hint="Shown in the signature — required by most anti-spam rules." />
           <Text name="bookingLink" label="Booking link" value={config.bookingLink} hint="Optional calendar URL." />

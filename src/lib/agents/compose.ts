@@ -14,15 +14,37 @@ import type { AgentConfig } from "./config";
  * rule instead of preserving the old one until someone notices.
  */
 
+/**
+ * The signature.
+ *
+ * A phone number sits directly under the name because it is the cheapest
+ * signal of good faith available: it says a person will answer, and it gives
+ * the recipient a way to reply that is not email. A cold message signed only
+ * by a company, with a website as the sole route back, reads as a broadcast
+ * however warm the words above it are.
+ */
 export function senderBlock(config: AgentConfig): string {
-  return [
+  const lines = [
     config.senderName,
     config.senderTitle,
+    config.senderPhone,
     config.companyLegalName || SITE_NAME,
     absoluteUrl("/"),
     config.companyAddress,
-  ]
-    .filter(Boolean)
+  ].filter(Boolean);
+
+  // An operator who puts the company name in the title field — an easy thing
+  // to do, since "UAE E-Invoicing Providers" reads like both — would otherwise
+  // sign every message with the same line twice, which is precisely the kind
+  // of small wrongness that makes a letter look machine-made.
+  const seen = new Set<string>();
+  return lines
+    .filter((line) => {
+      const key = line.trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
     .join("\n");
 }
 
