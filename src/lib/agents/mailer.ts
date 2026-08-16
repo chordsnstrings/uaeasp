@@ -70,6 +70,36 @@ export async function suppress(
     })
     .onConflictDoNothing({ target: suppressions.email });
 
+  // Record the bounce against the message that caused it.
+  //
+  // This is what makes the circuit breaker work. A hard bounce arrives
+  // asynchronously over SNS, long after the send returned success, so the
+  // message row still says "sent" — and bounceHealth, which counts "failed",
+  // read 0% while the real rate was 6.2% and climbing. The guard could never
+  // fire. Only genuine delivery failures count: an unsubscribe is a person
+  // choosing to leave, not a bad address, and folding the two together would
+  // halt sending for the wrong reason.
+  if (reason === "bounce" || reason === "complaint") {
+    const [latest] = await db
+      .select({ id: outreachMessages.id })
+      .from(outreachMessages)
+      .where(
+        and(
+          eq(outreachMessages.direction, "outbound"),
+          eq(outreachMessages.status, "sent"),
+          sql`lower(${outreachMessages.toEmail}) = ${normalized}`,
+        ),
+      )
+      .orderBy(sql`${outreachMessages.sentAt} DESC NULLS LAST`)
+      .limit(1);
+    if (latest) {
+      await db
+        .update(outreachMessages)
+        .set({ status: "failed", error: `${reason}: ${detail?.slice(0, 400) ?? "reported by SES"}` })
+        .where(eq(outreachMessages.id, latest.id));
+    }
+  }
+
   // Close any live conversation with that address so no follow-up fires.
   await db
     .update(outreachThreads)

@@ -288,6 +288,18 @@ describe("bounce protection", () => {
     expect(health(20, 2).halted).toBe(false);
   });
 
+  it("counts the bounces that actually happen", () => {
+    // The live failure: 68 bounces in 1,096 sends — 6.2%, above Amazon's 5%
+    // review threshold — while the breaker read 0% and never fired. A hard
+    // bounce arrives asynchronously over SNS, long after the send returned
+    // success, so the message row still said "sent". Only a synchronous SES
+    // rejection produced "failed", and those are rare.
+    expect(health(1096, 68).rate).toBeCloseTo(0.062, 3);
+    expect(health(1096, 68).halted).toBe(true);
+    // What the breaker was actually seeing.
+    expect(health(1096, 0).halted).toBe(false);
+  });
+
   it("does not halt a clean list", () => {
     expect(health(200, 0).halted).toBe(false);
     expect(health(0, 0).halted).toBe(false);
