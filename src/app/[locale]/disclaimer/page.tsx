@@ -48,7 +48,7 @@ export default async function DisclaimerPage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-      <h1 className="text-3xl font-extrabold tracking-tight text-ink-900">{t("title")}</h1>
+      <h1 className="text-3xl font-medium tracking-tight text-ink-900">{t("title")}</h1>
       <div className="mt-6 space-y-5 leading-relaxed text-ink-700">
         {CONTENT[locale].map((p, i) => (
           <p key={i}>{p}</p>

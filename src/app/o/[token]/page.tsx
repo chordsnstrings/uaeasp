@@ -84,7 +84,7 @@ export default async function OutreachLandingPage({
       <p className="stamp text-[11px] uppercase tracking-[0.12em] text-brand-700">
         Prepared for {company}
       </p>
-      <h1 className="font-display mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+      <h1 className="font-display mt-3 text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
         {daysLeft > 0 ? (
           <>
             You have <span className="num">{daysLeft}</span> days to appoint an accredited
@@ -98,24 +98,24 @@ export default async function OutreachLandingPage({
       <div className="mt-6 rounded-2xl border border-ink-200 bg-paper-dark p-5">
         <dl className="grid gap-4 sm:grid-cols-3">
           <div>
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-500">
+            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
               Appoint a provider by
             </dt>
-            <dd className="num mt-1 text-lg font-bold text-ink-900">{appointBy}</dd>
+            <dd className="num mt-1 text-lg font-medium text-ink-900">{appointBy}</dd>
           </div>
           <div>
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-500">
+            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
               Invoices must flow from
             </dt>
-            <dd className="num mt-1 text-lg font-bold text-ink-900">
+            <dd className="num mt-1 text-lg font-medium text-ink-900">
               {formatMandateDate(phaseInfo.goLiveIso, "en")}
             </dd>
           </div>
           <div>
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-500">
+            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
               Accredited providers
             </dt>
-            <dd className="num mt-1 text-lg font-bold text-ink-900">{count}</dd>
+            <dd className="num mt-1 text-lg font-medium text-ink-900">{count}</dd>
           </div>
         </dl>
         <p className="mt-4 text-sm leading-relaxed text-ink-600">
@@ -133,7 +133,7 @@ export default async function OutreachLandingPage({
       </div>
 
       <section className="mt-10">
-        <h2 className="font-display text-xl font-bold tracking-tight text-ink-900">
+        <h2 className="font-display text-xl font-medium tracking-tight text-ink-900">
           Three to start with
         </h2>
         <p className="mt-1 text-sm text-ink-600">
@@ -146,13 +146,13 @@ export default async function OutreachLandingPage({
         <ul className="mt-5 space-y-3">
           {shortlist.map((p) => (
             <li key={p.id} className="rounded-xl border border-ink-200 bg-white p-4">
-              <p className="font-semibold text-ink-900">{p.name}</p>
+              <p className="font-medium text-ink-900">{p.name}</p>
               {p.description && (
                 <p className="mt-1 line-clamp-2 text-sm text-ink-600">{p.description}</p>
               )}
               <Link
                 href={`/providers/${p.slug}`}
-                className="mt-2 inline-block text-sm font-semibold text-brand-700 hover:text-brand-900"
+                className="mt-2 inline-block text-sm font-medium text-brand-700 hover:text-brand-900"
               >
                 See the full profile →
               </Link>
@@ -162,7 +162,7 @@ export default async function OutreachLandingPage({
       </section>
 
       <section className="mt-10 rounded-2xl border border-brand-200 bg-brand-50/50 p-6">
-        <h2 className="font-display text-xl font-bold tracking-tight text-ink-900">
+        <h2 className="font-display text-xl font-medium tracking-tight text-ink-900">
           Get a shortlist built for {company}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-ink-700">
@@ -178,7 +178,7 @@ export default async function OutreachLandingPage({
         </div>
         <p className="mt-4 text-sm text-ink-500">
           Or{" "}
-          <Link href="/providers" className="font-semibold text-brand-700 underline">
+          <Link href="/providers" className="font-medium text-brand-700 underline">
             browse all {count} providers
           </Link>{" "}
           yourself — the full list is free and needs no details.

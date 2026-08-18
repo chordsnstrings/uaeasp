@@ -87,7 +87,7 @@ export default async function CategoryPage({
               ← {t("backToDirectory")}
             </Link>
           </nav>
-          <h1 className="mt-6 max-w-3xl text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="mt-6 max-w-3xl text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
             {copy.title}
           </h1>
           <p className="mt-4 max-w-3xl text-lg leading-relaxed text-ink-600">{copy.intro}</p>
@@ -97,7 +97,7 @@ export default async function CategoryPage({
         </FadeIn>
 
         <FadeIn>
-          <p className="mt-10 text-sm font-semibold uppercase tracking-wide text-ink-500">
+          <p className="mt-10 text-sm font-medium uppercase tracking-wide text-ink-500">
             {t("providersInCategory", { count: providers.length })}
           </p>
         </FadeIn>
@@ -124,7 +124,7 @@ export default async function CategoryPage({
         {/* Other categories — crawlable cross-links */}
         <FadeIn>
           <div className="mt-12">
-            <p className="text-sm font-semibold uppercase tracking-wide text-ink-500">
+            <p className="text-sm font-medium uppercase tracking-wide text-ink-500">
               {t("otherCategories")}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -132,14 +132,14 @@ export default async function CategoryPage({
                 <Link
                   key={c}
                   href={`/providers/category/${c}`}
-                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
+                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
                 >
                   {tc(`categories.${c}` as Parameters<typeof tc>[0])}
                 </Link>
               ))}
               <Link
                 href="/providers"
-                className="press rounded-full bg-ink-900 px-3.5 py-1.5 text-xs font-semibold text-white ring-1 ring-ink-900"
+                className="press rounded-full bg-ink-900 px-3.5 py-1.5 text-xs font-medium text-white ring-1 ring-ink-900"
               >
                 {t("allProvidersChip")}
               </Link>
@@ -150,12 +150,12 @@ export default async function CategoryPage({
         <FadeIn>
           <div className="mt-12 flex flex-col items-start justify-between gap-6 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-white sm:flex-row sm:items-center sm:p-10">
             <div>
-              <h2 className="text-2xl font-bold">{t("ctaTitle")}</h2>
+              <h2 className="text-2xl font-medium">{t("ctaTitle")}</h2>
               <p className="mt-2 max-w-xl text-brand-100">{t("ctaBody")}</p>
             </div>
             <Link
               href="/get-matched"
-              className="press shrink-0 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-ink-950 hover:bg-accent-400"
+              className="press shrink-0 rounded-xl bg-ink-900 px-6 py-3.5 font-medium text-paper hover:bg-brand-900"
             >
               {t("ctaButton")}
             </Link>

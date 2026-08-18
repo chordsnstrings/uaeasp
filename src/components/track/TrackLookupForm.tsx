@@ -45,11 +45,11 @@ export function TrackLookupForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="rounded-3xl border border-ink-100 bg-white p-6 shadow-card sm:p-8"
+      className="rounded-3xl border border-ink-100 bg-white p-6 sm:p-8"
     >
       <div className="space-y-4">
         <div>
-          <label htmlFor="track-email" className="mb-1.5 block text-sm font-semibold text-ink-800">
+          <label htmlFor="track-email" className="mb-1.5 block text-sm font-medium text-ink-800">
             {t("email")}
           </label>
           <input
@@ -62,7 +62,7 @@ export function TrackLookupForm() {
           />
         </div>
         <div>
-          <label htmlFor="track-phone" className="mb-1.5 block text-sm font-semibold text-ink-800">
+          <label htmlFor="track-phone" className="mb-1.5 block text-sm font-medium text-ink-800">
             {t("phone")}
           </label>
           <input
@@ -82,7 +82,7 @@ export function TrackLookupForm() {
             role="alert"
           >
             <p className="text-sm font-medium text-amber-800">{error}</p>
-            <Link href="/get-matched" className="inline-block text-sm font-bold text-brand-700 underline underline-offset-2">
+            <Link href="/get-matched" className="inline-block text-sm font-medium text-brand-700 underline underline-offset-2">
               {t("newRequest")}
             </Link>
           </m.div>
@@ -91,7 +91,7 @@ export function TrackLookupForm() {
           type="submit"
           disabled={pending}
           whileTap={{ scale: 0.97 }}
-          className="w-full rounded-xl bg-brand-700 py-3.5 font-bold text-white hover:bg-brand-800 disabled:opacity-60"
+          className="w-full rounded-xl bg-ink-900 py-3.5 font-medium text-paper hover:bg-ink-900 disabled:opacity-60"
         >
           {pending ? t("searching") : t("submit")}
         </m.button>

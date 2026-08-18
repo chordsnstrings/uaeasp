@@ -49,21 +49,21 @@ export function ComplianceChecklist() {
     <div>
       <div className="sticky top-16 z-10 -mx-4 border-b border-ink-100 bg-white/90 px-4 py-3 backdrop-blur-md sm:mx-0 sm:rounded-2xl sm:border sm:px-5 print:hidden">
         <div className="flex items-center justify-between gap-4">
-          <p className="text-sm font-semibold text-ink-800">
+          <p className="text-sm font-medium text-ink-800">
             {t("progress", { done: doneCount, total: TOTAL })}
           </p>
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => window.print()}
-              className="press text-xs font-semibold text-ink-500 hover:text-brand-700"
+              className="press text-xs font-medium text-ink-500 hover:text-brand-700"
             >
               {t("printButton")}
             </button>
             <button
               type="button"
               onClick={() => setDone({})}
-              className="press text-xs font-semibold text-ink-500 hover:text-red-600"
+              className="press text-xs font-medium text-ink-500 hover:text-red-600"
             >
               {t("resetButton")}
             </button>
@@ -82,10 +82,10 @@ export function ComplianceChecklist() {
       <div className="mt-8 space-y-8">
         {CHECKLIST_GROUPS.map((group, gi) => (
           <section key={group.key}>
-            <h2 className="flex items-center gap-3 text-lg font-bold text-ink-900">
+            <h2 className="flex items-center gap-3 text-lg font-medium text-ink-900">
               <span
                 aria-hidden
-                className="grid size-8 place-items-center rounded-lg bg-brand-50 text-sm font-extrabold text-brand-800"
+                className="grid size-8 place-items-center rounded-lg bg-brand-50 text-sm font-medium text-brand-800"
               >
                 {gi + 1}
               </span>
@@ -130,11 +130,11 @@ export function ComplianceChecklist() {
       </div>
 
       <div className="mt-10 rounded-3xl border border-brand-100 bg-brand-50 p-6 text-center sm:p-8 print:hidden">
-        <h3 className="font-bold text-brand-900">{t("ctaTitle")}</h3>
+        <h3 className="font-medium text-brand-900">{t("ctaTitle")}</h3>
         <p className="mx-auto mt-1 max-w-md text-sm text-brand-800/80">{t("ctaBody")}</p>
         <Link
           href="/get-matched"
-          className="press mt-4 inline-block rounded-xl bg-brand-700 px-6 py-3 text-sm font-bold text-white hover:bg-brand-800"
+          className="press mt-4 inline-block rounded-xl bg-ink-900 px-6 py-3 text-sm font-medium text-paper hover:bg-ink-900"
         >
           {t("ctaButton")}
         </Link>

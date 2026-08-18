@@ -103,10 +103,10 @@ export default async function PrivacyPage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-      <h1 className="text-3xl font-extrabold tracking-tight text-ink-900">{t("title")}</h1>
+      <h1 className="text-3xl font-medium tracking-tight text-ink-900">{t("title")}</h1>
       {sections.map((section) => (
         <section key={section.heading} className="mt-8">
-          <h2 className="text-xl font-bold text-ink-900">{section.heading}</h2>
+          <h2 className="text-xl font-medium text-ink-900">{section.heading}</h2>
           {section.paragraphs.map((p, i) => (
             <p key={i} className="mt-3 leading-relaxed text-ink-700">
               {p}

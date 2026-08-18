@@ -49,7 +49,7 @@ export default async function FaqPage({
       />
       <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
         <FadeIn>
-          <h1 className="text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
             {t("title")}
           </h1>
           <p className="mt-3 text-lg text-ink-600">{t("subtitle")}</p>
@@ -58,9 +58,9 @@ export default async function FaqPage({
         <StaggerGroup className="mt-10 space-y-3">
           {items.map((item) => (
             <StaggerItem key={item.q}>
-              <details className="group rounded-2xl border border-ink-100 bg-white transition-shadow hover:border-ink-200 hover:shadow-sm open:border-brand-200 open:shadow-card">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold text-ink-900 [&::-webkit-details-marker]:hidden">
-                  <h2 className="text-base font-semibold">{item.q}</h2>
+              <details className="group rounded-2xl border border-ink-100 bg-white transition-colors hover:border-ink-200 open:border-brand-200">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-medium text-ink-900 [&::-webkit-details-marker]:hidden">
+                  <h2 className="text-base font-medium">{item.q}</h2>
                   <span
                     aria-hidden
                     className="grid size-7 shrink-0 place-items-center rounded-full bg-ink-50 text-ink-500 transition-transform duration-200 group-open:rotate-45 group-open:bg-brand-50 group-open:text-brand-700"
@@ -76,13 +76,13 @@ export default async function FaqPage({
 
         <FadeIn>
           <div className="mt-12 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-center text-white">
-            <h2 className="text-2xl font-bold">{t("stillQuestions")}</h2>
+            <h2 className="text-2xl font-medium">{t("stillQuestions")}</h2>
             <p className="mx-auto mt-2 max-w-md text-brand-100">
               {t("stillQuestionsBody")}
             </p>
             <Link
               href="/get-matched"
-              className="press mt-6 inline-block rounded-xl bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
+              className="press mt-6 inline-block rounded-xl bg-ink-900 px-6 py-3 font-medium text-paper hover:bg-brand-900"
             >
               {t("stillQuestionsButton")}
             </Link>

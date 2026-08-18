@@ -51,7 +51,7 @@ export function EnrichForm({ trackingToken }: { trackingToken: string }) {
           animate={{ opacity: 1, scale: 1 }}
           className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center"
         >
-          <p className="font-bold text-emerald-800">{t("doneTitle")}</p>
+          <p className="font-medium text-emerald-800">{t("doneTitle")}</p>
           <p className="mt-1 text-sm text-emerald-700">{t("doneBody")}</p>
         </m.div>
       ) : (
@@ -59,19 +59,19 @@ export function EnrichForm({ trackingToken }: { trackingToken: string }) {
           key="form"
           exit={{ opacity: 0, y: -8 }}
           onSubmit={onSubmit}
-          className="rounded-2xl border border-ink-100 bg-white p-6 text-start shadow-card"
+          className="rounded-2xl border border-ink-100 bg-white p-6 text-start"
         >
-          <p className="font-bold text-ink-900">{t("title")}</p>
+          <p className="font-medium text-ink-900">{t("title")}</p>
           <p className="mt-1 text-sm text-ink-500">{t("subtitle")}</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col justify-end">
-              <label htmlFor="en-email" className="mb-1.5 block text-sm font-semibold text-ink-800">
+              <label htmlFor="en-email" className="mb-1.5 block text-sm font-medium text-ink-800">
                 {tf("email")}
               </label>
               <input id="en-email" name="email" type="email" dir="ltr" autoComplete="email" placeholder={tf("emailPlaceholder")} className={inputClass} />
             </div>
             <div className="flex flex-col justify-end">
-              <label htmlFor="en-emirate" className="mb-1.5 block text-sm font-semibold text-ink-800">
+              <label htmlFor="en-emirate" className="mb-1.5 block text-sm font-medium text-ink-800">
                 {tf("emirate")}
               </label>
               <select id="en-emirate" name="emirate" defaultValue="" className={inputClass}>
@@ -84,7 +84,7 @@ export function EnrichForm({ trackingToken }: { trackingToken: string }) {
               </select>
             </div>
             <div className="flex flex-col justify-end">
-              <label htmlFor="en-volume" className="mb-1.5 block text-sm font-semibold text-ink-800">
+              <label htmlFor="en-volume" className="mb-1.5 block text-sm font-medium text-ink-800">
                 {tf("invoiceVolume")}
               </label>
               <select id="en-volume" name="invoiceVolume" defaultValue="" className={inputClass}>
@@ -97,7 +97,7 @@ export function EnrichForm({ trackingToken }: { trackingToken: string }) {
               </select>
             </div>
             <div className="flex flex-col justify-end">
-              <label htmlFor="en-budget" className="mb-1.5 block text-sm font-semibold text-ink-800">
+              <label htmlFor="en-budget" className="mb-1.5 block text-sm font-medium text-ink-800">
                 {tf("budgetRange")}
               </label>
               <select id="en-budget" name="budgetRange" defaultValue="" className={inputClass}>
@@ -110,7 +110,7 @@ export function EnrichForm({ trackingToken }: { trackingToken: string }) {
               </select>
             </div>
             <div className="flex flex-col justify-end">
-              <label htmlFor="en-timeline" className="mb-1.5 block text-sm font-semibold text-ink-800">
+              <label htmlFor="en-timeline" className="mb-1.5 block text-sm font-medium text-ink-800">
                 {tf("timeline")}
               </label>
               <select id="en-timeline" name="timeline" defaultValue="" className={inputClass}>
@@ -123,7 +123,7 @@ export function EnrichForm({ trackingToken }: { trackingToken: string }) {
               </select>
             </div>
             <div className="flex flex-col justify-end">
-              <label htmlFor="en-software" className="mb-1.5 block text-sm font-semibold text-ink-800">
+              <label htmlFor="en-software" className="mb-1.5 block text-sm font-medium text-ink-800">
                 {tf("accountingSoftware")}
               </label>
               <input id="en-software" name="accountingSoftware" placeholder={tf("accountingSoftwarePlaceholder")} className={inputClass} />
@@ -138,7 +138,7 @@ export function EnrichForm({ trackingToken }: { trackingToken: string }) {
             type="submit"
             disabled={state === "saving"}
             whileTap={{ scale: 0.97 }}
-            className="press mt-5 w-full rounded-xl bg-brand-700 px-6 py-3 font-bold text-white hover:bg-brand-800 disabled:opacity-60"
+            className="press mt-5 w-full rounded-xl bg-ink-900 px-6 py-3 font-medium text-paper hover:bg-ink-900 disabled:opacity-60"
           >
             {state === "saving" ? tf("submitting") : t("submit")}
           </m.button>

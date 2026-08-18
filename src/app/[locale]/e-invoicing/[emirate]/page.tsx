@@ -80,10 +80,10 @@ export default async function EmiratePage({
       />
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <FadeIn>
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">
+          <p className="text-xs font-medium uppercase tracking-wide text-brand-700">
             {t("emirateKicker")}
           </p>
-          <h1 className="mt-2 max-w-3xl text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="mt-2 max-w-3xl text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
             {t("emirateTitle", { name: copy.name, count })}
           </h1>
           {copy.intro.map((p, i) => (
@@ -103,15 +103,15 @@ export default async function EmiratePage({
         {/* Local FAQ */}
         <FadeIn>
           <div className="mt-12">
-            <h2 className="text-2xl font-bold tracking-tight text-ink-900">{t("faqTitle")}</h2>
+            <h2 className="text-2xl font-medium tracking-tight text-ink-900">{t("faqTitle")}</h2>
             <div className="mt-5 space-y-3">
               {copy.faq.map((f) => (
                 <details
                   key={f.q}
-                  className="group rounded-2xl border border-ink-100 bg-white transition-shadow hover:border-ink-200 hover:shadow-sm open:border-brand-200 open:shadow-card"
+                  className="group rounded-2xl border border-ink-100 bg-white transition-colors hover:border-ink-200 open:border-brand-200"
                 >
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold text-ink-900 [&::-webkit-details-marker]:hidden">
-                    <h3 className="text-base font-semibold">{f.q}</h3>
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-medium text-ink-900 [&::-webkit-details-marker]:hidden">
+                    <h3 className="text-base font-medium">{f.q}</h3>
                     <span
                       aria-hidden
                       className="grid size-7 shrink-0 place-items-center rounded-full bg-ink-50 text-ink-500 transition-transform duration-200 group-open:rotate-45 group-open:bg-brand-50 group-open:text-brand-700"
@@ -129,12 +129,12 @@ export default async function EmiratePage({
         {/* Provider preview */}
         <FadeIn>
           <div className="mt-12 flex flex-wrap items-end justify-between gap-4">
-            <h2 className="text-2xl font-bold tracking-tight text-ink-900">
+            <h2 className="text-2xl font-medium tracking-tight text-ink-900">
               {t("providersHeading", { name: copy.name })}
             </h2>
             <Link
               href="/providers"
-              className="press rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800"
+              className="press rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-medium text-ink-800 hover:border-brand-300 hover:text-brand-800"
             >
               {t("viewAllProviders", { count })}
             </Link>
@@ -163,7 +163,7 @@ export default async function EmiratePage({
         {/* Other emirates */}
         <FadeIn>
           <div className="mt-12">
-            <p className="text-sm font-semibold uppercase tracking-wide text-ink-500">
+            <p className="text-sm font-medium uppercase tracking-wide text-ink-500">
               {t("otherEmirates")}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -171,7 +171,7 @@ export default async function EmiratePage({
                 <Link
                   key={e}
                   href={`/e-invoicing/${e}`}
-                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
+                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
                 >
                   {emirateContent[locale][e].name}
                 </Link>
@@ -183,12 +183,12 @@ export default async function EmiratePage({
         <FadeIn>
           <div className="mt-12 flex flex-col items-start justify-between gap-6 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-white sm:flex-row sm:items-center sm:p-10">
             <div>
-              <h2 className="text-2xl font-bold">{t("emirateCtaTitle", { name: copy.name })}</h2>
+              <h2 className="text-2xl font-medium">{t("emirateCtaTitle", { name: copy.name })}</h2>
               <p className="mt-2 max-w-xl text-brand-100">{t("ctaBody")}</p>
             </div>
             <Link
               href="/get-matched"
-              className="press shrink-0 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-ink-950 hover:bg-accent-400"
+              className="press shrink-0 rounded-xl bg-ink-900 px-6 py-3.5 font-medium text-paper hover:bg-brand-900"
             >
               {t("ctaButton")}
             </Link>

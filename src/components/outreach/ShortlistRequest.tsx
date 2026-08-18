@@ -51,7 +51,7 @@ export function ShortlistRequest({ token, company }: { token: string; company: s
   if (state === "done") {
     return (
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-6">
-        <p className="font-display text-lg font-bold text-ink-900">
+        <p className="font-display text-lg font-medium text-ink-900">
           Done — we will send it to you.
         </p>
         <p className="mt-2 text-sm leading-relaxed text-ink-700">
@@ -65,7 +65,7 @@ export function ShortlistRequest({ token, company }: { token: string; company: s
 
   return (
     <form onSubmit={submit} className="rounded-2xl border border-brand-200 bg-brand-50/60 p-6">
-      <p className="font-display text-lg font-bold text-ink-900">
+      <p className="font-display text-lg font-medium text-ink-900">
         Get the three that fit {company}
       </p>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-700">
@@ -75,7 +75,7 @@ export function ShortlistRequest({ token, company }: { token: string; company: s
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <label className="block">
-          <span className="text-xs font-semibold text-ink-600">
+          <span className="text-xs font-medium text-ink-600">
             Invoices a month <span className="font-normal text-ink-400">(optional)</span>
           </span>
           <select
@@ -92,7 +92,7 @@ export function ShortlistRequest({ token, company }: { token: string; company: s
           </select>
         </label>
         <label className="block">
-          <span className="text-xs font-semibold text-ink-600">
+          <span className="text-xs font-medium text-ink-600">
             Accounting system <span className="font-normal text-ink-400">(optional)</span>
           </span>
           <input
@@ -108,7 +108,7 @@ export function ShortlistRequest({ token, company }: { token: string; company: s
       <button
         type="submit"
         disabled={state === "sending"}
-        className="press mt-4 rounded-xl bg-ink-900 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-ink-800 disabled:opacity-60"
+        className="press mt-4 rounded-xl bg-ink-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-ink-800 disabled:opacity-60"
       >
         {state === "sending" ? "Sending…" : "Send me the shortlist"}
       </button>

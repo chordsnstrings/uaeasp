@@ -52,10 +52,10 @@ export default async function GlossaryPage({
       />
       <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
         <FadeIn>
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">
+          <p className="text-xs font-medium uppercase tracking-wide text-brand-700">
             {t("kicker")}
           </p>
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="mt-2 text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
             {t("title")}
           </h1>
           <p className="mt-3 text-lg text-ink-600">{t("subtitle")}</p>
@@ -65,7 +65,7 @@ export default async function GlossaryPage({
           {terms.map((item) => (
             <StaggerItem key={item.term}>
               <dl className="card-hover rounded-2xl border border-ink-100 bg-white p-5 transition-transform sm:p-6">
-                <dt className="font-bold text-ink-900">{item.term}</dt>
+                <dt className="font-medium text-ink-900">{item.term}</dt>
                 <dd className="mt-2 text-sm leading-relaxed text-ink-600">{item.def}</dd>
               </dl>
             </StaggerItem>
@@ -74,11 +74,11 @@ export default async function GlossaryPage({
 
         <FadeIn>
           <div className="mt-12 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-center text-white">
-            <h2 className="text-2xl font-bold">{t("ctaTitle")}</h2>
+            <h2 className="text-2xl font-medium">{t("ctaTitle")}</h2>
             <p className="mx-auto mt-2 max-w-md text-brand-100">{t("ctaBody")}</p>
             <Link
               href="/get-matched"
-              className="press mt-6 inline-block rounded-xl bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
+              className="press mt-6 inline-block rounded-xl bg-ink-900 px-6 py-3 font-medium text-paper hover:bg-brand-900"
             >
               {t("ctaButton")}
             </Link>

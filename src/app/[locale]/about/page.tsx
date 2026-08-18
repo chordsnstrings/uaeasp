@@ -35,7 +35,7 @@ export default async function AboutPage({
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
       <FadeIn>
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+        <h1 className="text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
           {t("title")}
         </h1>
         <div className="mt-6 space-y-5 leading-relaxed text-ink-700">
@@ -43,12 +43,12 @@ export default async function AboutPage({
           <p>{t("body2")}</p>
           <p>{t("body3")}</p>
         </div>
-        <h2 className="mt-10 text-xl font-bold text-ink-900">{t("howWeKeepCurrent")}</h2>
+        <h2 className="mt-10 text-xl font-medium text-ink-900">{t("howWeKeepCurrent")}</h2>
         <p className="mt-3 leading-relaxed text-ink-700">{t("howWeKeepCurrentBody")}</p>
         <div className="mt-10">
           <Link
             href="/get-matched"
-            className="press inline-block rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
+            className="press inline-block rounded-xl bg-ink-900 px-6 py-3 font-medium text-paper hover:bg-ink-900"
           >
             {tc("nav.getMatched")}
           </Link>

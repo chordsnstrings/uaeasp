@@ -130,7 +130,7 @@ export default async function IntegrationSystemPage({
           <span className="mx-1.5 text-ink-300">/</span>
           <span className="text-ink-700">{sys.name}</span>
         </nav>
-        <h1 className="mt-3 max-w-3xl font-display text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+        <h1 className="mt-3 max-w-3xl font-display text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
           {copy.h1}
         </h1>
         <p className="mt-4 max-w-3xl text-lg leading-relaxed text-ink-600">{copy.intro}</p>
@@ -139,13 +139,13 @@ export default async function IntegrationSystemPage({
       <FadeIn>
         <dl className="mt-8 grid gap-4 rounded-2xl border border-ink-100 bg-white p-6 sm:grid-cols-2">
           <div>
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-400">
+            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-400">
               {t("routeLabel")}
             </dt>
             <dd className="mt-1 text-sm leading-relaxed text-ink-700">{detail.route}</dd>
           </div>
           <div>
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-400">
+            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-400">
               {t("timelineLabel")}
             </dt>
             <dd className="mt-1 text-sm leading-relaxed text-ink-700">{detail.timeline}</dd>
@@ -158,7 +158,7 @@ export default async function IntegrationSystemPage({
 
       <section className="mt-12">
         <FadeIn>
-          <h2 className="font-display text-2xl font-bold text-ink-900">
+          <h2 className="font-display text-2xl font-medium text-ink-900">
             Accredited providers that mention {sys.name}
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-600">
@@ -202,7 +202,7 @@ export default async function IntegrationSystemPage({
 
         <FadeIn>
           <div className="mt-8 rounded-2xl border border-brand-200 bg-brand-50/60 p-6">
-            <p className="font-display text-lg font-bold text-ink-900">
+            <p className="font-display text-lg font-medium text-ink-900">
               Not sure which one fits your {sys.name} setup?
             </p>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-600">
@@ -212,7 +212,7 @@ export default async function IntegrationSystemPage({
             </p>
             <Link
               href="/get-matched"
-              className="press mt-4 inline-flex rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800"
+              className="press mt-4 inline-flex rounded-xl bg-ink-900 px-5 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-ink-900"
             >
               Get matched free
             </Link>
@@ -222,7 +222,7 @@ export default async function IntegrationSystemPage({
 
       <section className="mt-12">
         <FadeIn>
-          <h2 className="font-display text-2xl font-bold text-ink-900">The mandate, in short</h2>
+          <h2 className="font-display text-2xl font-medium text-ink-900">The mandate, in short</h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-600">
             The dates below decide when {sys.name} has to be connected, not the integration
             itself. Appointing a provider is the deadline that comes first.
@@ -235,12 +235,12 @@ export default async function IntegrationSystemPage({
 
       <section className="mt-12">
         <FadeIn>
-          <h2 className="font-display text-2xl font-bold text-ink-900">Common questions</h2>
+          <h2 className="font-display text-2xl font-medium text-ink-900">Common questions</h2>
         </FadeIn>
         <dl className="mt-5 space-y-5">
           {copy.faq.map((f) => (
             <div key={f.q} className="rounded-2xl border border-ink-100 bg-white p-5">
-              <dt className="font-semibold text-ink-900">{f.q}</dt>
+              <dt className="font-medium text-ink-900">{f.q}</dt>
               <dd className="mt-2 text-sm leading-relaxed text-ink-600">{f.a}</dd>
             </div>
           ))}
@@ -249,7 +249,7 @@ export default async function IntegrationSystemPage({
 
       {siblings.length > 0 && (
         <section className="mt-12 border-t border-ink-100 pt-8">
-          <h2 className="font-display text-lg font-bold text-ink-900">Other systems</h2>
+          <h2 className="font-display text-lg font-medium text-ink-900">Other systems</h2>
           <ul className="mt-3 flex flex-wrap gap-2">
             {siblings.map((key) => {
               const other = systemFor(key);

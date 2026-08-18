@@ -73,10 +73,10 @@ export default async function TrackStatusPage({
   return (
     <div className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
       <FadeIn>
-        <p className="text-center text-xs font-semibold uppercase tracking-wide text-brand-700">
+        <p className="text-center text-xs font-medium uppercase tracking-wide text-brand-700">
           {t("title")}
         </p>
-        <h1 className="mt-2 text-center text-3xl font-extrabold tracking-tight text-ink-900">
+        <h1 className="mt-2 text-center text-3xl font-medium tracking-tight text-ink-900">
           {t("hello", { company: lead.companyName })}
         </h1>
         <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-ink-500">
@@ -97,7 +97,7 @@ export default async function TrackStatusPage({
             <p className="leading-relaxed text-ink-700">{t("closedNote")}</p>
             <Link
               href="/get-matched"
-              className="press mt-6 inline-block rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
+              className="press mt-6 inline-block rounded-xl bg-ink-900 px-6 py-3 font-medium text-paper hover:bg-ink-900"
             >
               {tl("newRequest")}
             </Link>
@@ -126,11 +126,11 @@ export default async function TrackStatusPage({
                     )}
                     <span
                       aria-hidden
-                      className={`relative z-10 grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold ring-4 ring-white ${
+                      className={`relative z-10 grid size-10 shrink-0 place-items-center rounded-full text-sm font-medium ring-4 ring-white ${
                         state === "done"
                           ? "bg-brand-600 text-white"
                           : state === "current"
-                            ? "bg-accent-500 text-ink-950 shadow-lg shadow-accent-500/30"
+                            ? "bg-ink-900 text-paper"
                             : "bg-ink-100 text-ink-400"
                       }`}
                     >
@@ -143,7 +143,7 @@ export default async function TrackStatusPage({
                       )}
                     </span>
                     <div className={`pt-1.5 ${state === "todo" ? "opacity-50" : ""}`}>
-                      <p className="font-bold text-ink-900">
+                      <p className="font-medium text-ink-900">
                         {t(`steps.${step.key}.label` as Parameters<typeof t>[0])}
                         {state === "current" && (
                           <span className="ms-2 inline-block size-2 animate-pulse-soft rounded-full bg-accent-500 align-middle" aria-hidden />
@@ -163,7 +163,7 @@ export default async function TrackStatusPage({
 
       <FadeIn>
         <div className="mt-10 space-y-2 rounded-2xl bg-brand-50 p-5 text-center">
-          <p className="text-sm font-semibold text-brand-900">{t("keepLink")}</p>
+          <p className="text-sm font-medium text-brand-900">{t("keepLink")}</p>
           <p className="text-xs text-brand-800/70">{t("questions")}</p>
         </div>
       </FadeIn>

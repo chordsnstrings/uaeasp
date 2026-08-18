@@ -43,7 +43,7 @@ export default async function IntegrationsPage({
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
       <FadeIn>
-        <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+        <h1 className="max-w-3xl text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
           {t("title")}
         </h1>
         <p className="mt-3 max-w-3xl text-lg text-ink-600">{t("subtitle", { count })}</p>
@@ -56,8 +56,8 @@ export default async function IntegrationsPage({
             <StaggerItem key={sys.key}>
               <article className="card-hover flex h-full flex-col rounded-2xl border border-ink-100 bg-white p-6 transition-transform">
                 <div className="flex items-center justify-between gap-3">
-                  <h2 className="text-lg font-bold text-ink-900">{sys.name}</h2>
-                  <span className="shrink-0 rounded-full bg-ink-50 px-2.5 py-1 text-[11px] font-semibold text-ink-500 ring-1 ring-ink-100">
+                  <h2 className="text-lg font-medium text-ink-900">{sys.name}</h2>
+                  <span className="shrink-0 rounded-full bg-ink-50 px-2.5 py-1 text-[11px] font-medium text-ink-500 ring-1 ring-ink-100">
                     {t(`tiers.${sys.tier}` as Parameters<typeof t>[0])}
                   </span>
                 </div>
@@ -68,18 +68,18 @@ export default async function IntegrationsPage({
                 {INTEGRATION_PAGE_KEYS.includes(sys.key) && (
                   <Link
                     href={`/integrations/${sys.key}`}
-                    className="mt-3 inline-flex text-sm font-semibold text-brand-700 hover:text-brand-800"
+                    className="mt-3 inline-flex text-sm font-medium text-brand-700 hover:text-brand-800"
                   >
                     {sys.name} e-invoicing in detail →
                   </Link>
                 )}
                 <dl className="mt-4 space-y-2 border-t border-ink-100 pt-4 text-sm">
                   <div className="flex gap-2">
-                    <dt className="shrink-0 font-semibold text-ink-800">{t("routeLabel")}</dt>
+                    <dt className="shrink-0 font-medium text-ink-800">{t("routeLabel")}</dt>
                     <dd className="text-ink-600">{c.route}</dd>
                   </div>
                   <div className="flex gap-2">
-                    <dt className="shrink-0 font-semibold text-ink-800">{t("timelineLabel")}</dt>
+                    <dt className="shrink-0 font-medium text-ink-800">{t("timelineLabel")}</dt>
                     <dd className="text-ink-600">{c.timeline}</dd>
                   </div>
                 </dl>
@@ -96,12 +96,12 @@ export default async function IntegrationsPage({
       <FadeIn>
         <div className="mt-10 flex flex-col items-start justify-between gap-6 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-white sm:flex-row sm:items-center sm:p-10">
           <div>
-            <h2 className="text-2xl font-bold">{t("ctaTitle")}</h2>
+            <h2 className="text-2xl font-medium">{t("ctaTitle")}</h2>
             <p className="mt-2 max-w-xl text-brand-100">{t("ctaBody")}</p>
           </div>
           <Link
             href="/get-matched"
-            className="press shrink-0 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-ink-950 hover:bg-accent-400"
+            className="press shrink-0 rounded-xl bg-ink-900 px-6 py-3.5 font-medium text-paper hover:bg-brand-900"
           >
             {t("ctaButton")}
           </Link>

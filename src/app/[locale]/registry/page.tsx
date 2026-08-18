@@ -112,7 +112,7 @@ export default async function RegistryPage({
 
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
         <FadeIn>
-          <h1 className="max-w-4xl text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="max-w-4xl text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
             {t("title")}
           </h1>
           <p className="mt-3 max-w-3xl text-lg text-ink-600">
@@ -126,16 +126,16 @@ export default async function RegistryPage({
 
         {/* Desktop table */}
         <FadeIn>
-          <div className="mt-10 hidden overflow-x-auto rounded-2xl border border-ink-100 bg-white shadow-sm print:block md:block">
+          <div className="mt-10 hidden overflow-x-auto rounded-2xl border border-ink-100 bg-white print:block md:block">
             <table className="w-full min-w-[980px] text-sm">
               <thead>
                 <tr className="border-b border-ink-200 bg-ink-50 text-xs uppercase tracking-wide text-ink-500">
-                  <th className="px-4 py-3 text-start font-semibold">{t("th.num")}</th>
-                  <th className="px-4 py-3 text-start font-semibold">{t("th.company")}</th>
-                  <th className="px-4 py-3 text-start font-semibold">{t("th.website")}</th>
-                  <th className="px-4 py-3 text-start font-semibold">{t("th.contact")}</th>
-                  <th className="px-4 py-3 text-start font-semibold">{t("th.email")}</th>
-                  <th className="px-4 py-3 text-start font-semibold">{t("th.phone")}</th>
+                  <th className="px-4 py-3 text-start font-medium">{t("th.num")}</th>
+                  <th className="px-4 py-3 text-start font-medium">{t("th.company")}</th>
+                  <th className="px-4 py-3 text-start font-medium">{t("th.website")}</th>
+                  <th className="px-4 py-3 text-start font-medium">{t("th.contact")}</th>
+                  <th className="px-4 py-3 text-start font-medium">{t("th.email")}</th>
+                  <th className="px-4 py-3 text-start font-medium">{t("th.phone")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink-50">
@@ -145,7 +145,7 @@ export default async function RegistryPage({
                     <td className="px-4 py-3.5">
                       <Link
                         href={`/providers/${p.slug}`}
-                        className="font-semibold text-ink-900 hover:text-brand-800"
+                        className="font-medium text-ink-900 hover:text-brand-800"
                       >
                         {locale === "ar" && p.nameAr ? p.nameAr : p.name}
                       </Link>
@@ -195,9 +195,9 @@ export default async function RegistryPage({
         {/* Mobile cards */}
         <div className="mt-8 space-y-4 md:hidden print:hidden">
           {active.map((p, i) => (
-            <article key={p.id} className="rounded-2xl border border-ink-100 bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold text-ink-400">#{i + 1}</p>
-              <h2 className="mt-1 font-bold text-ink-900">
+            <article key={p.id} className="rounded-2xl border border-ink-100 bg-white p-5">
+              <p className="text-xs font-medium text-ink-400">#{i + 1}</p>
+              <h2 className="mt-1 font-medium text-ink-900">
                 <Link href={`/providers/${p.slug}`} className="hover:text-brand-800">
                   {locale === "ar" && p.nameAr ? p.nameAr : p.name}
                 </Link>
@@ -242,7 +242,7 @@ export default async function RegistryPage({
               </dl>
               <Link
                 href={`/providers/${p.slug}`}
-                className="press mt-4 inline-block rounded-lg border border-ink-200 px-3.5 py-2 text-xs font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800"
+                className="press mt-4 inline-block rounded-lg border border-ink-200 px-3.5 py-2 text-xs font-medium text-ink-700 hover:border-brand-300 hover:text-brand-800"
               >
                 {t("viewProfile")} →
               </Link>
@@ -254,12 +254,12 @@ export default async function RegistryPage({
         <FadeIn>
           <div className="mt-12 flex flex-col items-start justify-between gap-6 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-white sm:flex-row sm:items-center sm:p-10 print:hidden">
             <div>
-              <h2 className="text-2xl font-bold">{t("matchCta.title", { count })}</h2>
+              <h2 className="text-2xl font-medium">{t("matchCta.title", { count })}</h2>
               <p className="mt-2 max-w-xl text-brand-100">{t("matchCta.body")}</p>
             </div>
             <Link
               href="/get-matched"
-              className="press shrink-0 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-ink-950 shadow-lg shadow-accent-500/20 hover:bg-accent-400"
+              className="press shrink-0 rounded-xl bg-ink-900 px-6 py-3.5 font-medium text-paper hover:bg-brand-900"
             >
               {t("matchCta.button")}
             </Link>

@@ -67,10 +67,10 @@ export function ReadinessPlanner() {
 
   return (
     <div>
-      <div className="rounded-3xl border border-ink-100 bg-white p-6 shadow-card sm:p-8">
+      <div className="rounded-3xl border border-ink-100 bg-white p-6 sm:p-8">
         <div className="grid gap-6 md:grid-cols-3">
           <div>
-            <p className="mb-2 text-sm font-semibold text-ink-800">{t("phaseLabel")}</p>
+            <p className="mb-2 text-sm font-medium text-ink-800">{t("phaseLabel")}</p>
             <div className="space-y-2">
               {MANDATE_PHASES.map((p) => {
                 const pl = PHASE_LABELS[locale][p.key];
@@ -86,7 +86,7 @@ export function ReadinessPlanner() {
                         : "border-ink-200 hover:border-brand-300"
                     }`}
                   >
-                    <span className="block font-bold text-ink-900">{pl.name}</span>
+                    <span className="block font-medium text-ink-900">{pl.name}</span>
                     <span className="mt-0.5 block text-ink-500">{pl.detail}</span>
                   </button>
                 );
@@ -94,7 +94,7 @@ export function ReadinessPlanner() {
             </div>
           </div>
           <div>
-            <p className="mb-2 text-sm font-semibold text-ink-800">{t("systemLabel")}</p>
+            <p className="mb-2 text-sm font-medium text-ink-800">{t("systemLabel")}</p>
             <div className="space-y-2">
               {systems.map((s) => (
                 <button
@@ -102,7 +102,7 @@ export function ReadinessPlanner() {
                   type="button"
                   onClick={() => setSystem(s)}
                   aria-pressed={system === s}
-                  className={`press w-full rounded-xl border p-3 text-start text-xs font-semibold transition-colors ${
+                  className={`press w-full rounded-xl border p-3 text-start text-xs font-medium transition-colors ${
                     system === s
                       ? "border-brand-400 bg-brand-50 text-brand-900"
                       : "border-ink-200 text-ink-700 hover:border-brand-300"
@@ -114,7 +114,7 @@ export function ReadinessPlanner() {
             </div>
           </div>
           <div>
-            <p className="mb-2 text-sm font-semibold text-ink-800">{t("volumeLabel")}</p>
+            <p className="mb-2 text-sm font-medium text-ink-800">{t("volumeLabel")}</p>
             <div className="space-y-2">
               {volumes.map((v) => (
                 <button
@@ -122,7 +122,7 @@ export function ReadinessPlanner() {
                   type="button"
                   onClick={() => setVolume(v)}
                   aria-pressed={volume === v}
-                  className={`press w-full rounded-xl border p-3 text-start text-xs font-semibold transition-colors ${
+                  className={`press w-full rounded-xl border p-3 text-start text-xs font-medium transition-colors ${
                     volume === v
                       ? "border-brand-400 bg-brand-50 text-brand-900"
                       : "border-ink-200 text-ink-700 hover:border-brand-300"
@@ -138,11 +138,11 @@ export function ReadinessPlanner() {
 
       <div className="mt-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-xl font-bold text-ink-900">{t("planTitle")}</h2>
+          <h2 className="text-xl font-medium text-ink-900">{t("planTitle")}</h2>
           <button
             type="button"
             onClick={() => window.print()}
-            className="press rounded-lg border border-ink-200 px-4 py-2 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800 print:hidden"
+            className="press rounded-lg border border-ink-200 px-4 py-2 text-sm font-medium text-ink-700 hover:border-brand-300 hover:text-brand-800 print:hidden"
           >
             {t("printButton")}
           </button>
@@ -167,23 +167,23 @@ export function ReadinessPlanner() {
                 )}
                 <span
                   aria-hidden
-                  className={`relative z-10 mt-0.5 grid size-8 shrink-0 place-items-center rounded-full text-xs font-bold ${
+                  className={`relative z-10 mt-0.5 grid size-8 shrink-0 place-items-center rounded-full text-xs font-medium ${
                     mst.isDeadline
-                      ? "bg-accent-500 text-ink-950"
+                      ? "bg-ink-900 text-paper"
                       : past
                         ? "bg-ink-200 text-ink-500"
-                        : "bg-brand-700 text-white"
+                        : "bg-ink-900 text-paper"
                   }`}
                 >
                   {mst.isDeadline ? "!" : i + 1}
                 </span>
-                <div className="min-w-0 flex-1 rounded-2xl border border-ink-100 bg-white p-4 shadow-sm">
+                <div className="min-w-0 flex-1 rounded-2xl border border-ink-100 bg-white p-4">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="font-bold text-ink-900">
+                    <p className="font-medium text-ink-900">
                       {t(`milestones.${mst.key}.title` as Parameters<typeof t>[0])}
                     </p>
                     <p
-                      className={`text-sm font-semibold ${
+                      className={`text-sm font-medium ${
                         mst.isDeadline ? "text-accent-600" : "text-brand-700"
                       }`}
                     >
@@ -194,7 +194,7 @@ export function ReadinessPlanner() {
                     {t(`milestones.${mst.key}.body` as Parameters<typeof t>[0])}
                   </p>
                   {past && !mst.isDeadline && (
-                    <p className="mt-2 inline-block rounded-full bg-accent-500/15 px-2.5 py-0.5 text-xs font-semibold text-accent-600">
+                    <p className="mt-2 inline-block rounded-full bg-accent-500/15 px-2.5 py-0.5 text-xs font-medium text-accent-600">
                       {t("overdue")}
                     </p>
                   )}
@@ -211,11 +211,11 @@ export function ReadinessPlanner() {
         )}
 
         <div className="mt-8 grain relative overflow-hidden rounded-xl bg-brand-950 p-6 text-center text-white sm:p-8 print:hidden">
-          <h3 className="text-xl font-bold">{t("ctaTitle")}</h3>
+          <h3 className="text-xl font-medium">{t("ctaTitle")}</h3>
           <p className="mx-auto mt-2 max-w-md text-sm text-brand-100">{t("ctaBody")}</p>
           <Link
             href="/get-matched"
-            className="press mt-5 inline-block rounded-xl bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
+            className="press mt-5 inline-block rounded-xl bg-ink-900 px-6 py-3 font-medium text-paper hover:bg-brand-900"
           >
             {t("ctaButton")}
           </Link>

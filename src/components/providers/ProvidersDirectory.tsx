@@ -135,8 +135,8 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
           onBlur={() => setSearchFocused(false)}
           placeholder={t("searchPlaceholder")}
           aria-label={t("searchPlaceholder")}
-          className={`w-full rounded-xl border bg-white py-3 pe-10 ps-10 text-sm shadow-sm transition-shadow placeholder:text-ink-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 [&::-webkit-search-cancel-button]:hidden ${
-            searchExpanded ? "border-brand-300 shadow-md" : "border-ink-200"
+          className={`w-full rounded-xl border bg-white py-3 pe-10 ps-10 text-sm transition-colors placeholder:text-ink-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 [&::-webkit-search-cancel-button]:hidden ${
+            searchExpanded ? "border-brand-300" : "border-ink-200"
           }`}
         />
         <AnimatePresence>
@@ -164,7 +164,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
         <button
           type="button"
           onClick={() => { setCategory(""); setPage(1); }}
-          className={`press rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
+          className={`press rounded-full px-3.5 py-1.5 text-xs font-medium ring-1 transition-colors ${
             !category
               ? "bg-ink-900 text-white ring-ink-900"
               : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"
@@ -178,9 +178,9 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
             key={cat}
             type="button"
             onClick={() => { setCategory(category === cat ? "" : cat); setPage(1); }}
-            className={`press rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
+            className={`press rounded-full px-3.5 py-1.5 text-xs font-medium ring-1 transition-colors ${
               category === cat
-                ? "bg-brand-700 text-white ring-brand-700"
+                ? "bg-ink-900 text-paper ring-brand-700"
                 : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"
             }`}
             aria-pressed={category === cat}
@@ -231,9 +231,9 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
             ))}
             {/* Get-matched card slots into the grid to keep the funnel present */}
             <m.div layout key="cta" className="relative">
-              <div className="flex h-full flex-col justify-between grain relative overflow-hidden rounded-xl bg-brand-950 p-6 text-white shadow-lg">
+              <div className="flex h-full flex-col justify-between grain relative overflow-hidden rounded-xl bg-brand-950 p-6 text-white">
                 <div>
-                  <h3 className="text-lg font-bold">
+                  <h3 className="text-lg font-medium">
                     {t("getMatchedCard.title", { count: providers.length })}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-brand-100">
@@ -242,7 +242,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
                 </div>
                 <Link
                   href="/get-matched"
-                  className="press mt-5 inline-block rounded-lg bg-accent-500 px-4 py-2.5 text-center text-sm font-bold text-ink-950 hover:bg-accent-400"
+                  className="press mt-5 inline-block rounded-lg bg-ink-900 px-4 py-2.5 text-center text-sm font-medium text-paper hover:bg-brand-900"
                 >
                   {t("getMatchedCard.button")}
                 </Link>
@@ -270,7 +270,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
               type="button"
               disabled={safePage <= 1}
               onClick={() => goToPage(safePage - 1)}
-              className="press rounded-lg border border-ink-200 bg-white px-3.5 py-2 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
+              className="press rounded-lg border border-ink-200 bg-white px-3.5 py-2 text-sm font-medium text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {t("pagination.prev")}
             </button>
@@ -280,9 +280,9 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
                 type="button"
                 onClick={() => goToPage(n)}
                 aria-current={n === safePage ? "page" : undefined}
-                className={`press size-10 rounded-lg text-sm font-semibold transition-colors ${
+                className={`press size-10 rounded-lg text-sm font-medium transition-colors ${
                   n === safePage
-                    ? "bg-brand-700 text-white"
+                    ? "bg-ink-900 text-paper"
                     : "border border-ink-200 bg-white text-ink-700 hover:border-brand-300 hover:text-brand-800"
                 }`}
               >
@@ -293,7 +293,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
               type="button"
               disabled={safePage >= totalPages}
               onClick={() => goToPage(safePage + 1)}
-              className="press rounded-lg border border-ink-200 bg-white px-3.5 py-2 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
+              className="press rounded-lg border border-ink-200 bg-white px-3.5 py-2 text-sm font-medium text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {t("pagination.next")}
             </button>

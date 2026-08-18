@@ -15,7 +15,7 @@ export default async function OfflinePage({
   return (
     <div className="mx-auto max-w-xl px-4 py-24 text-center sm:px-6">
       <p aria-hidden className="text-6xl">📡</p>
-      <h1 className="mt-4 text-2xl font-bold text-ink-900">{t("title")}</h1>
+      <h1 className="mt-4 text-2xl font-medium text-ink-900">{t("title")}</h1>
       <p className="mt-2 text-ink-600">{t("body")}</p>
     </div>
   );

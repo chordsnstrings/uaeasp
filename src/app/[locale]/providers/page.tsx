@@ -70,7 +70,7 @@ export default async function ProvidersPage({
       />
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <FadeIn>
-          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="max-w-3xl text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
             {t("title")}
           </h1>
           <p className="mt-3 max-w-2xl text-lg text-ink-600">
@@ -101,7 +101,7 @@ export default async function ProvidersPage({
             client-side filters; these are real pages) */}
         <div className="mt-14 space-y-8 border-t border-ink-100 pt-10">
           <nav aria-label={tl("browseByCategory")}>
-            <p className="text-sm font-semibold uppercase tracking-wide text-ink-500">
+            <p className="text-sm font-medium uppercase tracking-wide text-ink-500">
               {tl("browseByCategory")}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -109,7 +109,7 @@ export default async function ProvidersPage({
                 <Link
                   key={c}
                   href={`/providers/category/${c}`}
-                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
+                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
                 >
                   {tc(`categories.${c}` as Parameters<typeof tc>[0])}
                 </Link>
@@ -117,7 +117,7 @@ export default async function ProvidersPage({
             </div>
           </nav>
           <nav aria-label={tl("browseByEmirate")}>
-            <p className="text-sm font-semibold uppercase tracking-wide text-ink-500">
+            <p className="text-sm font-medium uppercase tracking-wide text-ink-500">
               {tl("browseByEmirate")}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -125,7 +125,7 @@ export default async function ProvidersPage({
                 <Link
                   key={e}
                   href={`/e-invoicing/${e}`}
-                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
+                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
                 >
                   {emirateContent[locale][e].name}
                 </Link>

@@ -88,10 +88,10 @@ export default async function GuidePage({
               ← {t("backToGuides")}
             </Link>
           </nav>
-          <p className="mt-6 text-xs font-semibold uppercase tracking-wide text-brand-700">
+          <p className="mt-6 text-xs font-medium uppercase tracking-wide text-brand-700">
             {t("readingTime", { minutes: guide.readingMinutes })}
           </p>
-          <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="mt-2 text-3xl font-medium leading-tight tracking-tight text-ink-900 sm:text-4xl">
             {guide.title}
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-ink-600">{guide.intro}</p>
@@ -108,7 +108,7 @@ export default async function GuidePage({
         <div className="mt-10 space-y-10">
           {guide.sections.map((section) => (
             <FadeIn key={section.h} as="section">
-              <h2 className="text-2xl font-bold tracking-tight text-ink-900">{section.h}</h2>
+              <h2 className="text-2xl font-medium tracking-tight text-ink-900">{section.h}</h2>
               {section.body.map((p, i) => (
                 <p key={i} className="mt-4 leading-relaxed text-ink-700">
                   {p}
@@ -139,11 +139,11 @@ export default async function GuidePage({
 
         <FadeIn>
           <div className="mt-12 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-center text-white">
-            <h2 className="text-2xl font-bold">{t("articleCtaTitle")}</h2>
+            <h2 className="text-2xl font-medium">{t("articleCtaTitle")}</h2>
             <p className="mx-auto mt-2 max-w-md text-brand-100">{t("articleCtaBody")}</p>
             <Link
               href="/get-matched"
-              className="press mt-6 inline-block rounded-xl bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
+              className="press mt-6 inline-block rounded-xl bg-ink-900 px-6 py-3 font-medium text-paper hover:bg-brand-900"
             >
               {t("articleCtaButton")}
             </Link>
@@ -153,7 +153,7 @@ export default async function GuidePage({
         {related.length > 0 && (
           <FadeIn>
             <div className="mt-12">
-              <h2 className="text-lg font-bold text-ink-900">{t("relatedTitle")}</h2>
+              <h2 className="text-lg font-medium text-ink-900">{t("relatedTitle")}</h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 {related.map((r) => (
                   <Link
@@ -161,7 +161,7 @@ export default async function GuidePage({
                     href={`/guides/${r!.slug}`}
                     className="card-hover group rounded-2xl border border-ink-100 bg-white p-4 transition-transform"
                   >
-                    <p className="text-sm font-bold leading-snug text-ink-900 group-hover:text-brand-800">
+                    <p className="text-sm font-medium leading-snug text-ink-900 group-hover:text-brand-800">
                       {r!.title}
                     </p>
                     <p className="mt-2 text-xs text-brand-700">

@@ -34,7 +34,7 @@ export default async function GetMatchedPage({
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
       <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr]">
         <FadeIn>
-          <h1 className="text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
             {t("title")}
           </h1>
           <p className="mt-4 text-lg leading-relaxed text-ink-600">{t("subtitle")}</p>
@@ -50,7 +50,7 @@ export default async function GetMatchedPage({
                   </svg>
                 </span>
                 <div>
-                  <p className="font-semibold text-ink-900">
+                  <p className="font-medium text-ink-900">
                     {t(`benefit${i}` as Parameters<typeof t>[0])}
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-ink-600">
@@ -63,8 +63,8 @@ export default async function GetMatchedPage({
         </FadeIn>
 
         <FadeIn delay={0.1}>
-          <div id="lead-form" className="rounded-3xl border border-ink-100 bg-white p-6 shadow-card sm:p-8">
-            <h2 className="text-xl font-bold text-ink-900">{tf("title")}</h2>
+          <div id="lead-form" className="rounded-3xl border border-ink-100 bg-white p-6 sm:p-8">
+            <h2 className="text-xl font-medium text-ink-900">{tf("title")}</h2>
             <p className="mt-1 text-sm text-ink-500">{tf("subtitle")}</p>
             <div className="mt-6">
               <LeadForm source="form" />
