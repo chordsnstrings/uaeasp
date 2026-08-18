@@ -164,28 +164,50 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
         <button
           type="button"
           onClick={() => { setCategory(""); setPage(1); }}
-          className={`press rounded-md border px-3.5 py-1.5 text-xs transition-colors ${
+          className={`press relative rounded-md border px-3.5 py-1.5 text-xs transition-colors ${
             !category
-              ? "border-ink-900 bg-ink-900 text-paper"
+              ? "border-ink-900 text-paper"
               : "border-ink-200 bg-white text-ink-700 hover:border-ink-900 hover:text-ink-900"
           }`}
           aria-pressed={!category}
         >
-          {t("categoryAll")}
+          {/* The fill wipes in from the leading edge rather than appearing,
+              so a filter change reads as an action rather than a repaint. */}
+          {!category && (
+            <m.span
+              aria-hidden
+              className="absolute inset-0 origin-left rounded-md bg-ink-900 rtl:origin-right"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.24, ease: [0.2, 0.6, 0.2, 1] }}
+            />
+          )}
+          <span className="relative">{t("categoryAll")}</span>
         </button>
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
             type="button"
             onClick={() => { setCategory(category === cat ? "" : cat); setPage(1); }}
-            className={`press rounded-md border px-3.5 py-1.5 text-xs transition-colors ${
+            className={`press relative rounded-md border px-3.5 py-1.5 text-xs transition-colors ${
               category === cat
-                ? "border-ink-900 bg-ink-900 text-paper"
+                ? "border-ink-900 text-paper"
                 : "border-ink-200 bg-white text-ink-700 hover:border-ink-900 hover:text-ink-900"
             }`}
             aria-pressed={category === cat}
           >
-            {tc(`categories.${cat}` as Parameters<typeof tc>[0])}
+            {category === cat && (
+              <m.span
+                aria-hidden
+                className="absolute inset-0 origin-left rounded-md bg-ink-900 rtl:origin-right"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.24, ease: [0.2, 0.6, 0.2, 1] }}
+              />
+            )}
+            <span className="relative">
+              {tc(`categories.${cat}` as Parameters<typeof tc>[0])}
+            </span>
           </button>
         ))}
       </div>
@@ -213,13 +235,11 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
         ) : (
           <m.div
             key="grid"
-            layout
             className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
           >
             {paged.map((p, i) => (
               <m.div
                 key={p.id}
-                layout
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.97 }}
@@ -230,7 +250,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
               </m.div>
             ))}
             {/* Get-matched card slots into the grid to keep the funnel present */}
-            <m.div layout key="cta" className="relative">
+            <m.div key="cta" className="relative">
               <div className="grain relative flex h-full flex-col justify-between overflow-hidden bg-brand-950 p-6 text-white">
                 <div>
                   <h3 className="text-lg font-medium">

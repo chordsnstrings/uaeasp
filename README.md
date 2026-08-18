@@ -48,6 +48,36 @@ Arabic is not an afterthought of it: `[dir="rtl"]` swaps the whole stack to
 Alexandria, including `.num` and `.eyebrow`, because the Latin mono has no
 Arabic coverage and falls back glyph by glyph.
 
+### Motion
+
+Sparing and structural. Each piece has to say something the static page
+cannot, and there are only a handful:
+
+- **Rules draw themselves** when their section arrives (`DrawRule`, used by
+  `Eyebrow`). A page laid out on rules should be seen to draw them. Once, per
+  section, never on a loop.
+- **The register entry** grows a clay rule across its top edge on hover
+  (`.entry`). The card itself does not move — forty-two things that all lift
+  under the cursor is a fidget, not a directory.
+- **The masthead hairline** fades in only once you have scrolled, which is
+  the same information a deepening shadow used to carry at a tenth of the
+  weight.
+- **The filter chip's fill** wipes in from the leading edge, so changing a
+  filter reads as an action rather than a repaint.
+- **The checklist tick** is the one place with overshoot — four percent, once.
+- Plus the count-up, the countdown roll, the emphasis underline, the dropdown
+  stagger and the 1% press.
+
+Nothing bounces, nothing sweeps, nothing lifts. Under
+`prefers-reduced-motion` every one of these resolves instantly to its
+finished state — content is never left hidden waiting for an animation that
+will not run.
+
+Note for anyone adding more: the site lazy-loads Framer's `domAnimation`
+feature set, which does **not** include layout projection. `layout` and
+`layoutId` are silently inert — they will not animate and they will not warn.
+Use transforms, or switch the provider to `domMax` and pay the bundle.
+
 ## Local development
 
 ```bash

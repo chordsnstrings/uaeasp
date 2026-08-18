@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { DrawRule } from "@/components/motion";
 
 /**
  * The vocabulary the site is built from.
@@ -138,7 +139,7 @@ export function Eyebrow({
     <p className={`eyebrow flex items-center gap-3 ${color} ${className}`}>
       {index !== undefined && <span aria-hidden>{String(index).padStart(2, "0")}</span>}
       {children}
-      <span aria-hidden className={`h-px flex-1 ${rule}`} />
+      <DrawRule className={`h-px flex-1 ${rule}`} />
     </p>
   );
 }
