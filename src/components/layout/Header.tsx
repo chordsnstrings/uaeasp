@@ -5,6 +5,23 @@ import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { m, AnimatePresence } from "@/components/motion";
 import { LogoMark } from "@/components/icons";
+import { buttonClass } from "@/components/ui";
+
+/**
+ * The masthead.
+ *
+ * What changed, and why: the previous header announced the current section
+ * with a filled pill and lifted its dropdowns on a wide drop shadow, which
+ * are both app conventions. Here the active section is marked by a single
+ * clay rule beneath the word — the way a section is marked in print — and
+ * the whole bar is separated from the page by one hairline rather than by
+ * a shadow that deepens as you scroll.
+ *
+ * The one exception to the no-shadow rule is the dropdown panel. A menu
+ * floating over body text has to be legible above all else, and a hairline
+ * alone does not separate white from white. It gets the faintest possible
+ * cast, and nothing else on the site does.
+ */
 
 export interface HeaderMenuData {
   guides: { slug: string; title: string }[];
@@ -23,23 +40,26 @@ interface MenuGroup {
   sections: { title?: string; links: MenuLink[] }[];
 }
 
-const menuItemVariants = {
-  hidden: { opacity: 0, x: -12 },
-  show: { opacity: 1, x: 0 },
-};
+const EASE = [0.2, 0.6, 0.2, 1] as const;
 
 function Chevron({ open }: { open: boolean }) {
   return (
     <svg
-      width="12"
-      height="12"
+      width="10"
+      height="10"
       viewBox="0 0 12 12"
       fill="none"
       aria-hidden
       className="transition-transform duration-200"
       style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
     >
-      <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2.5 4.5L6 8l3.5-3.5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -51,17 +71,9 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
   const locale = useLocale();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileSection, setMobileSection] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // Close menus on navigation.
   useEffect(() => {
@@ -143,28 +155,23 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
     pathname.startsWith(g.href);
 
   return (
-    <header
-      className={`sticky top-0 z-40 border-b bg-paper/90 backdrop-blur-md transition-shadow duration-300 ${
-        scrolled ? "border-ink-100 shadow-[0_4px_20px_-8px_rgb(2_6_23/0.12)]" : "border-transparent"
-      }`}
-    >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-ink-200 bg-paper/92 backdrop-blur-md">
+      <div className="mx-auto flex h-18 max-w-6xl items-center justify-between gap-6 px-5 sm:px-8">
         <Link
           href="/"
-          className="group flex min-w-0 flex-1 items-center gap-2 text-base font-bold tracking-tight text-ink-900 sm:flex-none sm:text-lg"
+          className="group flex min-w-0 flex-1 items-center gap-2.5 sm:flex-none"
           onClick={() => setOpen(false)}
         >
-          <span
-            aria-hidden
-            className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-950 text-white transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
-          >
-            <LogoMark size={18} />
+          <span aria-hidden className="shrink-0 text-brand-800">
+            <LogoMark size={22} />
           </span>
-          <span className="truncate transition-colors group-hover:text-brand-800">{t("siteName")}</span>
+          <span className="truncate text-[15px] font-medium tracking-tight text-ink-900 group-hover:text-brand-800 sm:text-base">
+            {t("siteName")}
+          </span>
         </Link>
 
-        {/* Desktop nav with dropdowns */}
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+        {/* Desktop nav. The active section is a rule, not a pill. */}
+        <nav className="hidden items-center gap-7 md:flex" aria-label="Main">
           {groups.map((g) => {
             const active = activeGroup(g);
             const isOpen = openMenu === g.key;
@@ -182,39 +189,42 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
                   href={g.href}
                   aria-expanded={isOpen}
                   onFocus={() => setOpenMenu(g.key)}
-                  className={`press relative flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium ${
-                    active ? "text-brand-800" : "text-ink-600 hover:bg-ink-50 hover:text-ink-900"
+                  className={`relative flex items-center gap-1.5 py-6 text-sm ${
+                    active ? "text-ink-900" : "text-ink-600 hover:text-ink-900"
                   }`}
                 >
+                  <span>{t(`nav.${g.navKey}`)}</span>
+                  <span className="text-ink-400">
+                    <Chevron open={isOpen} />
+                  </span>
                   {active && (
                     <m.span
                       layoutId="nav-active"
-                      className="absolute inset-0 rounded-lg bg-brand-50"
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      className="absolute inset-x-0 bottom-0 h-px bg-accent-500"
+                      transition={{ duration: 0.28, ease: EASE }}
                     />
                   )}
-                  <span className="relative">{t(`nav.${g.navKey}`)}</span>
-                  <span className="relative text-ink-400">
-                    <Chevron open={isOpen} />
-                  </span>
                 </Link>
 
                 <AnimatePresence>
                   {isOpen && (
                     <m.div
-                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 6, scale: 0.98 }}
-                      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 2 }}
+                      transition={{ duration: 0.18, ease: EASE }}
                       onMouseEnter={cancelClose}
                       onMouseLeave={armClose}
-                      className="absolute start-0 top-full z-50 pt-2"
+                      className="absolute start-0 top-full z-50"
                     >
-                      <div className="min-w-64 max-w-xs rounded-2xl border border-ink-100 bg-white p-2 shadow-[0_16px_50px_-12px_rgb(2_6_23/0.25)]">
+                      <div className="min-w-64 max-w-xs border border-ink-200 bg-white p-1.5 shadow-[0_18px_40px_-32px_rgb(13_13_11/0.6)]">
                         {g.sections.map((section, si) => (
-                          <div key={si} className={si > 0 ? "mt-1 border-t border-ink-50 pt-1" : ""}>
+                          <div
+                            key={si}
+                            className={si > 0 ? "mt-1.5 border-t border-ink-100 pt-1.5" : ""}
+                          >
                             {section.title && (
-                              <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-ink-400">
+                              <p className="eyebrow px-3 pb-1.5 pt-2 text-ink-400">
                                 {section.title}
                               </p>
                             )}
@@ -223,16 +233,16 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
                                 key={l.href}
                                 href={l.href}
                                 onClick={() => setOpenMenu(null)}
-                                className={`group/item flex items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm transition-colors ${
+                                className={`group/item flex items-center justify-between gap-3 px-3 py-2 text-sm ${
                                   pathname.startsWith(l.href)
-                                    ? "bg-brand-50 font-semibold text-brand-800"
-                                    : "text-ink-700 hover:bg-ink-50 hover:text-brand-800"
+                                    ? "bg-ink-50 text-ink-900"
+                                    : "text-ink-600 hover:bg-ink-50 hover:text-ink-900"
                                 }`}
                               >
                                 <span className="min-w-0 truncate">{l.label}</span>
                                 <span
                                   aria-hidden
-                                  className="text-ink-300 opacity-0 transition-all group-hover/item:translate-x-0.5 group-hover/item:opacity-100 rtl:rotate-180 rtl:group-hover/item:-translate-x-0.5"
+                                  className="text-ink-300 opacity-0 transition-opacity group-hover/item:opacity-100 rtl:rotate-180"
                                 >
                                   →
                                 </span>
@@ -254,59 +264,49 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`press relative rounded-lg px-3 py-2 text-sm font-medium ${
-                  active ? "text-brand-800" : "text-ink-600 hover:bg-ink-50 hover:text-ink-900"
+                className={`relative py-6 text-sm ${
+                  active ? "text-ink-900" : "text-ink-600 hover:text-ink-900"
                 }`}
               >
+                <span>{t(`nav.${item.key}`)}</span>
                 {active && (
                   <m.span
                     layoutId="nav-active"
-                    className="absolute inset-0 rounded-lg bg-brand-50"
-                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                    className="absolute inset-x-0 bottom-0 h-px bg-accent-500"
+                    transition={{ duration: 0.28, ease: EASE }}
                   />
                 )}
-                <span className="relative">{t(`nav.${item.key}`)}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <Link
             href={pathname}
             locale={locale === "en" ? "ar" : "en"}
-            className="press rounded-lg border border-ink-200 px-3 py-1.5 text-sm font-medium text-ink-600 hover:border-brand-300 hover:text-brand-800"
+            className="eyebrow text-ink-500 hover:text-ink-900"
             aria-label={t("localeSwitcher.label")}
           >
             {locale === "en" ? t("localeSwitcher.ar") : t("localeSwitcher.en")}
           </Link>
-          <Link
-            href="/get-matched"
-            className="press hidden rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 hover:shadow-md sm:block"
-          >
+          <Link href="/get-matched" className={buttonClass({ className: "hidden sm:inline-flex" })}>
             {t("nav.getMatched")}
           </Link>
           <button
             type="button"
-            className="press grid size-10 place-items-center rounded-lg text-ink-700 hover:bg-ink-50 md:hidden"
+            className="press -me-2 grid size-10 place-items-center text-ink-800 md:hidden"
             aria-expanded={open}
             aria-label="Menu"
             onClick={() => setOpen((v) => !v)}
           >
-            <m.span
-              className="grid place-items-center"
-              initial={false}
-              animate={{ rotate: open ? 90 : 0, scale: open ? 1.05 : 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 26 }}
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-                {open ? (
-                  <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                ) : (
-                  <path d="M3 6h14M3 10h14M3 14h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                )}
-              </svg>
-            </m.span>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+              {open ? (
+                <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              ) : (
+                <path d="M3 6.5h14M3 13.5h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              )}
+            </svg>
           </button>
         </div>
       </div>
@@ -318,25 +318,20 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-ink-100 bg-paper md:hidden"
+            transition={{ duration: 0.28, ease: EASE }}
+            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-ink-200 bg-paper md:hidden"
             aria-label="Mobile"
           >
-            <m.div
-              className="space-y-1 px-4 py-3"
-              initial="hidden"
-              animate="show"
-              variants={{ show: { transition: { staggerChildren: 0.04 } } }}
-            >
+            <div className="px-5 py-2">
               {groups.map((g) => {
                 const expanded = mobileSection === g.key;
                 return (
-                  <m.div key={g.key} variants={menuItemVariants}>
-                    <div className="flex items-center rounded-lg hover:bg-ink-50">
+                  <div key={g.key} className="border-b border-ink-100">
+                    <div className="flex items-center">
                       <Link
                         href={g.href}
                         onClick={() => setOpen(false)}
-                        className="press min-w-0 flex-1 px-3 py-2.5 text-base font-medium text-ink-700"
+                        className="min-w-0 flex-1 py-3.5 text-[15px] text-ink-800"
                       >
                         {t(`nav.${g.navKey}`)}
                       </Link>
@@ -345,7 +340,7 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
                         aria-expanded={expanded}
                         aria-label={`${t(`nav.${g.navKey}`)} submenu`}
                         onClick={() => setMobileSection(expanded ? null : g.key)}
-                        className="press grid size-10 shrink-0 place-items-center rounded-lg text-ink-500"
+                        className="press grid size-10 shrink-0 place-items-center text-ink-400"
                       >
                         <Chevron open={expanded} />
                       </button>
@@ -356,48 +351,48 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: "easeOut" }}
+                          transition={{ duration: 0.24, ease: EASE }}
                           className="overflow-hidden"
                         >
-                          <div className="ms-3 space-y-0.5 border-s-2 border-brand-100 ps-3 pb-1">
-                            {g.sections.flatMap((s) => s.links).map((l) => (
-                              <Link
-                                key={l.href}
-                                href={l.href}
-                                onClick={() => setOpen(false)}
-                                className="press block rounded-lg px-3 py-2 text-sm text-ink-600 hover:bg-ink-50 hover:text-brand-800"
-                              >
-                                {l.label}
-                              </Link>
-                            ))}
+                          <div className="ms-1 border-s border-ink-200 ps-4 pb-3">
+                            {g.sections
+                              .flatMap((s) => s.links)
+                              .map((l) => (
+                                <Link
+                                  key={l.href}
+                                  href={l.href}
+                                  onClick={() => setOpen(false)}
+                                  className="block py-2 text-sm text-ink-600 hover:text-ink-900"
+                                >
+                                  {l.label}
+                                </Link>
+                              ))}
                           </div>
                         </m.div>
                       )}
                     </AnimatePresence>
-                  </m.div>
+                  </div>
                 );
               })}
               {plainItems.map((item) => (
-                <m.div key={item.href} variants={menuItemVariants}>
+                <div key={item.href} className="border-b border-ink-100">
                   <Link
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="press block rounded-lg px-3 py-2.5 text-base font-medium text-ink-700 hover:bg-ink-50"
+                    className="block py-3.5 text-[15px] text-ink-800"
                   >
                     {t(`nav.${item.key}`)}
                   </Link>
-                </m.div>
+                </div>
               ))}
-              <m.div variants={menuItemVariants}>
-                <Link
-                  href="/get-matched"
-                  onClick={() => setOpen(false)}
-                  className="press block rounded-lg bg-brand-700 px-3 py-2.5 text-center text-base font-semibold text-white"
-                >
-                  {t("nav.getMatched")}
-                </Link>
-              </m.div>
-            </m.div>
+              <Link
+                href="/get-matched"
+                onClick={() => setOpen(false)}
+                className={buttonClass({ size: "lg", className: "my-4 w-full" })}
+              >
+                {t("nav.getMatched")}
+              </Link>
+            </div>
           </m.nav>
         )}
       </AnimatePresence>
