@@ -132,14 +132,14 @@ export default async function CategoryPage({
                 <Link
                   key={c}
                   href={`/providers/category/${c}`}
-                  className="press hover-lift rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
+                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
                 >
                   {tc(`categories.${c}` as Parameters<typeof tc>[0])}
                 </Link>
               ))}
               <Link
                 href="/providers"
-                className="press hover-lift rounded-full bg-ink-900 px-3.5 py-1.5 text-xs font-semibold text-white ring-1 ring-ink-900"
+                className="press rounded-full bg-ink-900 px-3.5 py-1.5 text-xs font-semibold text-white ring-1 ring-ink-900"
               >
                 {t("allProvidersChip")}
               </Link>
@@ -155,7 +155,7 @@ export default async function CategoryPage({
             </div>
             <Link
               href="/get-matched"
-              className="press btn-shine hover-lift shrink-0 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-ink-950 hover:bg-accent-400"
+              className="press shrink-0 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-ink-950 hover:bg-accent-400"
             >
               {t("ctaButton")}
             </Link>

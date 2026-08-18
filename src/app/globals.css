@@ -150,13 +150,26 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Display type for headings — the voice of the site */
+/* Headings are the grotesk, set tight. Familjen Grotesk is narrow enough
+   that -0.02em is the point where a headline stops reading as a row of
+   words and starts reading as a single object. */
 h1,
 h2,
 h3,
 .font-display {
   font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* The serif, and the whole of the site's ornament budget.
+   Only ever at 28px and up: at small sizes Instrument Serif's thin strokes
+   disappear into the paper, and a serif that has to be squinted at is worse
+   than no serif at all. */
+.display-serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
   letter-spacing: -0.015em;
+  line-height: 1.05;
 }
 
 /* Numbers are content here: every numeral sits in the mono, tabular. */
@@ -167,18 +180,33 @@ kbd {
   font-variant-numeric: tabular-nums;
 }
 
+/* A label above a heading. Mono, small, widely tracked — the only place
+   uppercase is allowed, because it is the one thing on the page that is
+   read as a marker rather than as words. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
 [dir="rtl"] body,
 [lang="ar"] body,
 [dir="rtl"] h1,
 [dir="rtl"] h2,
 [dir="rtl"] h3,
-[dir="rtl"] .font-display {
+[dir="rtl"] .font-display,
+[dir="rtl"] .display-serif {
   font-family: var(--font-arabic);
   letter-spacing: 0;
 }
 
-/* Grain: film-like noise for flat dark blocks — kills the "clean gradient"
-   AI look without any image asset. */
+/* Paper tooth. A couple of percent of warm noise over the dark blocks —
+   below the threshold of "texture" and above the threshold of "flat fill",
+   so a large field of one colour looks printed rather than rendered.
+   Anything stronger stops being paper and becomes an effect. */
 .grain {
   position: relative;
   isolation: isolate;
@@ -188,32 +216,32 @@ kbd {
   position: absolute;
   inset: 0;
   z-index: -1;
-  opacity: 0.5;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.97 0 0 0 0 0.92 0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   pointer-events: none;
 }
 
-/* Perforation — the tear-line between a document's sections */
+/* Section divider. Was a dashed tear-line, which belonged to the ledger
+   idea; here a single hairline does the same job without the costume. */
 .perforated {
-  border-top: 2px dashed color-mix(in oklab, currentColor 22%, transparent);
+  border-top: 1px solid color-mix(in oklab, currentColor 16%, transparent);
 }
 
-/* Rubber stamp — for "PRE-APPROVED" style marks */
+/* A stamped mark — accreditation, status. Level, not rotated: the tilt was
+   charming once and looked like clip art the second time. */
 .stamp {
   font-family: var(--font-mono);
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 500;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  border: 1.5px solid currentColor;
-  border-radius: 4px;
-  padding: 2px 8px;
-  transform: rotate(-2deg);
+  border: 1px solid color-mix(in oklab, currentColor 40%, transparent);
+  border-radius: 1px;
+  padding: 2px 7px;
   display: inline-block;
 }
 
-/* Micro-interaction defaults: every interactive element responds to
-   hover/focus/active. Transforms get a springy overshoot curve so presses
-   and lifts feel physical rather than linear. */
+/* Interaction is colour and position, never scale or glow. */
 a,
 button,
 [role="button"],
@@ -222,110 +250,57 @@ select,
 textarea,
 summary {
   transition:
-    color 150ms ease,
-    background-color 150ms ease,
-    border-color 150ms ease,
-    box-shadow 200ms ease,
-    opacity 150ms ease,
-    transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Touch devices get no hover — make the press itself unmistakable. */
-@media (hover: none) {
-  a:active,
-  button:active,
-  [role="button"]:active,
-  summary:active {
-    transform: scale(0.96);
-    transition-duration: 80ms;
-  }
-  .press:active,
-  .btn-shine:active {
-    filter: brightness(0.94);
-  }
+    color 160ms var(--ease-calm),
+    background-color 160ms var(--ease-calm),
+    border-color 160ms var(--ease-calm),
+    opacity 160ms var(--ease-calm);
 }
 
 :focus-visible {
   outline: 2px solid var(--color-brand-600);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 1px;
 }
 
 ::selection {
-  background: var(--color-brand-100);
-  color: var(--color-brand-900);
+  background: var(--color-accent-200);
+  color: var(--color-ink-900);
 }
 
-/* Utility for interactive press feedback without JS */
+/* The press. One percent, fast — you feel it on a phone and never notice it
+   on a desk. */
 .press {
-  @apply active:scale-[0.97];
+  transition: transform 90ms var(--ease-calm);
+}
+.press:active {
+  transform: scale(0.99);
 }
 
+/* Cards are separated by hairlines and by being white on linen. This only
+   carries the transition; the border colour change lives on the element. */
 .card-hover {
-  box-shadow: var(--shadow-card);
-}
-.card-hover:hover {
-  box-shadow: var(--shadow-card-hover);
-  transform: translateY(-2px);
+  transition:
+    border-color 200ms var(--ease-calm),
+    background-color 200ms var(--ease-calm);
 }
 
-/* Buttons/chips that lift a touch on hover (pair with .press). */
-.hover-lift:hover {
-  transform: translateY(-1px);
-}
-.hover-lift:active {
-  transform: translateY(0) scale(0.97);
-}
-
-/* Sheen sweep across primary CTAs on hover. */
-.btn-shine {
-  position: relative;
-  overflow: hidden;
-}
-.btn-shine::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  transform: translateX(-130%) skewX(-18deg);
-  background: linear-gradient(
-    100deg,
-    transparent 20%,
-    rgb(255 255 255 / 0.35) 50%,
-    transparent 80%
-  );
-  transition: transform 650ms ease;
-  pointer-events: none;
-}
-.btn-shine:hover::after {
-  transform: translateX(130%) skewX(-18deg);
-}
-[dir="rtl"] .btn-shine::after {
-  transform: translateX(130%) skewX(18deg);
-}
-[dir="rtl"] .btn-shine:hover::after {
-  transform: translateX(-130%) skewX(18deg);
-}
-
-/* Animated underline that grows from the start edge on hover. */
+/* An underline that draws itself from the leading edge. The one piece of
+   decorative motion that survives, because it is the link telling you it is
+   a link. */
 .link-slide {
   background-image: linear-gradient(currentColor, currentColor);
   background-repeat: no-repeat;
   background-position: 0 100%;
-  background-size: 0% 1.5px;
+  background-size: 0% 1px;
   transition:
-    background-size 250ms ease,
-    color 150ms ease;
+    background-size 260ms var(--ease-calm),
+    color 160ms var(--ease-calm);
 }
 [dir="rtl"] .link-slide {
   background-position: 100% 100%;
 }
 .link-slide:hover {
-  background-size: 100% 1.5px;
-}
-
-/* Checkbox pop on tick. */
-input[type="checkbox"]:checked {
-  animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background-size: 100% 1px;
 }
 
 /* Inputs hint interactivity before focus. */
@@ -335,17 +310,16 @@ textarea:hover:not(:focus) {
   border-color: var(--color-ink-300);
 }
 
-/* FAQ accordions: answer content slides in when opened. */
+/* FAQ accordions: answers arrive rather than spring. */
 details[open] > :not(summary) {
-  animation: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: fade-up 0.4s var(--ease-calm) both;
 }
 summary {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Table rows ease their hover tint. */
 tbody tr {
-  transition: background-color 150ms ease;
+  transition: background-color 160ms var(--ease-calm);
 }
 
 /* Labels light up while their field is focused — guides the eye through
@@ -356,17 +330,18 @@ div:has(> textarea:focus) > label {
   color: var(--color-brand-700);
 }
 
-/* Marker sweep: the accent wash behind emphasised words. The Highlight
-   component animates background-size 0% -> 100% when it scrolls into view. */
+/* Emphasis inside a heading: a clay rule beneath the phrase, drawn in when
+   it scrolls into view. The old highlighter wash sat behind the words and
+   made a headline look annotated by somebody else. */
 .marker {
   background-image: linear-gradient(
-    to top,
-    color-mix(in oklab, var(--color-accent-400) 45%, transparent) 0%,
-    color-mix(in oklab, var(--color-accent-400) 45%, transparent) 42%,
-    transparent 42%
+    var(--color-accent-400),
+    var(--color-accent-400)
   );
   background-repeat: no-repeat;
   background-position: 0 100%;
+  background-size: 0% 2px;
+  padding-bottom: 0.06em;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
@@ -374,30 +349,9 @@ div:has(> textarea:focus) > label {
   background-position: 100% 100%;
 }
 
-/* Emphasised phrase on dark blocks: flat highlighter amber — a marker pen,
-   not a gradient. */
+/* The same emphasis on a dark ground, where a hairline rule would be lost. */
 .hero-em {
-  color: var(--color-accent-400);
-}
-
-/* Inline attention link/word: warms to accent on hover of the surrounding
-   sentence, so the actionable part of a paragraph reveals itself. */
-p:hover .attn,
-li:hover .attn {
-  color: var(--color-brand-700);
-}
-.attn {
-  transition: color 200ms ease;
-  font-weight: 600;
-}
-
-/* Menu dropdown chevron */
-.chev {
-  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-[data-open="true"] .chev,
-.group\/nav:hover .chev {
-  transform: rotate(180deg);
+  color: var(--color-accent-300);
 }
 
 @media (prefers-reduced-motion: reduce) {

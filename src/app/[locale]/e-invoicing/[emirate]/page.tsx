@@ -134,7 +134,7 @@ export default async function EmiratePage({
             </h2>
             <Link
               href="/providers"
-              className="press hover-lift rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800"
+              className="press rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800"
             >
               {t("viewAllProviders", { count })}
             </Link>
@@ -171,7 +171,7 @@ export default async function EmiratePage({
                 <Link
                   key={e}
                   href={`/e-invoicing/${e}`}
-                  className="press hover-lift rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
+                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
                 >
                   {emirateContent[locale][e].name}
                 </Link>
@@ -188,7 +188,7 @@ export default async function EmiratePage({
             </div>
             <Link
               href="/get-matched"
-              className="press btn-shine hover-lift shrink-0 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-ink-950 hover:bg-accent-400"
+              className="press shrink-0 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-ink-950 hover:bg-accent-400"
             >
               {t("ctaButton")}
             </Link>

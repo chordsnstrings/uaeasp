@@ -121,7 +121,7 @@ export default async function InsightPage({
             </p>
             <Link
               href="/get-matched"
-              className="press btn-shine hover-lift mt-5 inline-block rounded-lg bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
+              className="press mt-5 inline-block rounded-lg bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
             >
               {locale === "ar" ? "احصل على ترشيح مجاني" : "Get matched free"}
             </Link>

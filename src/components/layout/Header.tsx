@@ -275,14 +275,14 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
           <Link
             href={pathname}
             locale={locale === "en" ? "ar" : "en"}
-            className="press hover-lift rounded-lg border border-ink-200 px-3 py-1.5 text-sm font-medium text-ink-600 hover:border-brand-300 hover:text-brand-800"
+            className="press rounded-lg border border-ink-200 px-3 py-1.5 text-sm font-medium text-ink-600 hover:border-brand-300 hover:text-brand-800"
             aria-label={t("localeSwitcher.label")}
           >
             {locale === "en" ? t("localeSwitcher.ar") : t("localeSwitcher.en")}
           </Link>
           <Link
             href="/get-matched"
-            className="press btn-shine hover-lift hidden rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 hover:shadow-md sm:block"
+            className="press hidden rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 hover:shadow-md sm:block"
           >
             {t("nav.getMatched")}
           </Link>
@@ -392,7 +392,7 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
                 <Link
                   href="/get-matched"
                   onClick={() => setOpen(false)}
-                  className="press btn-shine block rounded-lg bg-brand-700 px-3 py-2.5 text-center text-base font-semibold text-white"
+                  className="press block rounded-lg bg-brand-700 px-3 py-2.5 text-center text-base font-semibold text-white"
                 >
                   {t("nav.getMatched")}
                 </Link>

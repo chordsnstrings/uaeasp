@@ -142,7 +142,7 @@ export function ReadinessPlanner() {
           <button
             type="button"
             onClick={() => window.print()}
-            className="press hover-lift rounded-lg border border-ink-200 px-4 py-2 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800 print:hidden"
+            className="press rounded-lg border border-ink-200 px-4 py-2 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800 print:hidden"
           >
             {t("printButton")}
           </button>
@@ -215,7 +215,7 @@ export function ReadinessPlanner() {
           <p className="mx-auto mt-2 max-w-md text-sm text-brand-100">{t("ctaBody")}</p>
           <Link
             href="/get-matched"
-            className="press btn-shine hover-lift mt-5 inline-block rounded-xl bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
+            className="press mt-5 inline-block rounded-xl bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
           >
             {t("ctaButton")}
           </Link>

@@ -126,7 +126,7 @@ export function ReadinessQuiz() {
               track("quiz_started");
               setPhase("questions");
             }}
-            className="press btn-shine hover-lift mt-8 rounded-xl bg-brand-700 px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-brand-700/20 hover:bg-brand-800"
+            className="press mt-8 rounded-xl bg-brand-700 px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-brand-700/20 hover:bg-brand-800"
           >
             {t("start")}
           </m.button>
@@ -284,7 +284,7 @@ export function ReadinessQuiz() {
                   type="submit"
                   disabled={submitting}
                   whileTap={{ scale: 0.97 }}
-                  className="btn-shine mt-5 w-full rounded-xl bg-accent-500 px-6 py-4 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/20 hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-5 w-full rounded-xl bg-accent-500 px-6 py-4 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/20 hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {submitting ? tf("submitting") : t("gate.submit")}
                 </m.button>
@@ -339,7 +339,7 @@ export function ReadinessQuiz() {
               {trackingToken && (
                 <Link
                   href={`/track/${trackingToken}`}
-                  className="press btn-shine hover-lift rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-800"
+                  className="press rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-800"
                 >
                   {t("results.trackButton")}
                 </Link>

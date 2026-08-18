@@ -80,7 +80,7 @@ export function PintFieldExplorer() {
           type="button"
           onClick={() => setGroup("")}
           aria-pressed={!group}
-          className={`press hover-lift rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
+          className={`press rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
             !group
               ? "bg-ink-900 text-white ring-ink-900"
               : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"
@@ -94,7 +94,7 @@ export function PintFieldExplorer() {
             type="button"
             onClick={() => setGroup(group === g ? "" : g)}
             aria-pressed={group === g}
-            className={`press hover-lift rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
+            className={`press rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
               group === g
                 ? "bg-brand-700 text-white ring-brand-700"
                 : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"

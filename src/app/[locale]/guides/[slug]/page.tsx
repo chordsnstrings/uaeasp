@@ -143,7 +143,7 @@ export default async function GuidePage({
             <p className="mx-auto mt-2 max-w-md text-brand-100">{t("articleCtaBody")}</p>
             <Link
               href="/get-matched"
-              className="press btn-shine hover-lift mt-6 inline-block rounded-xl bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
+              className="press mt-6 inline-block rounded-xl bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
             >
               {t("articleCtaButton")}
             </Link>

@@ -110,7 +110,7 @@ export default async function HomePage({
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   <Link
                     href="/providers"
-                    className="press hover-lift rounded-lg border border-white/25 px-5 py-2.5 text-sm font-semibold text-white hover:border-white/60 hover:bg-white/5"
+                    className="press rounded-lg border border-white/25 px-5 py-2.5 text-sm font-semibold text-white hover:border-white/60 hover:bg-white/5"
                   >
                     {t("hero.browseButton", { count })}
                   </Link>
@@ -218,13 +218,13 @@ export default async function HomePage({
               <div className="flex flex-wrap gap-2">
                 <Link
                   href="/providers"
-                  className="press hover-lift rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800 hover:shadow-sm"
+                  className="press rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800 hover:shadow-sm"
                 >
                   {t("directoryPreview.viewAll")}
                 </Link>
                 <Link
                   href="/registry"
-                  className="press hover-lift rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800 hover:shadow-sm"
+                  className="press rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800 hover:shadow-sm"
                 >
                   {t("directoryPreview.registryButton")}
                 </Link>
@@ -264,7 +264,7 @@ export default async function HomePage({
             </div>
             <Link
               href="/toolkit"
-              className="press hover-lift rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800 hover:shadow-sm"
+              className="press rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 hover:border-brand-300 hover:text-brand-800 hover:shadow-sm"
             >
               {t("toolsTeaser.viewAll")}
             </Link>
@@ -352,7 +352,7 @@ export default async function HomePage({
             </div>
             <Link
               href="/faq"
-              className="press btn-shine hover-lift shrink-0 rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
+              className="press shrink-0 rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
             >
               {t("faqTeaser.button")}
             </Link>
@@ -372,7 +372,7 @@ export default async function HomePage({
             <p className="mt-4 text-lg text-brand-100">{t("finalCta.subtitle")}</p>
             <Link
               href="/get-matched"
-              className="press btn-shine hover-lift mt-8 inline-block rounded-lg bg-accent-500 px-8 py-4 text-lg font-bold text-ink-950 shadow-[0_3px_0_rgb(2_6_23/0.4)] hover:bg-accent-400"
+              className="press mt-8 inline-block rounded-lg bg-accent-500 px-8 py-4 text-lg font-bold text-ink-950 shadow-[0_3px_0_rgb(2_6_23/0.4)] hover:bg-accent-400"
             >
               {t("finalCta.button")}
             </Link>

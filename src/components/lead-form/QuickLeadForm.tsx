@@ -150,7 +150,7 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
         type="submit"
         disabled={submitting}
         whileTap={{ scale: 0.97 }}
-        className="btn-shine mt-3 w-full rounded-lg bg-accent-500 px-6 py-3.5 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/25 hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-3 w-full rounded-lg bg-accent-500 px-6 py-3.5 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/25 hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">

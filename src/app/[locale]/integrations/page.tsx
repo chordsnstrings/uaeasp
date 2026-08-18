@@ -101,7 +101,7 @@ export default async function IntegrationsPage({
           </div>
           <Link
             href="/get-matched"
-            className="press btn-shine hover-lift shrink-0 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-ink-950 hover:bg-accent-400"
+            className="press shrink-0 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-ink-950 hover:bg-accent-400"
           >
             {t("ctaButton")}
           </Link>

@@ -96,7 +96,7 @@ export default async function GuidesPage({
             </div>
             <Link
               href="/get-matched"
-              className="press btn-shine hover-lift shrink-0 rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
+              className="press shrink-0 rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
             >
               {t("ctaButton")}
             </Link>

@@ -217,7 +217,7 @@ export function PenaltyCalculator() {
           <p className="mx-auto mt-1 max-w-sm text-sm text-brand-800/80">{t("ctaBody")}</p>
           <Link
             href="/get-matched"
-            className="press btn-shine hover-lift mt-4 inline-block rounded-xl bg-brand-700 px-6 py-3 text-sm font-bold text-white hover:bg-brand-800"
+            className="press mt-4 inline-block rounded-xl bg-brand-700 px-6 py-3 text-sm font-bold text-white hover:bg-brand-800"
           >
             {t("ctaButton")}
           </Link>
