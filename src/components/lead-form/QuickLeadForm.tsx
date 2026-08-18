@@ -84,20 +84,20 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
   }
 
   const inputClass = (field: string) =>
-    `h-12 w-full rounded-lg border bg-white px-4 text-base text-ink-900 placeholder:text-ink-400 focus:ring-2 ${
+    `h-12 w-full rounded-md border bg-white px-3.5 text-[15px] text-ink-900 placeholder:text-ink-400 focus:outline-none ${
       errors[field]
-        ? "border-red-400 focus:border-red-400 focus:ring-red-200"
-        : "border-ink-200 focus:border-brand-500 focus:ring-brand-100"
+        ? "border-accent-500 focus:border-accent-600"
+        : "border-ink-200 focus:border-ink-900"
     }`;
 
   return (
     <m.form
       key={shake}
-      animate={shake > 0 ? { x: [0, -8, 8, -5, 5, 0] } : undefined}
+      animate={shake > 0 ? { x: [0, -5, 5, -3, 3, 0] } : undefined}
       transition={{ duration: 0.4 }}
       onSubmit={onSubmit}
       noValidate
-      className="rounded-xl border border-white/15 bg-paper p-4 shadow-[0_3px_0_rgb(2_6_23/0.35)] sm:p-5"
+      className="border border-ink-200 bg-paper p-5 sm:p-6"
     >
       {/* Honeypot */}
       <div className="absolute -left-[9999px] top-auto" aria-hidden="true">
@@ -107,8 +107,8 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
         </label>
       </div>
 
-      <p className="font-display text-base font-bold text-ink-900">{t("title")}</p>
-      <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+      <p className="text-[15px] font-medium tracking-tight text-ink-900">{t("title")}</p>
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-3">
         <input
           name="fullName"
           autoComplete="name"
@@ -141,7 +141,7 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
       </div>
 
       {globalError && (
-        <p className="mt-2 rounded-lg bg-red-500/20 px-3 py-2 text-xs font-medium text-red-100" role="alert">
+        <p className="mt-3 border-s-2 border-accent-500 bg-accent-50 px-3 py-2 text-xs text-accent-800" role="alert">
           {globalError}
         </p>
       )}
@@ -149,14 +149,14 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
       <m.button
         type="submit"
         disabled={submitting}
-        whileTap={{ scale: 0.97 }}
-        className="mt-3 w-full rounded-lg bg-accent-500 px-6 py-3.5 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/25 hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
+        whileTap={{ scale: 0.99 }}
+        className="press mt-2.5 w-full rounded-md bg-ink-900 px-6 py-3.5 text-[15px] font-medium tracking-tight text-paper hover:bg-brand-900 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">
             <svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
-              <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" className="opacity-25" />
+              <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
             {tf("submitting")}
           </span>
@@ -164,7 +164,7 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
           t("submit")
         )}
       </m.button>
-      <p className="mt-2.5 text-center text-[11px] leading-relaxed text-ink-500">
+      <p className="mt-3 text-[11px] leading-relaxed text-ink-500">
         {t("note")}{" "}
         <Link href="/privacy" className="underline underline-offset-2 hover:text-ink-900" target="_blank">
           {tf("consentLinkText")}

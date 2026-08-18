@@ -19,7 +19,7 @@ import type { ReactNode } from "react";
 /* Buttons                                                             */
 /* ------------------------------------------------------------------ */
 
-export type ButtonVariant = "solid" | "outline" | "quiet" | "accent" | "onDark";
+export type ButtonVariant = "solid" | "outline" | "quiet" | "accent" | "onDark" | "light";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const VARIANTS: Record<ButtonVariant, string> = {
@@ -32,6 +32,10 @@ const VARIANTS: Record<ButtonVariant, string> = {
      deadline, a penalty. If two of these appear on a screen, one is wrong. */
   accent: "bg-accent-600 text-white hover:bg-accent-700",
   onDark: "border border-white/25 text-white hover:border-white/70 hover:bg-white/5",
+  /* The inverse of solid, for the spruce blocks: paper on dark reads as the
+     same button, which is the point — there is only one primary action
+     treatment on this site, in two values. */
+  light: "bg-paper text-ink-900 hover:bg-white",
 };
 
 const SIZES: Record<ButtonSize, string> = {
