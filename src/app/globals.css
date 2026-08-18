@@ -91,22 +91,17 @@
   --radius-2xl: 0.25rem;
   --radius-3xl: 0.375rem;
 
-  /* Depth is drawn, not blurred. A card is separated from the page by a
-     hairline and by the fact that it is white; lifting it on a shadow
-     would put it in a different design language than the rules around it. */
-  --shadow-card: none;
-  --shadow-card-hover: none;
+  /* Depth is drawn, not blurred: a card is separated from the page by a
+     hairline and by the fact that it is white. Lifting it on a shadow would
+     put it in a different language than the rules around it, so there is no
+     shadow token here at all.
 
-  /* Motion is slow and linear-ish. No overshoot, no bounce: the springy
+     Motion is slow and linear-ish. No overshoot, no bounce — the springy
      curve that suited the previous identity fights this one. */
   --ease-calm: cubic-bezier(0.2, 0.6, 0.2, 1);
 
-  --animate-fade-up: fade-up 0.7s cubic-bezier(0.2, 0.6, 0.2, 1) both;
-  --animate-fade-in: fade-in 0.6s ease-out both;
   --animate-pulse-soft: pulse-soft 3.6s ease-in-out infinite;
   --animate-pop-in: fade-in 0.4s cubic-bezier(0.2, 0.6, 0.2, 1) both;
-  --animate-float-slow: float-slow 14s ease-in-out infinite;
-  --animate-float-slower: float-slow 20s ease-in-out -6s infinite reverse;
 
   @keyframes fade-up {
     from {
@@ -133,15 +128,6 @@
     }
     50% {
       opacity: 0.4;
-    }
-  }
-  @keyframes float-slow {
-    0%,
-    100% {
-      transform: translate3d(0, 0, 0);
-    }
-    50% {
-      transform: translate3d(14px, -16px, 0);
     }
   }
 }
@@ -237,12 +223,6 @@ kbd {
   opacity: 0.35;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.97 0 0 0 0 0.92 0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   pointer-events: none;
-}
-
-/* Section divider. Was a dashed tear-line, which belonged to the ledger
-   idea; here a single hairline does the same job without the costume. */
-.perforated {
-  border-top: 1px solid color-mix(in oklab, currentColor 16%, transparent);
 }
 
 /* A stamped mark — accreditation, status. Level, not rotated: the tilt was

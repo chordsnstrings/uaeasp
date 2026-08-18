@@ -21,7 +21,7 @@ import {
   Highlight,
 } from "@/components/motion";
 import { IconCalculator, IconCalendar, IconChecklist } from "@/components/icons";
-import { Arrow, Container, Eyebrow, Section, buttonClass } from "@/components/ui";
+import { Arrow, Container, Eyebrow, Panel, Section, Stat, buttonClass } from "@/components/ui";
 
 /**
  * The home page, laid out as the opening spread of a reference work.
@@ -184,16 +184,14 @@ export default async function HomePage({
               { value: 7, label: t("stats.emirates"), isNumber: true },
               { value: t("stats.costValue"), label: t("stats.cost"), isNumber: false },
             ].map((stat, i) => (
-              <div key={stat.label} className={`py-10 ${i > 0 ? "sm:ps-10" : ""} sm:pe-10`}>
-                <dd className="num text-4xl font-normal tracking-tight text-ink-900 sm:text-5xl">
-                  {stat.isNumber ? (
-                    <AnimatedNumber value={stat.value as number} />
-                  ) : (
-                    stat.value
-                  )}
-                </dd>
-                <dt className="eyebrow mt-3 text-ink-500">{stat.label}</dt>
-              </div>
+              <Stat
+                key={stat.label}
+                className={`py-10 ${i > 0 ? "sm:ps-10" : ""} sm:pe-10`}
+                value={
+                  stat.isNumber ? <AnimatedNumber value={stat.value as number} /> : stat.value
+                }
+                label={stat.label}
+              />
             ))}
           </dl>
         </Container>
@@ -348,7 +346,7 @@ export default async function HomePage({
       {/* The questions, and then the one ask */}
       <Container className="py-20 sm:py-24">
         <FadeIn>
-          <div className="flex flex-col items-start justify-between gap-6 border border-ink-200 bg-white p-8 sm:flex-row sm:items-center sm:p-10">
+          <Panel className="flex flex-col items-start justify-between gap-6 p-8 sm:flex-row sm:items-center sm:p-10">
             <div>
               <h2 className="text-2xl font-medium tracking-tight text-ink-900">
                 {t("faqTeaser.title")}
@@ -363,7 +361,7 @@ export default async function HomePage({
             >
               {t("faqTeaser.button")}
             </Link>
-          </div>
+          </Panel>
         </FadeIn>
       </Container>
 

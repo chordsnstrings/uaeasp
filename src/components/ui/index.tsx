@@ -12,34 +12,29 @@ import type { ReactNode } from "react";
  * have to be defined once.
  *
  * Deliberately not a component library. These are class strings and thin
- * wrappers, usable from server components, with no state and no runtime.
+ * wrappers, usable from server components, with no state and no runtime —
+ * and nothing lives here that no page uses.
  */
 
 /* ------------------------------------------------------------------ */
 /* Buttons                                                             */
 /* ------------------------------------------------------------------ */
 
-export type ButtonVariant = "solid" | "outline" | "quiet" | "accent" | "onDark" | "light";
-export type ButtonSize = "sm" | "md" | "lg";
+type ButtonVariant = "solid" | "outline" | "light";
+type ButtonSize = "md" | "lg";
 
 const VARIANTS: Record<ButtonVariant, string> = {
   /* The default. Near-black on linen: the strongest thing on the page, and
-     the reason the accent almost never has to be spent on a button. */
+     the reason clay never has to be spent on a button. */
   solid: "bg-ink-900 text-paper hover:bg-brand-900",
-  outline: "border border-ink-300 text-ink-800 hover:border-ink-900 hover:bg-ink-50",
-  quiet: "text-brand-700 underline-offset-4 hover:text-brand-900 hover:underline",
-  /* Clay. Reserved for the one action on a page that is time-bound — a
-     deadline, a penalty. If two of these appear on a screen, one is wrong. */
-  accent: "bg-accent-600 text-white hover:bg-accent-700",
-  onDark: "border border-white/25 text-white hover:border-white/70 hover:bg-white/5",
-  /* The inverse of solid, for the spruce blocks: paper on dark reads as the
-     same button, which is the point — there is only one primary action
-     treatment on this site, in two values. */
+  /* The inverse, for the spruce blocks. Paper on dark reads as the same
+     button, which is the point — there is one primary treatment on this
+     site, in two values. */
   light: "bg-paper text-ink-900 hover:bg-white",
+  outline: "border border-ink-300 text-ink-800 hover:border-ink-900 hover:bg-ink-50",
 };
 
 const SIZES: Record<ButtonSize, string> = {
-  sm: "px-3.5 py-2 text-sm",
   md: "px-5 py-2.5 text-sm",
   lg: "px-7 py-3.5 text-base",
 };
@@ -55,25 +50,7 @@ export function buttonClass({
 } = {}): string {
   const base =
     "press inline-flex items-center justify-center gap-2 rounded-md font-medium tracking-tight disabled:opacity-50 disabled:pointer-events-none";
-  const shape = variant === "quiet" ? "" : SIZES[size];
-  return [base, shape, VARIANTS[variant], className].filter(Boolean).join(" ");
-}
-
-export function Button({
-  variant,
-  size,
-  className,
-  children,
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-}) {
-  return (
-    <button className={buttonClass({ variant, size, className })} {...props}>
-      {children}
-    </button>
-  );
+  return [base, SIZES[size], VARIANTS[variant], className].filter(Boolean).join(" ");
 }
 
 /** The arrow that follows a "read on" link. Flips with the writing direction. */
@@ -136,11 +113,6 @@ export function Section({
   );
 }
 
-/** A hairline. Full-bleed inside its container; the site's main punctuation. */
-export function Rule({ className = "" }: { className?: string }) {
-  return <hr className={`border-0 border-t border-ink-200 ${className}`} aria-hidden />;
-}
-
 /**
  * The label above a heading — optionally numbered, always followed by a rule
  * that runs to the edge of the measure.
@@ -171,40 +143,6 @@ export function Eyebrow({
   );
 }
 
-/**
- * A page's opening: marker, headline, and one paragraph of standfirst.
- *
- * The headline is set in the serif because it is the only line on the page
- * that gets to be large, and because a single well-set serif line does more
- * work than any illustration this site could honestly use.
- */
-export function PageHeader({
-  eyebrow,
-  title,
-  lede,
-  children,
-  className = "",
-}: {
-  eyebrow?: ReactNode;
-  title: ReactNode;
-  lede?: ReactNode;
-  children?: ReactNode;
-  className?: string;
-}) {
-  return (
-    <header className={className}>
-      {eyebrow && <Eyebrow className="mb-6">{eyebrow}</Eyebrow>}
-      <h1 className="display-serif max-w-3xl text-4xl text-ink-900 sm:text-5xl lg:text-6xl">
-        {title}
-      </h1>
-      {lede && (
-        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-600">{lede}</p>
-      )}
-      {children}
-    </header>
-  );
-}
-
 /** A bordered white block on the linen. The only kind of container there is. */
 export function Panel({
   children,
@@ -220,7 +158,14 @@ export function Panel({
   );
 }
 
-/** A figure and its caption. Figures are mono and tabular; captions are small. */
+/**
+ * A figure and its caption, as a term and its definition.
+ *
+ * Wrapped in a <div> rather than emitting a bare dd/dt pair so it can sit in
+ * a grid inside a <dl> without the layout fighting the semantics. The figure
+ * comes first visually and the label second, which is why the dd is written
+ * above the dt.
+ */
 export function Stat({
   value,
   label,
@@ -232,10 +177,10 @@ export function Stat({
 }) {
   return (
     <div className={className}>
-      <p className="num text-4xl font-medium tracking-tight text-ink-900 sm:text-5xl">
+      <dd className="num text-4xl font-normal tracking-tight text-ink-900 sm:text-5xl">
         {value}
-      </p>
-      <p className="eyebrow mt-3 text-ink-500">{label}</p>
+      </dd>
+      <dt className="eyebrow mt-3 text-ink-500">{label}</dt>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import type { Provider } from "@/db/schema";
-import { Arrow } from "@/components/ui";
+import { Arrow, Panel } from "@/components/ui";
 
 /**
  * One entry in the register.
@@ -29,7 +29,10 @@ export function ProviderCard({
 }) {
   const delisted = provider.status === "delisted";
   return (
-    <article className="card-hover group relative flex h-full min-w-0 flex-col border border-ink-200 bg-white p-6 hover:border-ink-900">
+    <Panel
+      as="article"
+      className="card-hover group relative flex h-full min-w-0 flex-col p-6 hover:border-ink-900"
+    >
       <div className="flex items-start justify-between gap-3">
         {serial !== undefined && (
           <span className="num text-[11px] text-ink-500" dir="ltr">
@@ -68,6 +71,6 @@ export function ProviderCard({
           </span>
         )}
       </div>
-    </article>
+    </Panel>
   );
 }
