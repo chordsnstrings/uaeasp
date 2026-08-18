@@ -158,7 +158,7 @@ export function LeadForm({
       className="space-y-5"
     >
       {/* Honeypot — hidden from humans, tempting for bots */}
-      <div className="absolute -left-[9999px] top-auto" aria-hidden="true">
+      <div className="sr-only" aria-hidden="true">
         <label>
           Website
           <input type="text" name="website" tabIndex={-1} autoComplete="off" />

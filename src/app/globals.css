@@ -203,6 +203,18 @@ kbd {
   letter-spacing: 0;
 }
 
+/* Arabic gets its own face everywhere, including the two utilities that
+   otherwise force a Latin mono. IBM Plex Mono has no Arabic coverage, so a
+   label or a figure caption set in it falls back per-glyph and the word comes
+   apart — "مجاني" renders as four disconnected letters. Alexandria has
+   perfectly good tabular figures; the tracking goes because Arabic is never
+   letterspaced. */
+[dir="rtl"] .num,
+[dir="rtl"] .eyebrow {
+  font-family: var(--font-arabic);
+  letter-spacing: 0;
+}
+
 /* Paper tooth. A couple of percent of warm noise over the dark blocks —
    below the threshold of "texture" and above the threshold of "flat fill",
    so a large field of one colour looks printed rather than rendered.

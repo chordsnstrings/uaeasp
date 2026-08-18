@@ -99,8 +99,12 @@ export function QuickLeadForm({ source = "hero" }: { source?: string }) {
       noValidate
       className="border border-ink-200 bg-paper p-5 sm:p-6"
     >
-      {/* Honeypot */}
-      <div className="absolute -left-[9999px] top-auto" aria-hidden="true">
+      {/* Honeypot.
+          Hidden by clipping, not by being parked 9,999 pixels to the left:
+          in a right-to-left document a negative left offset is real overflow,
+          and it gave every Arabic page carrying this form ten thousand pixels
+          of empty horizontal scroll. */}
+      <div className="sr-only" aria-hidden="true">
         <label>
           Website
           <input type="text" name="website" tabIndex={-1} autoComplete="off" />
