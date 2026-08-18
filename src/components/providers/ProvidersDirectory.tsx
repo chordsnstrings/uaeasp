@@ -36,6 +36,8 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
   // important for SEO); URL params are applied after mount.
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
+  // The chip fill wipes in on a change of filter, never on first paint.
+  const [picked, setPicked] = useState(false);
   const [page, setPage] = useState(1);
   const [searchFocused, setSearchFocused] = useState(false);
   const deferredQuery = useDeferredValue(query);
@@ -163,7 +165,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => { setCategory(""); setPage(1); }}
+          onClick={() => { setCategory(""); setPage(1); setPicked(true); }}
           className={`press relative rounded-md border px-3.5 py-1.5 text-xs transition-colors ${
             !category
               ? "border-ink-900 text-paper"
@@ -177,7 +179,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
             <m.span
               aria-hidden
               className="absolute inset-0 origin-left rounded-md bg-ink-900 rtl:origin-right"
-              initial={{ scaleX: 0 }}
+              initial={picked ? { scaleX: 0 } : false}
               animate={{ scaleX: 1 }}
               transition={{ duration: 0.24, ease: [0.2, 0.6, 0.2, 1] }}
             />
@@ -188,7 +190,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
           <button
             key={cat}
             type="button"
-            onClick={() => { setCategory(category === cat ? "" : cat); setPage(1); }}
+            onClick={() => { setCategory(category === cat ? "" : cat); setPage(1); setPicked(true); }}
             className={`press relative rounded-md border px-3.5 py-1.5 text-xs transition-colors ${
               category === cat
                 ? "border-ink-900 text-paper"
@@ -200,7 +202,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
               <m.span
                 aria-hidden
                 className="absolute inset-0 origin-left rounded-md bg-ink-900 rtl:origin-right"
-                initial={{ scaleX: 0 }}
+                initial={picked ? { scaleX: 0 } : false}
                 animate={{ scaleX: 1 }}
                 transition={{ duration: 0.24, ease: [0.2, 0.6, 0.2, 1] }}
               />
