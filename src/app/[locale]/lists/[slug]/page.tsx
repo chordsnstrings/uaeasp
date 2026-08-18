@@ -115,12 +115,12 @@ export default async function LandingPage({
 
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <FadeIn>
-          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="max-w-3xl display-serif text-4xl text-ink-900 sm:text-5xl">
             {copy.h1}
           </h1>
           <p className="mt-4 max-w-3xl text-lg leading-relaxed text-ink-600">{copy.intro}</p>
           {lastUpdated && (
-            <p className="num mt-3 text-xs text-ink-400">
+            <p className="num mt-3 text-xs text-ink-500">
               {formatDirectoryDate(lastUpdated, locale)}
             </p>
           )}
@@ -134,7 +134,7 @@ export default async function LandingPage({
 
         <FadeIn>
           <div className="mt-12">
-            <h2 className="text-2xl font-bold tracking-tight text-ink-900">{copy.listHeading}</h2>
+            <h2 className="text-2xl font-medium tracking-tight text-ink-900">{copy.listHeading}</h2>
             <p className="mt-2 max-w-3xl text-ink-600">{copy.listIntro}</p>
           </div>
         </FadeIn>
@@ -160,17 +160,17 @@ export default async function LandingPage({
 
         <FadeIn>
           <div className="mt-12">
-            <h2 className="text-2xl font-bold tracking-tight text-ink-900">
+            <h2 className="text-2xl font-medium tracking-tight text-ink-900">
               {locale === "ar" ? "أسئلة شائعة" : "Common questions"}
             </h2>
             <div className="mt-5 space-y-3">
               {copy.faq.map((f) => (
                 <details
                   key={f.q}
-                  className="group rounded-2xl border border-ink-100 bg-white transition-shadow hover:border-ink-200 hover:shadow-sm open:border-brand-200 open:shadow-card"
+                  className="group rounded-2xl border border-ink-100 bg-white transition-colors hover:border-ink-200 open:border-brand-200"
                 >
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold text-ink-900 [&::-webkit-details-marker]:hidden">
-                    <h3 className="text-base font-semibold">{f.q}</h3>
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-medium text-ink-900 [&::-webkit-details-marker]:hidden">
+                    <h3 className="text-base font-medium">{f.q}</h3>
                     <span
                       aria-hidden
                       className="grid size-7 shrink-0 place-items-center rounded-full bg-ink-50 text-ink-500 transition-transform duration-200 group-open:rotate-45 group-open:bg-brand-50 group-open:text-brand-700"
@@ -194,7 +194,7 @@ export default async function LandingPage({
                 <Link
                   key={rel}
                   href={`/lists/${rel}`}
-                  className="press rounded-xl border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800"
+                  className="press rounded-xl border border-ink-200 bg-white px-4 py-2.5 text-sm font-medium text-ink-700 hover:border-brand-300 hover:text-brand-800"
                 >
                   {target.h1}
                 </Link>
@@ -202,13 +202,13 @@ export default async function LandingPage({
             })}
             <Link
               href="/registry"
-              className="press rounded-xl border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800"
+              className="press rounded-xl border border-ink-200 bg-white px-4 py-2.5 text-sm font-medium text-ink-700 hover:border-brand-300 hover:text-brand-800"
             >
               {locale === "ar" ? "سجل المزودين الكامل" : "Full contact registry"}
             </Link>
             <Link
               href="/get-matched"
-              className="press rounded-xl bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white"
+              className="press rounded-xl bg-ink-900 px-4 py-2.5 text-sm font-medium text-white"
             >
               {locale === "ar" ? "احصل على قائمة مختصرة مجاناً" : "Get a free shortlist"}
             </Link>

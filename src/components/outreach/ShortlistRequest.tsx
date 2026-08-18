@@ -50,8 +50,8 @@ export function ShortlistRequest({ token, company }: { token: string; company: s
 
   if (state === "done") {
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-6">
-        <p className="font-display text-lg font-bold text-ink-900">
+      <div className="border-s-2 border-brand-600 bg-white p-6">
+        <p className="text-lg font-medium tracking-tight text-ink-900">
           Done — we will send it to you.
         </p>
         <p className="mt-2 text-sm leading-relaxed text-ink-700">
@@ -64,24 +64,21 @@ export function ShortlistRequest({ token, company }: { token: string; company: s
   }
 
   return (
-    <form onSubmit={submit} className="rounded-2xl border border-brand-200 bg-brand-50/60 p-6">
-      <p className="font-display text-lg font-bold text-ink-900">
-        Get the three that fit {company}
-      </p>
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-700">
-        We already have your details from the email, so there is nothing to fill in. These
-        two only sharpen the shortlist — skip them if you would rather.
+    <form onSubmit={submit}>
+      <p className="text-sm leading-relaxed text-ink-600">
+        We already have your details from the email, so there is nothing you have to fill
+        in. These two only sharpen the shortlist — skip them if you would rather.
       </p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <label className="block">
-          <span className="text-xs font-semibold text-ink-600">
-            Invoices a month <span className="font-normal text-ink-400">(optional)</span>
+          <span className="eyebrow text-ink-500">
+            Invoices a month <span className="font-normal text-ink-500">(optional)</span>
           </span>
           <select
             value={volume}
             onChange={(e) => setVolume(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-sm text-ink-900"
+            className="mt-2 w-full rounded-md border border-ink-200 bg-white px-3 py-2.5 text-sm text-ink-900 focus:border-ink-900 focus:outline-none"
           >
             <option value="">Not sure</option>
             {VOLUMES.map((v) => (
@@ -92,15 +89,15 @@ export function ShortlistRequest({ token, company }: { token: string; company: s
           </select>
         </label>
         <label className="block">
-          <span className="text-xs font-semibold text-ink-600">
-            Accounting system <span className="font-normal text-ink-400">(optional)</span>
+          <span className="eyebrow text-ink-500">
+            Accounting system <span className="font-normal text-ink-500">(optional)</span>
           </span>
           <input
             value={software}
             onChange={(e) => setSoftware(e.target.value)}
             placeholder="Tally, SAP, Zoho…"
             maxLength={120}
-            className="mt-1 w-full rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-sm text-ink-900 placeholder:text-ink-400"
+            className="mt-2 w-full rounded-md border border-ink-200 bg-white px-3 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-ink-900 focus:outline-none"
           />
         </label>
       </div>
@@ -108,13 +105,13 @@ export function ShortlistRequest({ token, company }: { token: string; company: s
       <button
         type="submit"
         disabled={state === "sending"}
-        className="press mt-4 rounded-xl bg-ink-900 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-ink-800 disabled:opacity-60"
+        className="press mt-5 rounded-md bg-ink-900 px-6 py-3 text-sm font-medium text-paper hover:bg-brand-900 disabled:opacity-60"
       >
         {state === "sending" ? "Sending…" : "Send me the shortlist"}
       </button>
 
       {state === "error" && (
-        <p className="mt-3 text-xs text-red-700">
+        <p className="mt-3 border-s-2 border-accent-500 ps-3 text-xs text-accent-800">
           That did not go through. Replying to our email works just as well.
         </p>
       )}

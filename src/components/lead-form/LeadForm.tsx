@@ -158,7 +158,7 @@ export function LeadForm({
       className="space-y-5"
     >
       {/* Honeypot — hidden from humans, tempting for bots */}
-      <div className="absolute -left-[9999px] top-auto" aria-hidden="true">
+      <div className="sr-only" aria-hidden="true">
         <label>
           Website
           <input type="text" name="website" tabIndex={-1} autoComplete="off" />
@@ -167,7 +167,7 @@ export function LeadForm({
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className={fieldClass}>
-          <label htmlFor="lead-fullName" className="mb-1.5 block text-sm font-semibold text-ink-800">
+          <label htmlFor="lead-fullName" className="mb-1.5 block text-sm font-medium text-ink-800">
             {t("fullName")} <span className="text-red-500">*</span>
           </label>
           <input
@@ -182,7 +182,7 @@ export function LeadForm({
           {fieldError("fullName")}
         </div>
         <div className={fieldClass}>
-          <label htmlFor="lead-companyName" className="mb-1.5 block text-sm font-semibold text-ink-800">
+          <label htmlFor="lead-companyName" className="mb-1.5 block text-sm font-medium text-ink-800">
             {t("companyName")} <span className="text-red-500">*</span>
           </label>
           <input
@@ -197,7 +197,7 @@ export function LeadForm({
           {fieldError("companyName")}
         </div>
         <div className={fieldClass + " sm:col-span-2"}>
-          <label htmlFor="lead-phone" className="mb-1.5 block text-sm font-semibold text-ink-800">
+          <label htmlFor="lead-phone" className="mb-1.5 block text-sm font-medium text-ink-800">
             {t("phone")} <span className="text-red-500">*</span>
           </label>
           <input
@@ -221,7 +221,7 @@ export function LeadForm({
         type="button"
         onClick={() => setShowOptional((v) => !v)}
         aria-expanded={showOptional}
-        className="press flex w-full items-center justify-between rounded-xl border border-dashed border-ink-200 px-4 py-3 text-sm font-semibold text-ink-600 hover:border-brand-300 hover:text-brand-800"
+        className="press flex w-full items-center justify-between rounded-xl border border-dashed border-ink-200 px-4 py-3 text-sm font-medium text-ink-600 hover:border-brand-300 hover:text-brand-800"
       >
         <span>{t("optionalToggle")}</span>
         <svg
@@ -240,7 +240,7 @@ export function LeadForm({
       <div className={showOptional ? "space-y-5" : "hidden"}>
       <div className="grid gap-5 sm:grid-cols-2">
         <div className={fieldClass}>
-          <label htmlFor="lead-email" className="mb-1.5 block text-sm font-semibold text-ink-800">
+          <label htmlFor="lead-email" className="mb-1.5 block text-sm font-medium text-ink-800">
             {t("email")}
           </label>
           <input
@@ -257,7 +257,7 @@ export function LeadForm({
           {fieldError("email")}
         </div>
         <div className={fieldClass}>
-          <label htmlFor="lead-emirate" className="mb-1.5 block text-sm font-semibold text-ink-800">
+          <label htmlFor="lead-emirate" className="mb-1.5 block text-sm font-medium text-ink-800">
             {t("emirate")}
           </label>
           <select
@@ -283,7 +283,7 @@ export function LeadForm({
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className={fieldClass}>
-          <label htmlFor="lead-invoiceVolume" className="mb-1.5 block text-sm font-semibold text-ink-800">
+          <label htmlFor="lead-invoiceVolume" className="mb-1.5 block text-sm font-medium text-ink-800">
             {t("invoiceVolume")}
           </label>
           <select id="lead-invoiceVolume" name="invoiceVolume" defaultValue="" className={inputClass("invoiceVolume")}>
@@ -296,7 +296,7 @@ export function LeadForm({
           </select>
         </div>
         <div className={fieldClass}>
-          <label htmlFor="lead-budgetRange" className="mb-1.5 block text-sm font-semibold text-ink-800">
+          <label htmlFor="lead-budgetRange" className="mb-1.5 block text-sm font-medium text-ink-800">
             {t("budgetRange")}
           </label>
           <select id="lead-budgetRange" name="budgetRange" defaultValue="" className={inputClass("budgetRange")}>
@@ -309,7 +309,7 @@ export function LeadForm({
           </select>
         </div>
         <div className={fieldClass}>
-          <label htmlFor="lead-software" className="mb-1.5 block text-sm font-semibold text-ink-800">
+          <label htmlFor="lead-software" className="mb-1.5 block text-sm font-medium text-ink-800">
             {t("accountingSoftware")}
           </label>
           <input
@@ -320,7 +320,7 @@ export function LeadForm({
           />
         </div>
         <div className={fieldClass}>
-          <label htmlFor="lead-timeline" className="mb-1.5 block text-sm font-semibold text-ink-800">
+          <label htmlFor="lead-timeline" className="mb-1.5 block text-sm font-medium text-ink-800">
             {t("timeline")}
           </label>
           <select id="lead-timeline" name="timeline" defaultValue="" className={inputClass("timeline")}>
@@ -335,7 +335,7 @@ export function LeadForm({
       </div>
 
       <div>
-        <label htmlFor="lead-message" className="mb-1.5 block text-sm font-semibold text-ink-800">
+        <label htmlFor="lead-message" className="mb-1.5 block text-sm font-medium text-ink-800">
           {t("message")}
         </label>
         <textarea
@@ -364,7 +364,7 @@ export function LeadForm({
         type="submit"
         disabled={submitting}
         whileTap={{ scale: 0.97 }}
-        className="btn-shine w-full rounded-xl bg-accent-500 px-6 py-4 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/20 hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-xl bg-ink-900 px-6 py-4 text-base font-medium text-paper hover:bg-brand-900 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">
@@ -378,7 +378,7 @@ export function LeadForm({
           t("submit")
         )}
       </m.button>
-      <p className="text-center text-xs leading-relaxed text-ink-400">
+      <p className="text-center text-xs leading-relaxed text-ink-500">
         {t("consentPrefix")}{" "}
         <Link
           href="/privacy"

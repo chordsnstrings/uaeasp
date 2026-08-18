@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
 
         <form
           action={formAction}
-          className="space-y-4 rounded-2xl border border-ink-100 bg-white p-6 shadow-card"
+          className="space-y-4 rounded-2xl border border-ink-100 bg-white p-6 shadow-[0_1px_2px_rgb(13_13_11/0.05),0_12px_32px_-24px_rgb(13_13_11/0.3)]"
         >
           <div>
             <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-ink-800">

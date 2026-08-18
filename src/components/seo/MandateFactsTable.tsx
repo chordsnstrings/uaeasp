@@ -7,13 +7,13 @@ import type { Locale } from "@/lib/site";
 export async function MandateFactsTable({ locale }: { locale: Locale }) {
   const t = await getTranslations("landing");
   return (
-    <div className="overflow-x-auto rounded-2xl border border-ink-100 bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-2xl border border-ink-100 bg-white">
       <table className="w-full min-w-[560px] text-sm">
         <thead>
           <tr className="border-b border-ink-200 bg-ink-50 text-xs uppercase tracking-wide text-ink-500">
-            <th className="px-4 py-3 text-start font-semibold">{t("phaseCol")}</th>
-            <th className="px-4 py-3 text-start font-semibold">{t("appointCol")}</th>
-            <th className="px-4 py-3 text-start font-semibold">{t("goLiveCol")}</th>
+            <th className="px-4 py-3 text-start font-medium">{t("phaseCol")}</th>
+            <th className="px-4 py-3 text-start font-medium">{t("appointCol")}</th>
+            <th className="px-4 py-3 text-start font-medium">{t("goLiveCol")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-ink-50">
@@ -22,13 +22,13 @@ export async function MandateFactsTable({ locale }: { locale: Locale }) {
             return (
               <tr key={p.key} className="hover:bg-brand-50/30">
                 <td className="px-4 py-3">
-                  <span className="font-semibold text-ink-900">{pl.name}</span>
+                  <span className="font-medium text-ink-900">{pl.name}</span>
                   <span className="block text-xs text-ink-500">{pl.detail}</span>
                 </td>
                 <td className="px-4 py-3 text-ink-700">
                   {formatMandateDate(p.appointDeadlineIso, locale)}
                 </td>
-                <td className="px-4 py-3 font-semibold text-brand-800">
+                <td className="px-4 py-3 font-medium text-brand-800">
                   {formatMandateDate(p.goLiveIso, locale)}
                 </td>
               </tr>

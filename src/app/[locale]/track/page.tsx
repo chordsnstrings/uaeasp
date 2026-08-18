@@ -35,7 +35,7 @@ export default async function TrackPage({
   return (
     <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
       <FadeIn>
-        <h1 className="text-center text-3xl font-extrabold tracking-tight text-ink-900">
+        <h1 className="display-serif text-center text-4xl text-ink-900">
           {t("title")}
         </h1>
         <p className="mt-3 text-center text-ink-600">{t("subtitle")}</p>

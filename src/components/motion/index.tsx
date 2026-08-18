@@ -35,10 +35,10 @@ export function FadeIn({
   return (
     <MotionTag
       className={className}
-      initial={reduced ? false : { opacity: 0, y: 18 }}
+      initial={reduced ? false : { opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.7, delay, ease: [0.2, 0.6, 0.2, 1] }}
     >
       {children}
     </MotionTag>
@@ -62,7 +62,7 @@ export function StaggerGroup({
       viewport={{ once: true, margin: "-40px" }}
       variants={{
         hidden: {},
-        show: { transition: { staggerChildren: 0.06 } },
+        show: { transition: { staggerChildren: 0.05 } },
       }}
     >
       {children}
@@ -81,11 +81,11 @@ export function StaggerItem({
     <m.div
       className={className}
       variants={{
-        hidden: { opacity: 0, y: 16 },
+        hidden: { opacity: 0, y: 8 },
         show: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+          transition: { duration: 0.6, ease: [0.2, 0.6, 0.2, 1] },
         },
       }}
     >
@@ -94,17 +94,22 @@ export function StaggerItem({
   );
 }
 
-/** Emphasised phrase whose accent marker sweeps in when scrolled into view.
- * Use inside headings via t.rich: <Highlight>key phrase</Highlight>. */
+/** Emphasised phrase, underscored by a clay rule that draws itself in when
+ * the heading is scrolled into view. Use inside headings via t.rich:
+ * <Highlight>key phrase</Highlight>.
+ *
+ * The height is pinned at 2px rather than 100%: the rule sits under the
+ * words now instead of washing behind them, so animating the full height
+ * would flood the phrase with colour on arrival. */
 export function Highlight({ children }: { children: ReactNode }) {
   const reduced = useReducedMotion();
   return (
     <m.span
       className="marker"
-      initial={reduced ? { backgroundSize: "100% 100%" } : { backgroundSize: "0% 100%" }}
-      whileInView={{ backgroundSize: "100% 100%" }}
+      initial={reduced ? { backgroundSize: "100% 2px" } : { backgroundSize: "0% 2px" }}
+      whileInView={{ backgroundSize: "100% 2px" }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.8, delay: 0.3, ease: [0.2, 0.6, 0.2, 1] }}
     >
       {children}
     </m.span>

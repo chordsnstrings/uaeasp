@@ -116,7 +116,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
       >
         <svg
           className={`pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
-            searchExpanded ? "text-brand-600" : "text-ink-400"
+            searchExpanded ? "text-brand-600" : "text-ink-500"
           }`}
           width="18"
           height="18"
@@ -135,8 +135,8 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
           onBlur={() => setSearchFocused(false)}
           placeholder={t("searchPlaceholder")}
           aria-label={t("searchPlaceholder")}
-          className={`w-full rounded-xl border bg-white py-3 pe-10 ps-10 text-sm shadow-sm transition-shadow placeholder:text-ink-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 [&::-webkit-search-cancel-button]:hidden ${
-            searchExpanded ? "border-brand-300 shadow-md" : "border-ink-200"
+          className={`w-full rounded-md border bg-white py-3 pe-10 ps-10 text-sm transition-colors placeholder:text-ink-400 focus:outline-none [&::-webkit-search-cancel-button]:hidden ${
+            searchExpanded ? "border-ink-900" : "border-ink-200"
           }`}
         />
         <AnimatePresence>
@@ -149,7 +149,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
               whileTap={{ scale: 0.85 }}
               onClick={() => { setQuery(""); setPage(1); }}
               aria-label={t("clearSearch")}
-              className="absolute end-2.5 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full bg-ink-100 text-ink-500 hover:bg-brand-100 hover:text-brand-800"
+              className="absolute end-2.5 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full bg-ink-100 text-ink-500 hover:bg-ink-200 hover:text-ink-900"
             >
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
                 <path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -160,14 +160,14 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
       </m.div>
 
       {/* Category chips */}
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
           onClick={() => { setCategory(""); setPage(1); }}
-          className={`press hover-lift rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
+          className={`press rounded-md border px-3.5 py-1.5 text-xs transition-colors ${
             !category
-              ? "bg-ink-900 text-white ring-ink-900"
-              : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"
+              ? "border-ink-900 bg-ink-900 text-paper"
+              : "border-ink-200 bg-white text-ink-700 hover:border-ink-900 hover:text-ink-900"
           }`}
           aria-pressed={!category}
         >
@@ -178,10 +178,10 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
             key={cat}
             type="button"
             onClick={() => { setCategory(category === cat ? "" : cat); setPage(1); }}
-            className={`press hover-lift rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition-colors ${
+            className={`press rounded-md border px-3.5 py-1.5 text-xs transition-colors ${
               category === cat
-                ? "bg-brand-700 text-white ring-brand-700"
-                : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"
+                ? "border-ink-900 bg-ink-900 text-paper"
+                : "border-ink-200 bg-white text-ink-700 hover:border-ink-900 hover:text-ink-900"
             }`}
             aria-pressed={category === cat}
           >
@@ -231,18 +231,18 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
             ))}
             {/* Get-matched card slots into the grid to keep the funnel present */}
             <m.div layout key="cta" className="relative">
-              <div className="flex h-full flex-col justify-between grain relative overflow-hidden rounded-xl bg-brand-950 p-6 text-white shadow-lg">
+              <div className="grain relative flex h-full flex-col justify-between overflow-hidden bg-brand-950 p-6 text-white">
                 <div>
-                  <h3 className="text-lg font-bold">
+                  <h3 className="text-lg font-medium">
                     {t("getMatchedCard.title", { count: providers.length })}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-brand-100">
+                  <p className="mt-3 text-sm leading-relaxed text-brand-200">
                     {t("getMatchedCard.body")}
                   </p>
                 </div>
                 <Link
                   href="/get-matched"
-                  className="press btn-shine hover-lift mt-5 inline-block rounded-lg bg-accent-500 px-4 py-2.5 text-center text-sm font-bold text-ink-950 hover:bg-accent-400"
+                  className="press mt-6 inline-block rounded-md bg-paper px-4 py-2.5 text-center text-sm font-medium text-ink-900 hover:bg-white"
                 >
                   {t("getMatchedCard.button")}
                 </Link>
@@ -270,7 +270,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
               type="button"
               disabled={safePage <= 1}
               onClick={() => goToPage(safePage - 1)}
-              className="press rounded-lg border border-ink-200 bg-white px-3.5 py-2 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
+              className="press rounded-lg border border-ink-200 bg-white px-3.5 py-2 text-sm font-medium text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {t("pagination.prev")}
             </button>
@@ -280,9 +280,9 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
                 type="button"
                 onClick={() => goToPage(n)}
                 aria-current={n === safePage ? "page" : undefined}
-                className={`press size-10 rounded-lg text-sm font-semibold transition-colors ${
+                className={`press size-10 rounded-lg text-sm font-medium transition-colors ${
                   n === safePage
-                    ? "bg-brand-700 text-white"
+                    ? "bg-ink-900 text-paper"
                     : "border border-ink-200 bg-white text-ink-700 hover:border-brand-300 hover:text-brand-800"
                 }`}
               >
@@ -293,7 +293,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
               type="button"
               disabled={safePage >= totalPages}
               onClick={() => goToPage(safePage + 1)}
-              className="press rounded-lg border border-ink-200 bg-white px-3.5 py-2 text-sm font-semibold text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
+              className="press rounded-lg border border-ink-200 bg-white px-3.5 py-2 text-sm font-medium text-ink-700 hover:border-brand-300 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {t("pagination.next")}
             </button>

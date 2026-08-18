@@ -18,6 +18,11 @@ function diffParts(targetMs: number) {
 /**
  * Live countdown to the e-invoicing mandate go-live. Values only render
  * after mount (placeholders during SSR) so server and client HTML match.
+ *
+ * The digits are the graphic element of the whole home page, which is why
+ * they are given a rule and some air rather than four bordered tiles: at
+ * this size the numerals are already the loudest thing on the screen, and
+ * boxing each one only competes with them.
  */
 export function Countdown({ targetIso }: { targetIso: string }) {
   const t = useTranslations("home.countdown");
@@ -39,19 +44,20 @@ export function Countdown({ targetIso }: { targetIso: string }) {
   ] as const;
 
   return (
-    <div className="mt-8">
-      <p className="num text-xs font-semibold uppercase tracking-[0.18em] text-brand-200">
-        {t("title")}
-      </p>
-      <div dir="ltr" className="mt-3 flex gap-2.5 sm:gap-3">
+    <div>
+      <p className="eyebrow text-brand-300">{t("title")}</p>
+      {/* No tiles. Four numbers on a rule, separated by hairlines — the
+          digits are already the loudest thing here, and boxing each one
+          only competes with them. */}
+      <div dir="ltr" className="mt-5 flex border-t border-white/15">
         {tiles.map((tile) => (
           <div
             key={tile.key}
-            className="min-w-[68px] rounded-lg border border-white/15 bg-paper px-3 py-3 text-center shadow-[0_2px_0_rgb(2_6_23/0.35)] sm:min-w-[84px] sm:px-4"
+            className="flex-1 border-e border-white/12 py-5 pe-4 last:border-e-0 first:ps-0"
           >
             <span
-              className={`num relative block h-8 overflow-hidden text-2xl font-semibold leading-8 sm:h-9 sm:text-3xl sm:leading-9 ${
-                tile.key === "seconds" ? "text-accent-600" : "text-ink-900"
+              className={`num relative block h-10 overflow-hidden text-3xl font-normal leading-10 tracking-tight sm:text-4xl ${
+                tile.key === "seconds" ? "text-accent-300" : "text-white"
               }`}
               suppressHydrationWarning
             >
@@ -63,19 +69,19 @@ export function Countdown({ targetIso }: { targetIso: string }) {
                   initial={reduced ? false : { y: "-100%", opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={reduced ? undefined : { y: "100%", opacity: 0 }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.32, ease: [0.2, 0.6, 0.2, 1] }}
                 >
                   {tile.value === undefined ? "–" : String(tile.value).padStart(2, "0")}
                 </m.span>
               </AnimatePresence>
             </span>
-            <span className="num mt-0.5 block text-[10px] font-medium uppercase tracking-[0.14em] text-ink-500">
+            <span className="eyebrow mt-2 block text-[10px] text-brand-300">
               {t(tile.key)}
             </span>
           </div>
         ))}
       </div>
-      <p className="mt-2.5 text-xs text-brand-300">{t("note")}</p>
+      <p className="mt-4 text-xs leading-relaxed text-brand-300">{t("note")}</p>
     </div>
   );
 }

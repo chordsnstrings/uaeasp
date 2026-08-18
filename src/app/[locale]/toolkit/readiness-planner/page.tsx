@@ -46,10 +46,10 @@ export default async function ReadinessPlannerPage({
       />
     <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6">
       <FadeIn>
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">
+        <p className="text-xs font-medium uppercase tracking-wide text-brand-700">
           {t("kicker")}
         </p>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+        <h1 className="mt-2 display-serif text-4xl text-ink-900 sm:text-5xl">
           {t("title")}
         </h1>
         <p className="mt-3 text-lg text-ink-600">{t("subtitle")}</p>

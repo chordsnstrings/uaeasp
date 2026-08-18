@@ -41,7 +41,7 @@ function inline(text: string, keyPrefix: string): React.ReactNode[] {
       );
     } else if (match[4]) {
       nodes.push(
-        <strong key={key} className="font-semibold text-ink-900">
+        <strong key={key} className="font-medium text-ink-900">
           {match[5]}
         </strong>,
       );
@@ -131,7 +131,7 @@ export function Markdown({ source }: { source: string }) {
         <ol key={`ol-${blocks.length}`} className="my-4 space-y-2">
           {items.map((item, i) => (
             <li key={i} className="flex gap-2.5 text-ink-700">
-              <span className="num mt-0.5 shrink-0 text-xs font-semibold text-brand-700">
+              <span className="num mt-0.5 shrink-0 text-xs font-medium text-brand-700">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span className="leading-relaxed">{inline(item, `oli-${blocks.length}-${i}`)}</span>
@@ -177,19 +177,19 @@ export function Markdown({ source }: { source: string }) {
 
     if (trimmed.startsWith("### ")) {
       blocks.push(
-        <h3 key={blocks.length} className="mt-8 text-lg font-semibold text-ink-900">
+        <h3 key={blocks.length} className="mt-8 text-lg font-medium text-ink-900">
           {inline(trimmed.slice(4), `h3-${blocks.length}`)}
         </h3>,
       );
     } else if (trimmed.startsWith("## ")) {
       blocks.push(
-        <h2 key={blocks.length} className="mt-10 font-display text-2xl font-bold tracking-tight text-ink-900">
+        <h2 key={blocks.length} className="mt-10 font-display text-2xl font-medium tracking-tight text-ink-900">
           {inline(trimmed.slice(3), `h2-${blocks.length}`)}
         </h2>,
       );
     } else if (trimmed.startsWith("# ")) {
       blocks.push(
-        <h2 key={blocks.length} className="mt-10 font-display text-2xl font-bold tracking-tight text-ink-900">
+        <h2 key={blocks.length} className="mt-10 font-display text-2xl font-medium tracking-tight text-ink-900">
           {inline(trimmed.slice(2), `h1-${blocks.length}`)}
         </h2>,
       );

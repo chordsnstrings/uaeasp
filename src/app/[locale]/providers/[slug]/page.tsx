@@ -137,20 +137,20 @@ export default async function ProviderDetailPage({
           <div className="mt-8 flex items-start gap-4">
             <span
               aria-hidden
-              className="grid size-16 shrink-0 place-items-center rounded-2xl bg-brand-700 text-2xl font-bold text-white"
+              className="grid size-16 shrink-0 place-items-center rounded-2xl bg-ink-900 text-2xl font-medium text-paper"
             >
               {provider.name.charAt(0)}
             </span>
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+              <h1 className="display-serif text-4xl text-ink-900 sm:text-5xl">
                 {name}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span
-                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
+                  className={`inline-flex items-center gap-2 rounded-md px-3 py-1 text-xs font-medium ${
                     provider.status === "active"
-                      ? "bg-brand-50 text-brand-800 ring-1 ring-brand-200"
-                      : "bg-ink-100 text-ink-600 ring-1 ring-ink-200"
+                      ? "border border-brand-200 bg-brand-50 text-brand-800"
+                      : "border border-ink-200 bg-ink-50 text-ink-600"
                   }`}
                 >
                   <span
@@ -160,7 +160,7 @@ export default async function ProviderDetailPage({
                   {provider.status === "active" ? t("statusActive") : t("statusDelisted")}
                 </span>
                 {provider.category && (
-                  <span className="inline-flex rounded-full bg-accent-500/10 px-3 py-1 text-xs font-semibold text-accent-600 ring-1 ring-accent-500/30">
+                  <span className="inline-flex rounded-md bg-accent-500/10 px-3 py-1 text-xs font-medium text-accent-600 border border-accent-500/30">
                     {tc(`categories.${provider.category}` as Parameters<typeof tc>[0])}
                   </span>
                 )}
@@ -169,14 +169,14 @@ export default async function ProviderDetailPage({
           </div>
 
           <section className="mt-10">
-            <h2 className="text-xl font-bold text-ink-900">{t("about", { name })}</h2>
+            <h2 className="text-xl font-medium text-ink-900">{t("about", { name })}</h2>
             <p className="mt-3 leading-relaxed text-ink-700">{description}</p>
           </section>
 
           <dl className="mt-8 grid gap-4 rounded-2xl border border-ink-100 bg-ink-50 p-6 sm:grid-cols-2">
             {provider.website && (
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-500">
                   {t("website")}
                 </dt>
                 <dd className="mt-1">
@@ -193,14 +193,14 @@ export default async function ProviderDetailPage({
               </div>
             )}
             <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+              <dt className="text-xs font-medium uppercase tracking-wide text-ink-500">
                 {t("listedSince")}
               </dt>
               <dd className="mt-1 font-medium text-ink-800">{listedSince}</dd>
             </div>
             {provider.category && (
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-500">
                   {t("categoryLabel")}
                 </dt>
                 <dd className="mt-1 font-medium text-ink-800">
@@ -212,14 +212,14 @@ export default async function ProviderDetailPage({
 
           {/* Official contact details from the MOF list */}
           {provider.contacts.length > 0 && (
-            <section className="mt-8 rounded-2xl border border-brand-100 bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-bold text-ink-900">{t("officialContacts")}</h2>
-              <p className="mt-1 text-xs text-ink-400">{t("officialContactsNote")}</p>
+            <section className="mt-8 rounded-2xl border border-brand-100 bg-white p-6">
+              <h2 className="text-lg font-medium text-ink-900">{t("officialContacts")}</h2>
+              <p className="mt-1 text-xs text-ink-500">{t("officialContactsNote")}</p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 {provider.contacts.map((contact, i) => (
                   <div key={i} className="rounded-xl bg-ink-50 p-4">
                     {contact.name && (
-                      <p className="font-semibold text-ink-900">{contact.name}</p>
+                      <p className="font-medium text-ink-900">{contact.name}</p>
                     )}
                     <div className="mt-1.5 space-y-1 text-sm">
                       {contact.emails.map((email) => (
@@ -251,7 +251,7 @@ export default async function ProviderDetailPage({
 
           {/* Lead funnel CTA */}
           <section className="mt-10 grain relative overflow-hidden rounded-xl bg-brand-950 p-8 text-white sm:p-10">
-            <h2 className="text-2xl font-bold">{t("compareCta.title", { name })}</h2>
+            <h2 className="text-2xl font-medium">{t("compareCta.title", { name })}</h2>
             <p className="mt-3 max-w-2xl leading-relaxed text-brand-100">
               {t("compareCta.body", { name })}
             </p>
@@ -260,7 +260,7 @@ export default async function ProviderDetailPage({
                 pathname: "/get-matched",
                 query: { ref: `provider:${slug}` },
               }}
-              className="press btn-shine hover-lift mt-6 inline-block rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-ink-950 shadow-lg shadow-accent-500/20 hover:bg-accent-400"
+              className="press mt-6 inline-block rounded-xl bg-paper px-6 py-3.5 font-medium text-ink-900 hover:bg-white"
             >
               {t("compareCta.button")}
             </Link>
@@ -268,7 +268,7 @@ export default async function ProviderDetailPage({
 
           {others.length > 0 && (
             <section className="mt-14">
-              <h2 className="text-xl font-bold text-ink-900">{t("othersTitle")}</h2>
+              <h2 className="text-xl font-medium text-ink-900">{t("othersTitle")}</h2>
               <div className="mt-6 grid gap-5 sm:grid-cols-3">
                 {others.map((p) => (
                   <div key={p.id} className="relative">

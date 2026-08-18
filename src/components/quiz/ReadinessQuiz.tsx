@@ -110,12 +110,12 @@ export function ReadinessQuiz() {
         <m.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-3xl border border-ink-100 bg-white p-8 text-center shadow-card sm:p-12"
+          className="rounded-3xl border border-ink-100 bg-white p-8 text-center sm:p-12"
         >
           <span aria-hidden className="mx-auto grid size-14 place-items-center rounded-lg border border-ink-200 text-brand-800">
             <IconChecklist size={30} />
           </span>
-          <h2 className="mt-4 text-2xl font-bold text-ink-900">{t("title")}</h2>
+          <h2 className="mt-4 text-2xl font-medium text-ink-900">{t("title")}</h2>
           <p className="mx-auto mt-3 max-w-md text-ink-600">
             {t("subtitle", { total: QUESTIONS.length })}
           </p>
@@ -126,18 +126,18 @@ export function ReadinessQuiz() {
               track("quiz_started");
               setPhase("questions");
             }}
-            className="press btn-shine hover-lift mt-8 rounded-xl bg-brand-700 px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-brand-700/20 hover:bg-brand-800"
+            className="press mt-8 rounded-xl bg-ink-900 px-8 py-3.5 text-base font-medium text-paper hover:bg-ink-900"
           >
             {t("start")}
           </m.button>
-          <p className="mt-3 text-xs text-ink-400">{t("timeNote")}</p>
+          <p className="mt-3 text-xs text-ink-500">{t("timeNote")}</p>
         </m.div>
       )}
 
       {(phase === "questions" || phase === "gate") && (
-        <div className="rounded-3xl border border-ink-100 bg-white p-6 shadow-card sm:p-10">
+        <div className="rounded-3xl border border-ink-100 bg-white p-6 sm:p-10">
           <div className="flex items-center justify-between gap-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+            <p className="text-xs font-medium uppercase tracking-wide text-ink-500">
               {phase === "gate"
                 ? t("gate.progressLabel")
                 : t("questionProgress", { current: step + 1, total: QUESTIONS.length })}
@@ -177,7 +177,7 @@ export function ReadinessQuiz() {
                 exit={{ opacity: 0, x: -24 }}
                 transition={{ duration: 0.25, ease: "easeOut" }}
               >
-                <h2 className="mt-8 text-xl font-bold text-ink-900">
+                <h2 className="mt-8 text-xl font-medium text-ink-900">
                   {t(`questions.${QUESTIONS[step]}.text` as Parameters<typeof t>[0])}
                 </h2>
                 <div className="mt-6 space-y-3">
@@ -209,7 +209,7 @@ export function ReadinessQuiz() {
                 noValidate
               >
                 {/* Honeypot */}
-                <div className="absolute -left-[9999px] top-auto" aria-hidden="true">
+                <div className="sr-only" aria-hidden="true">
                   <label>
                     Website
                     <input type="text" name="website" tabIndex={-1} autoComplete="off" />
@@ -220,7 +220,7 @@ export function ReadinessQuiz() {
                   <span aria-hidden className="mx-auto grid size-12 place-items-center rounded-full border border-ink-200 text-brand-800">
                     <IconTarget size={26} />
                   </span>
-                  <h2 className="mt-2 text-xl font-bold text-ink-900">{t("gate.title")}</h2>
+                  <h2 className="mt-2 text-xl font-medium text-ink-900">{t("gate.title")}</h2>
                   <p className="mx-auto mt-2 max-w-md text-sm text-ink-600">
                     {t("gate.subtitle")}
                   </p>
@@ -228,7 +228,7 @@ export function ReadinessQuiz() {
 
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="quiz-fullName" className="mb-1.5 block text-sm font-semibold text-ink-800">
+                    <label htmlFor="quiz-fullName" className="mb-1.5 block text-sm font-medium text-ink-800">
                       {tf("fullName")} <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -242,7 +242,7 @@ export function ReadinessQuiz() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="quiz-companyName" className="mb-1.5 block text-sm font-semibold text-ink-800">
+                    <label htmlFor="quiz-companyName" className="mb-1.5 block text-sm font-medium text-ink-800">
                       {tf("companyName")} <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -256,7 +256,7 @@ export function ReadinessQuiz() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="quiz-phone" className="mb-1.5 block text-sm font-semibold text-ink-800">
+                    <label htmlFor="quiz-phone" className="mb-1.5 block text-sm font-medium text-ink-800">
                       {tf("phone")} <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -284,11 +284,11 @@ export function ReadinessQuiz() {
                   type="submit"
                   disabled={submitting}
                   whileTap={{ scale: 0.97 }}
-                  className="btn-shine mt-5 w-full rounded-xl bg-accent-500 px-6 py-4 text-base font-bold text-ink-950 shadow-lg shadow-accent-500/20 hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-5 w-full rounded-xl bg-ink-900 px-6 py-4 text-base font-medium text-paper hover:bg-brand-900 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {submitting ? tf("submitting") : t("gate.submit")}
                 </m.button>
-                <p className="mt-3 text-center text-xs text-ink-400">{t("gate.privacyNote")}</p>
+                <p className="mt-3 text-center text-xs text-ink-500">{t("gate.privacyNote")}</p>
               </m.form>
             )}
           </AnimatePresence>
@@ -297,8 +297,8 @@ export function ReadinessQuiz() {
 
       {phase === "results" && (
         <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <div className="rounded-3xl border border-ink-100 bg-white p-8 text-center shadow-card">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+          <div className="rounded-3xl border border-ink-100 bg-white p-8 text-center">
+            <p className="text-xs font-medium uppercase tracking-wide text-ink-500">
               {t("results.title")}
             </p>
             <div className="relative mx-auto mt-6 size-36">
@@ -319,10 +319,10 @@ export function ReadinessQuiz() {
                 />
               </svg>
               <div className="absolute inset-0 grid place-items-center">
-                <span className="text-4xl font-extrabold text-ink-900">{score}</span>
+                <span className="text-4xl font-medium text-ink-900">{score}</span>
               </div>
             </div>
-            <p className="mt-4 text-lg font-bold text-ink-900">
+            <p className="mt-4 text-lg font-medium text-ink-900">
               {t(`results.${band}.label` as Parameters<typeof t>[0])}
             </p>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-600">
@@ -331,7 +331,7 @@ export function ReadinessQuiz() {
           </div>
 
           <div className="mt-6 rounded-3xl border border-brand-100 bg-brand-50 p-6 text-center sm:p-8">
-            <h3 className="font-bold text-brand-900">{t("results.trackTitle")}</h3>
+            <h3 className="font-medium text-brand-900">{t("results.trackTitle")}</h3>
             <p className="mx-auto mt-1 max-w-md text-sm text-brand-800/80">
               {t("results.trackBody")}
             </p>
@@ -339,14 +339,14 @@ export function ReadinessQuiz() {
               {trackingToken && (
                 <Link
                   href={`/track/${trackingToken}`}
-                  className="press btn-shine hover-lift rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-800"
+                  className="press rounded-xl bg-ink-900 px-5 py-2.5 text-sm font-medium text-paper hover:bg-ink-900"
                 >
                   {t("results.trackButton")}
                 </Link>
               )}
               <Link
                 href="/get-matched"
-                className="press rounded-xl border border-brand-200 bg-white px-5 py-2.5 text-sm font-semibold text-brand-800 hover:border-brand-400"
+                className="press rounded-xl border border-brand-200 bg-white px-5 py-2.5 text-sm font-medium text-brand-800 hover:border-brand-400"
               >
                 {t("results.moreDetail")}
               </Link>

@@ -36,7 +36,7 @@ export default async function ResourcesPage({
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
       <FadeIn>
-        <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+        <h1 className="max-w-3xl display-serif text-4xl text-ink-900 sm:text-5xl">
           {t("title")}
         </h1>
         <p className="mt-3 max-w-2xl text-lg text-ink-600">{t("subtitle")}</p>
@@ -46,7 +46,7 @@ export default async function ResourcesPage({
         {groups.map((group) => (
           <section key={group.title}>
             <FadeIn>
-              <h2 className="text-xl font-bold text-ink-900">{group.title}</h2>
+              <h2 className="text-xl font-medium text-ink-900">{group.title}</h2>
             </FadeIn>
             <StaggerGroup className="mt-4 grid gap-4 sm:grid-cols-2">
               {group.items.map((item) => (
@@ -58,7 +58,7 @@ export default async function ResourcesPage({
                       rel="noopener"
                       className="card-hover group flex h-full flex-col rounded-2xl border border-ink-100 bg-white p-5 transition-transform"
                     >
-                      <p className="font-semibold text-ink-900 group-hover:text-brand-800">
+                      <p className="font-medium text-ink-900 group-hover:text-brand-800">
                         {item.title}{" "}
                         <span aria-hidden className="text-ink-300 transition-colors group-hover:text-brand-500">
                           ↗
@@ -73,7 +73,7 @@ export default async function ResourcesPage({
                       href={item.href}
                       className="card-hover group flex h-full flex-col rounded-2xl border border-ink-100 bg-white p-5 transition-transform"
                     >
-                      <p className="font-semibold text-ink-900 group-hover:text-brand-800">
+                      <p className="font-medium text-ink-900 group-hover:text-brand-800">
                         {item.title}{" "}
                         <span
                           aria-hidden
@@ -95,7 +95,7 @@ export default async function ResourcesPage({
       </div>
 
       <FadeIn>
-        <p className="mt-12 max-w-3xl text-xs leading-relaxed text-ink-400">{t("note")}</p>
+        <p className="mt-12 max-w-3xl text-xs leading-relaxed text-ink-500">{t("note")}</p>
       </FadeIn>
     </div>
   );

@@ -52,7 +52,7 @@ export default async function GuidesPage({
       />
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <FadeIn>
-          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="max-w-3xl display-serif text-4xl text-ink-900 sm:text-5xl">
             {t("title")}
           </h1>
           <p className="mt-3 max-w-2xl text-lg text-ink-600">{t("subtitle")}</p>
@@ -65,16 +65,16 @@ export default async function GuidesPage({
                 href={`/guides/${g.slug}`}
                 className="card-hover group flex h-full flex-col rounded-2xl border border-ink-100 bg-white p-6 transition-transform"
               >
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">
+                <p className="text-xs font-medium uppercase tracking-wide text-brand-700">
                   {t("readingTime", { minutes: g.readingMinutes })}
                 </p>
-                <h2 className="mt-2 text-lg font-bold leading-snug text-ink-900 group-hover:text-brand-800">
+                <h2 className="mt-2 text-lg font-medium leading-snug text-ink-900 group-hover:text-brand-800">
                   {g.title}
                 </h2>
                 <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-600 line-clamp-3">
                   {g.intro}
                 </p>
-                <span className="mt-4 text-sm font-semibold text-brand-700">
+                <span className="mt-4 text-sm font-medium text-brand-700">
                   {t("readGuide")}{" "}
                   <span
                     aria-hidden
@@ -91,12 +91,12 @@ export default async function GuidesPage({
         <FadeIn>
           <div className="mt-12 flex flex-col items-start justify-between gap-6 rounded-3xl border border-brand-100 bg-brand-50 p-8 sm:flex-row sm:items-center sm:p-10">
             <div>
-              <h2 className="text-2xl font-bold text-ink-900">{t("ctaTitle")}</h2>
+              <h2 className="text-2xl font-medium text-ink-900">{t("ctaTitle")}</h2>
               <p className="mt-2 max-w-xl text-ink-600">{t("ctaBody")}</p>
             </div>
             <Link
               href="/get-matched"
-              className="press btn-shine hover-lift shrink-0 rounded-xl bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"
+              className="press shrink-0 rounded-xl bg-ink-900 px-6 py-3 font-medium text-paper hover:bg-ink-900"
             >
               {t("ctaButton")}
             </Link>

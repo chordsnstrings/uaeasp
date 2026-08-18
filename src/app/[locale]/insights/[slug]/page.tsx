@@ -84,10 +84,10 @@ export default async function InsightPage({
               ← {locale === "ar" ? "الرؤى" : "Insights"}
             </Link>
           </nav>
-          <h1 className="mt-6 text-3xl font-bold leading-tight tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="mt-6 display-serif text-4xl text-ink-900 sm:text-5xl">
             {article.title}
           </h1>
-          <p className="num mt-4 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-ink-400">
+          <p className="num mt-4 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-ink-500">
             {new Date(published).toLocaleDateString(locale === "ar" ? "ar-AE" : "en-GB", {
               day: "numeric",
               month: "long",
@@ -109,7 +109,7 @@ export default async function InsightPage({
 
         <FadeIn>
           <div className="grain relative mt-12 overflow-hidden rounded-xl bg-brand-950 p-8 text-white">
-            <h2 className="text-xl font-bold">
+            <h2 className="text-xl font-medium">
               {locale === "ar"
                 ? "احصل على قائمة مختصرة مجاناً"
                 : "Get a free provider shortlist"}
@@ -121,7 +121,7 @@ export default async function InsightPage({
             </p>
             <Link
               href="/get-matched"
-              className="press btn-shine hover-lift mt-5 inline-block rounded-lg bg-accent-500 px-6 py-3 font-bold text-ink-950 hover:bg-accent-400"
+              className="press mt-5 inline-block rounded-lg bg-paper px-6 py-3 font-medium text-ink-900 hover:bg-white"
             >
               {locale === "ar" ? "احصل على ترشيح مجاني" : "Get matched free"}
             </Link>
