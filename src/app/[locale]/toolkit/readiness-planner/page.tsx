@@ -49,7 +49,7 @@ export default async function ReadinessPlannerPage({
         <p className="text-xs font-medium uppercase tracking-wide text-brand-700">
           {t("kicker")}
         </p>
-        <h1 className="mt-2 text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+        <h1 className="mt-2 display-serif text-4xl text-ink-900 sm:text-5xl">
           {t("title")}
         </h1>
         <p className="mt-3 text-lg text-ink-600">{t("subtitle")}</p>

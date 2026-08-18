@@ -76,7 +76,7 @@ export default async function TrackStatusPage({
         <p className="text-center text-xs font-medium uppercase tracking-wide text-brand-700">
           {t("title")}
         </p>
-        <h1 className="mt-2 text-center text-3xl font-medium tracking-tight text-ink-900">
+        <h1 className="mt-2 display-serif text-center text-4xl text-ink-900">
           {t("hello", { company: lead.companyName })}
         </h1>
         <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-ink-500">

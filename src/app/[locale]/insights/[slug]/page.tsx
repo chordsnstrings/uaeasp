@@ -84,7 +84,7 @@ export default async function InsightPage({
               ← {locale === "ar" ? "الرؤى" : "Insights"}
             </Link>
           </nav>
-          <h1 className="mt-6 text-3xl font-medium leading-tight tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="mt-6 display-serif text-4xl text-ink-900 sm:text-5xl">
             {article.title}
           </h1>
           <p className="num mt-4 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-ink-400">

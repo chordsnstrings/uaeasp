@@ -61,7 +61,7 @@ export default async function PenaltyCalculatorPage({
           <p className="text-xs font-medium uppercase tracking-wide text-brand-700">
             {t("kicker")}
           </p>
-          <h1 className="mt-2 max-w-3xl text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="mt-2 max-w-3xl display-serif text-4xl text-ink-900 sm:text-5xl">
             {t("title")}
           </h1>
           <p className="mt-3 max-w-3xl text-lg text-ink-600">{t("subtitle")}</p>

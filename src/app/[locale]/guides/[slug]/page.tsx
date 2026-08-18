@@ -91,7 +91,7 @@ export default async function GuidePage({
           <p className="mt-6 text-xs font-medium uppercase tracking-wide text-brand-700">
             {t("readingTime", { minutes: guide.readingMinutes })}
           </p>
-          <h1 className="mt-2 text-3xl font-medium leading-tight tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="mt-2 display-serif text-4xl text-ink-900 sm:text-5xl">
             {guide.title}
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-ink-600">{guide.intro}</p>

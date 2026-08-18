@@ -87,7 +87,7 @@ export default async function CategoryPage({
               ← {t("backToDirectory")}
             </Link>
           </nav>
-          <h1 className="mt-6 max-w-3xl text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="mt-6 max-w-3xl display-serif text-4xl text-ink-900 sm:text-5xl">
             {copy.title}
           </h1>
           <p className="mt-4 max-w-3xl text-lg leading-relaxed text-ink-600">{copy.intro}</p>
@@ -132,14 +132,14 @@ export default async function CategoryPage({
                 <Link
                   key={c}
                   href={`/providers/category/${c}`}
-                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
+                  className="press rounded-md bg-white px-3.5 py-1.5 text-xs font-medium text-ink-600 border border-ink-200 hover:border-ink-900"
                 >
                   {tc(`categories.${c}` as Parameters<typeof tc>[0])}
                 </Link>
               ))}
               <Link
                 href="/providers"
-                className="press rounded-full bg-ink-900 px-3.5 py-1.5 text-xs font-medium text-white ring-1 ring-ink-900"
+                className="press rounded-md bg-ink-900 px-3.5 py-1.5 text-xs font-medium text-white border border-ink-900"
               >
                 {t("allProvidersChip")}
               </Link>

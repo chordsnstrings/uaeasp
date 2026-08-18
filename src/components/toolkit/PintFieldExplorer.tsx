@@ -80,7 +80,7 @@ export function PintFieldExplorer() {
           type="button"
           onClick={() => setGroup("")}
           aria-pressed={!group}
-          className={`press rounded-full px-3.5 py-1.5 text-xs font-medium ring-1 transition-colors ${
+          className={`press rounded-md px-3.5 py-1.5 text-xs font-medium border transition-colors ${
             !group
               ? "bg-ink-900 text-white ring-ink-900"
               : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"
@@ -94,7 +94,7 @@ export function PintFieldExplorer() {
             type="button"
             onClick={() => setGroup(group === g ? "" : g)}
             aria-pressed={group === g}
-            className={`press rounded-full px-3.5 py-1.5 text-xs font-medium ring-1 transition-colors ${
+            className={`press rounded-md px-3.5 py-1.5 text-xs font-medium border transition-colors ${
               group === g
                 ? "bg-ink-900 text-paper ring-brand-700"
                 : "bg-white text-ink-600 ring-ink-200 hover:ring-brand-300"
@@ -127,16 +127,16 @@ export function PintFieldExplorer() {
                 </span>
                 <h3 className="font-medium text-ink-900">{f.name}</h3>
                 {f.uae && (
-                  <span className="rounded-full bg-ink-900 px-2 py-0.5 text-[11px] font-medium text-paper">
+                  <span className="rounded-md bg-ink-900 px-2 py-0.5 text-[11px] font-medium text-paper">
                     {t("uaeBadge")}
                   </span>
                 )}
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ${OBLIGATION_STYLES[f.obligation]}`}
+                  className={`rounded-md px-2 py-0.5 text-[11px] font-medium border ${OBLIGATION_STYLES[f.obligation]}`}
                 >
                   {f.obligation}
                 </span>
-                <span className="rounded-full bg-ink-50 px-2 py-0.5 text-[11px] font-medium text-ink-500 ring-1 ring-ink-100">
+                <span className="rounded-md bg-ink-50 px-2 py-0.5 text-[11px] font-medium text-ink-500 border border-ink-100">
                   {f.group}
                 </span>
               </div>

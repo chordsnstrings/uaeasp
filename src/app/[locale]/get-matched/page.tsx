@@ -34,7 +34,7 @@ export default async function GetMatchedPage({
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
       <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr]">
         <FadeIn>
-          <h1 className="text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="display-serif text-4xl text-ink-900 sm:text-5xl">
             {t("title")}
           </h1>
           <p className="mt-4 text-lg leading-relaxed text-ink-600">{t("subtitle")}</p>

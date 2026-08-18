@@ -112,7 +112,7 @@ export default async function RegistryPage({
 
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
         <FadeIn>
-          <h1 className="max-w-4xl text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="max-w-4xl display-serif text-4xl text-ink-900 sm:text-5xl">
             {t("title")}
           </h1>
           <p className="mt-3 max-w-3xl text-lg text-ink-600">

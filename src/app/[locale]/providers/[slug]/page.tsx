@@ -142,15 +142,15 @@ export default async function ProviderDetailPage({
               {provider.name.charAt(0)}
             </span>
             <div>
-              <h1 className="text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+              <h1 className="display-serif text-4xl text-ink-900 sm:text-5xl">
                 {name}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span
-                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
+                  className={`inline-flex items-center gap-2 rounded-md px-3 py-1 text-xs font-medium ${
                     provider.status === "active"
-                      ? "bg-brand-50 text-brand-800 ring-1 ring-brand-200"
-                      : "bg-ink-100 text-ink-600 ring-1 ring-ink-200"
+                      ? "border border-brand-200 bg-brand-50 text-brand-800"
+                      : "border border-ink-200 bg-ink-50 text-ink-600"
                   }`}
                 >
                   <span
@@ -160,7 +160,7 @@ export default async function ProviderDetailPage({
                   {provider.status === "active" ? t("statusActive") : t("statusDelisted")}
                 </span>
                 {provider.category && (
-                  <span className="inline-flex rounded-full bg-accent-500/10 px-3 py-1 text-xs font-medium text-accent-600 ring-1 ring-accent-500/30">
+                  <span className="inline-flex rounded-md bg-accent-500/10 px-3 py-1 text-xs font-medium text-accent-600 border border-accent-500/30">
                     {tc(`categories.${provider.category}` as Parameters<typeof tc>[0])}
                   </span>
                 )}

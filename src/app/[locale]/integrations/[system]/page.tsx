@@ -130,7 +130,7 @@ export default async function IntegrationSystemPage({
           <span className="mx-1.5 text-ink-300">/</span>
           <span className="text-ink-700">{sys.name}</span>
         </nav>
-        <h1 className="mt-3 max-w-3xl font-display text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+        <h1 className="mt-3 max-w-3xl display-serif text-4xl text-ink-900 sm:text-5xl">
           {copy.h1}
         </h1>
         <p className="mt-4 max-w-3xl text-lg leading-relaxed text-ink-600">{copy.intro}</p>

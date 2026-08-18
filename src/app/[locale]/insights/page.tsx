@@ -58,7 +58,7 @@ export default async function InsightsPage({
           {locale === "ar" ? "مرجع" : "Reference"}
           <span aria-hidden className="h-px w-10 bg-ink-300" />
         </p>
-        <h1 className="mt-3 text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+        <h1 className="mt-3 display-serif text-4xl text-ink-900 sm:text-5xl">
           {copy.title}
         </h1>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-600">{copy.subtitle}</p>

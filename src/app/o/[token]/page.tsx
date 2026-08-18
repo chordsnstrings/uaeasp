@@ -84,7 +84,7 @@ export default async function OutreachLandingPage({
       <p className="stamp text-[11px] uppercase tracking-[0.12em] text-brand-700">
         Prepared for {company}
       </p>
-      <h1 className="font-display mt-3 text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+      <h1 className="font-display mt-3 display-serif text-4xl text-ink-900 sm:text-5xl">
         {daysLeft > 0 ? (
           <>
             You have <span className="num">{daysLeft}</span> days to appoint an accredited

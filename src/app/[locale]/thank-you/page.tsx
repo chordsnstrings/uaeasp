@@ -51,7 +51,7 @@ export default async function ThankYouPage({
         >
           <IconSeal size={34} />
         </span>
-        <h1 className="mt-6 text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+        <h1 className="mt-6 display-serif text-4xl text-ink-900 sm:text-5xl">
           {t("title")}
         </h1>
         <p className="mx-auto mt-4 max-w-lg text-lg leading-relaxed text-ink-600">

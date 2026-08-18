@@ -83,7 +83,7 @@ export default async function EmiratePage({
           <p className="text-xs font-medium uppercase tracking-wide text-brand-700">
             {t("emirateKicker")}
           </p>
-          <h1 className="mt-2 max-w-3xl text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="mt-2 max-w-3xl display-serif text-4xl text-ink-900 sm:text-5xl">
             {t("emirateTitle", { name: copy.name, count })}
           </h1>
           {copy.intro.map((p, i) => (
@@ -171,7 +171,7 @@ export default async function EmiratePage({
                 <Link
                   key={e}
                   href={`/e-invoicing/${e}`}
-                  className="press rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-ink-600 ring-1 ring-ink-200 hover:ring-brand-300"
+                  className="press rounded-md bg-white px-3.5 py-1.5 text-xs font-medium text-ink-600 border border-ink-200 hover:border-ink-900"
                 >
                   {emirateContent[locale][e].name}
                 </Link>

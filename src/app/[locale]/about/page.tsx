@@ -35,7 +35,7 @@ export default async function AboutPage({
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
       <FadeIn>
-        <h1 className="text-3xl font-medium tracking-tight text-ink-900 sm:text-4xl">
+        <h1 className="display-serif text-4xl text-ink-900 sm:text-5xl">
           {t("title")}
         </h1>
         <div className="mt-6 space-y-5 leading-relaxed text-ink-700">

@@ -53,7 +53,7 @@ export function ProviderCard({
       </h3>
 
       {provider.description && (
-        <p className="mt-2.5 line-clamp-3 text-[13px] leading-relaxed text-ink-600">
+        <p className="mb-6 mt-2.5 line-clamp-3 text-[13px] leading-relaxed text-ink-600">
           {provider.description}
         </p>
       )}

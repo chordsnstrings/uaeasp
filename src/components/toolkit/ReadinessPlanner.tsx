@@ -194,7 +194,7 @@ export function ReadinessPlanner() {
                     {t(`milestones.${mst.key}.body` as Parameters<typeof t>[0])}
                   </p>
                   {past && !mst.isDeadline && (
-                    <p className="mt-2 inline-block rounded-full bg-accent-500/15 px-2.5 py-0.5 text-xs font-medium text-accent-600">
+                    <p className="mt-2 inline-block rounded-md bg-accent-500/15 px-2.5 py-0.5 text-xs font-medium text-accent-600">
                       {t("overdue")}
                     </p>
                   )}
