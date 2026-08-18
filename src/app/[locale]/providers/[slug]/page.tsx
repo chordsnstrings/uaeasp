@@ -260,7 +260,7 @@ export default async function ProviderDetailPage({
                 pathname: "/get-matched",
                 query: { ref: `provider:${slug}` },
               }}
-              className="press mt-6 inline-block rounded-xl bg-ink-900 px-6 py-3.5 font-medium text-paper hover:bg-brand-900"
+              className="press mt-6 inline-block rounded-xl bg-paper px-6 py-3.5 font-medium text-ink-900 hover:bg-white"
             >
               {t("compareCta.button")}
             </Link>

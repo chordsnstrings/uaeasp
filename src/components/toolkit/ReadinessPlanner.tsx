@@ -215,7 +215,7 @@ export function ReadinessPlanner() {
           <p className="mx-auto mt-2 max-w-md text-sm text-brand-100">{t("ctaBody")}</p>
           <Link
             href="/get-matched"
-            className="press mt-5 inline-block rounded-xl bg-ink-900 px-6 py-3 font-medium text-paper hover:bg-brand-900"
+            className="press mt-5 inline-block rounded-xl bg-paper px-6 py-3 font-medium text-ink-900 hover:bg-white"
           >
             {t("ctaButton")}
           </Link>

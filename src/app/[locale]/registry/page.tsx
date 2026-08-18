@@ -259,7 +259,7 @@ export default async function RegistryPage({
             </div>
             <Link
               href="/get-matched"
-              className="press shrink-0 rounded-xl bg-ink-900 px-6 py-3.5 font-medium text-paper hover:bg-brand-900"
+              className="press shrink-0 rounded-xl bg-paper px-6 py-3.5 font-medium text-ink-900 hover:bg-white"
             >
               {t("matchCta.button")}
             </Link>
