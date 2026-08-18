@@ -223,7 +223,7 @@ export function PenaltyCalculator() {
           </Link>
         </div>
 
-        <p className="text-xs leading-relaxed text-ink-400">{t("disclaimer")}</p>
+        <p className="text-xs leading-relaxed text-ink-500">{t("disclaimer")}</p>
       </div>
     </div>
   );

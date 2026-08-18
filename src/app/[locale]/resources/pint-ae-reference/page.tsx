@@ -129,7 +129,7 @@ export default async function PintReferencePage({
         </FadeIn>
 
         <FadeIn>
-          <p className="mt-10 max-w-3xl text-xs leading-relaxed text-ink-400">
+          <p className="mt-10 max-w-3xl text-xs leading-relaxed text-ink-500">
             {t("sourceNote", { version: PINT_AE_VERSION })}
           </p>
         </FadeIn>

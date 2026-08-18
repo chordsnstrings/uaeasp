@@ -216,7 +216,7 @@ export default async function HomePage({
           {[1, 2, 3].map((i) => (
             <StaggerItem key={i} className="border-b border-ink-200 md:border-b-0">
               <div className="py-8 md:pe-10">
-                <span aria-hidden className="num text-[11px] text-ink-400">
+                <span aria-hidden className="num text-[11px] text-ink-500">
                   {String(i).padStart(2, "0")}
                 </span>
                 <h3 className="mt-4 text-lg font-medium tracking-tight text-ink-900">
@@ -307,7 +307,7 @@ export default async function HomePage({
                     {th(`tools.${tool.key}.body` as Parameters<typeof th>[0])}
                   </span>
                 </span>
-                <span className="shrink-0 self-center text-sm text-ink-400 group-hover:text-brand-700">
+                <span className="shrink-0 self-center text-sm text-ink-500 group-hover:text-brand-700">
                   <Arrow />
                 </span>
               </Link>
@@ -329,7 +329,7 @@ export default async function HomePage({
             {[1, 2, 3].map((i) => (
               <StaggerItem key={i}>
                 <div className="border-t border-ink-300 pt-6 md:pe-8">
-                  <span aria-hidden className="num text-3xl font-normal text-ink-300">
+                  <span aria-hidden className="num text-3xl font-normal text-ink-500">
                     {String(i).padStart(2, "0")}
                   </span>
                   <h3 className="mt-5 text-lg font-medium tracking-tight text-ink-900">

@@ -87,7 +87,7 @@ export default async function InsightPage({
           <h1 className="mt-6 display-serif text-4xl text-ink-900 sm:text-5xl">
             {article.title}
           </h1>
-          <p className="num mt-4 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-ink-400">
+          <p className="num mt-4 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-ink-500">
             {new Date(published).toLocaleDateString(locale === "ar" ? "ar-AE" : "en-GB", {
               day: "numeric",
               month: "long",

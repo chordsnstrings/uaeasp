@@ -44,7 +44,7 @@ export function PintFieldExplorer() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-[240px] flex-1">
           <svg
-            className="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 text-ink-400"
+            className="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 text-ink-500"
             width="18"
             height="18"
             viewBox="0 0 20 20"

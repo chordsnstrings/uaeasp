@@ -79,12 +79,12 @@ export default async function OutreachLandingPage({
   const shortlist = (local.length >= 3 ? local : active).slice(0, 3);
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
+    <main className="mx-auto max-w-3xl px-5 py-14 sm:px-8 sm:py-20">
       <OutreachAnalytics />
-      <p className="stamp text-[11px] uppercase tracking-[0.12em] text-brand-700">
+      <p className="eyebrow text-brand-700">
         Prepared for {company}
       </p>
-      <h1 className="font-display mt-3 display-serif text-4xl text-ink-900 sm:text-5xl">
+      <h1 className="display-serif mt-4 text-4xl text-ink-900 sm:text-5xl">
         {daysLeft > 0 ? (
           <>
             You have <span className="num">{daysLeft}</span> days to appoint an accredited
@@ -95,16 +95,16 @@ export default async function OutreachLandingPage({
         )}
       </h1>
 
-      <div className="mt-6 rounded-2xl border border-ink-200 bg-paper-dark p-5">
+      <div className="mt-8 border border-ink-200 bg-paper-dark p-6">
         <dl className="grid gap-4 sm:grid-cols-3">
           <div>
-            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
+            <dt className="eyebrow text-ink-500">
               Appoint a provider by
             </dt>
             <dd className="num mt-1 text-lg font-medium text-ink-900">{appointBy}</dd>
           </div>
           <div>
-            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
+            <dt className="eyebrow text-ink-500">
               Invoices must flow from
             </dt>
             <dd className="num mt-1 text-lg font-medium text-ink-900">
@@ -112,7 +112,7 @@ export default async function OutreachLandingPage({
             </dd>
           </div>
           <div>
-            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
+            <dt className="eyebrow text-ink-500">
               Accredited providers
             </dt>
             <dd className="num mt-1 text-lg font-medium text-ink-900">{count}</dd>
@@ -133,7 +133,7 @@ export default async function OutreachLandingPage({
       </div>
 
       <section className="mt-10">
-        <h2 className="font-display text-xl font-medium tracking-tight text-ink-900">
+        <h2 className="text-xl font-medium tracking-tight text-ink-900">
           Three to start with
         </h2>
         <p className="mt-1 text-sm text-ink-600">
@@ -145,7 +145,7 @@ export default async function OutreachLandingPage({
         </p>
         <ul className="mt-5 space-y-3">
           {shortlist.map((p) => (
-            <li key={p.id} className="rounded-xl border border-ink-200 bg-white p-4">
+            <li key={p.id} className="border border-ink-200 bg-white p-5">
               <p className="font-medium text-ink-900">{p.name}</p>
               {p.description && (
                 <p className="mt-1 line-clamp-2 text-sm text-ink-600">{p.description}</p>
@@ -161,8 +161,8 @@ export default async function OutreachLandingPage({
         </ul>
       </section>
 
-      <section className="mt-10 rounded-2xl border border-brand-200 bg-brand-50/50 p-6">
-        <h2 className="font-display text-xl font-medium tracking-tight text-ink-900">
+      <section className="mt-12 border border-brand-200 bg-brand-50 p-6 sm:p-8">
+        <h2 className="text-xl font-medium tracking-tight text-ink-900">
           Get a shortlist built for {company}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-ink-700">
@@ -185,7 +185,7 @@ export default async function OutreachLandingPage({
         </p>
       </section>
 
-      <p className="mt-8 text-xs leading-relaxed text-ink-400">
+      <p className="mt-8 text-xs leading-relaxed text-ink-500">
         You received this because we contacted {company} about the UAE e-invoicing mandate.
         We are an independent directory, not the Ministry of Finance, the FTA, or a provider.
       </p>

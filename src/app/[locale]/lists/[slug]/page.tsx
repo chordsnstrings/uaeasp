@@ -120,7 +120,7 @@ export default async function LandingPage({
           </h1>
           <p className="mt-4 max-w-3xl text-lg leading-relaxed text-ink-600">{copy.intro}</p>
           {lastUpdated && (
-            <p className="num mt-3 text-xs text-ink-400">
+            <p className="num mt-3 text-xs text-ink-500">
               {formatDirectoryDate(lastUpdated, locale)}
             </p>
           )}

@@ -26,7 +26,7 @@ interface FooterLink {
 function LinkColumn({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <nav aria-label={title}>
-      <p className="eyebrow text-ink-400">{title}</p>
+      <p className="eyebrow text-ink-500">{title}</p>
       <ul className="mt-5 space-y-3">
         {links.map((l) => (
           <li key={l.href}>
@@ -105,7 +105,7 @@ export async function Footer() {
           <p className="max-w-2xl text-[11px] leading-relaxed text-ink-500">
             {t("notAffiliated")}
           </p>
-          <p className="num shrink-0 text-[11px] text-ink-400">
+          <p className="num shrink-0 text-[11px] text-ink-500">
             © {new Date().getFullYear()} {SITE_NAME}. {t("rights")}
           </p>
         </div>

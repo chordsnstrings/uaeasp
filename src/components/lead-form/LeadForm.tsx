@@ -378,7 +378,7 @@ export function LeadForm({
           t("submit")
         )}
       </m.button>
-      <p className="text-center text-xs leading-relaxed text-ink-400">
+      <p className="text-center text-xs leading-relaxed text-ink-500">
         {t("consentPrefix")}{" "}
         <Link
           href="/privacy"

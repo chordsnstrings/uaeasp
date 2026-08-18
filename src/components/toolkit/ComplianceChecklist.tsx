@@ -115,7 +115,7 @@ export function ComplianceChecklist() {
                       />
                       <span
                         className={`text-sm leading-relaxed ${
-                          checked ? "text-ink-400 line-through" : "text-ink-700"
+                          checked ? "text-ink-500 line-through" : "text-ink-700"
                         }`}
                       >
                         {t(`groups.${group.key}.i${i + 1}` as Parameters<typeof t>[0])}

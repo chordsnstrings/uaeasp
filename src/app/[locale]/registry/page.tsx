@@ -141,7 +141,7 @@ export default async function RegistryPage({
               <tbody className="divide-y divide-ink-50">
                 {active.map((p, i) => (
                   <tr key={p.id} className="align-top hover:bg-brand-50/30">
-                    <td className="px-4 py-3.5 text-ink-400">{i + 1}</td>
+                    <td className="px-4 py-3.5 text-ink-500">{i + 1}</td>
                     <td className="px-4 py-3.5">
                       <Link
                         href={`/providers/${p.slug}`}
@@ -149,7 +149,7 @@ export default async function RegistryPage({
                       >
                         {locale === "ar" && p.nameAr ? p.nameAr : p.name}
                       </Link>
-                      <p className="mt-0.5 text-xs text-ink-400">
+                      <p className="mt-0.5 text-xs text-ink-500">
                         <Link href={`/providers/${p.slug}`} className="group hover:text-brand-700">
                           {t("viewProfile")}{" "}
                           <span
@@ -196,7 +196,7 @@ export default async function RegistryPage({
         <div className="mt-8 space-y-4 md:hidden print:hidden">
           {active.map((p, i) => (
             <article key={p.id} className="rounded-2xl border border-ink-100 bg-white p-5">
-              <p className="text-xs font-medium text-ink-400">#{i + 1}</p>
+              <p className="text-xs font-medium text-ink-500">#{i + 1}</p>
               <h2 className="mt-1 font-medium text-ink-900">
                 <Link href={`/providers/${p.slug}`} className="hover:text-brand-800">
                   {locale === "ar" && p.nameAr ? p.nameAr : p.name}
@@ -205,7 +205,7 @@ export default async function RegistryPage({
               <dl className="mt-3 space-y-2 text-sm">
                 {p.website && (
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-wide text-ink-400">
+                    <dt className="text-xs font-medium uppercase tracking-wide text-ink-500">
                       {t("th.website")}
                     </dt>
                     <dd>
@@ -217,7 +217,7 @@ export default async function RegistryPage({
                 )}
                 {p.contacts.length > 0 && (
                   <div>
-                    <dt className="text-xs font-medium uppercase tracking-wide text-ink-400">
+                    <dt className="text-xs font-medium uppercase tracking-wide text-ink-500">
                       {t("th.contact")}
                     </dt>
                     <dd className="space-y-1.5">

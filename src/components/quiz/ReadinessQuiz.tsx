@@ -130,7 +130,7 @@ export function ReadinessQuiz() {
           >
             {t("start")}
           </m.button>
-          <p className="mt-3 text-xs text-ink-400">{t("timeNote")}</p>
+          <p className="mt-3 text-xs text-ink-500">{t("timeNote")}</p>
         </m.div>
       )}
 
@@ -288,7 +288,7 @@ export function ReadinessQuiz() {
                 >
                   {submitting ? tf("submitting") : t("gate.submit")}
                 </m.button>
-                <p className="mt-3 text-center text-xs text-ink-400">{t("gate.privacyNote")}</p>
+                <p className="mt-3 text-center text-xs text-ink-500">{t("gate.privacyNote")}</p>
               </m.form>
             )}
           </AnimatePresence>

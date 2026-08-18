@@ -131,7 +131,7 @@ export default async function TrackStatusPage({
                           ? "bg-brand-600 text-white"
                           : state === "current"
                             ? "bg-ink-900 text-paper"
-                            : "bg-ink-100 text-ink-400"
+                            : "bg-ink-100 text-ink-500"
                       }`}
                     >
                       {state === "done" ? (

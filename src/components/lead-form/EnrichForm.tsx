@@ -142,7 +142,7 @@ export function EnrichForm({ trackingToken }: { trackingToken: string }) {
           >
             {state === "saving" ? tf("submitting") : t("submit")}
           </m.button>
-          <p className="mt-2 text-center text-xs text-ink-400">{t("skipNote")}</p>
+          <p className="mt-2 text-center text-xs text-ink-500">{t("skipNote")}</p>
         </m.form>
       )}
     </AnimatePresence>

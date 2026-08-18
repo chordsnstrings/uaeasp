@@ -139,13 +139,13 @@ export default async function IntegrationSystemPage({
       <FadeIn>
         <dl className="mt-8 grid gap-4 rounded-2xl border border-ink-100 bg-white p-6 sm:grid-cols-2">
           <div>
-            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-400">
+            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
               {t("routeLabel")}
             </dt>
             <dd className="mt-1 text-sm leading-relaxed text-ink-700">{detail.route}</dd>
           </div>
           <div>
-            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-400">
+            <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
               {t("timelineLabel")}
             </dt>
             <dd className="mt-1 text-sm leading-relaxed text-ink-700">{detail.timeline}</dd>

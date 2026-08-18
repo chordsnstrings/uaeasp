@@ -116,7 +116,7 @@ export function ProvidersDirectory({ providers }: { providers: DirectoryProvider
       >
         <svg
           className={`pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
-            searchExpanded ? "text-brand-600" : "text-ink-400"
+            searchExpanded ? "text-brand-600" : "text-ink-500"
           }`}
           width="18"
           height="18"

@@ -32,12 +32,12 @@ export function ProviderCard({
     <article className="card-hover group relative flex h-full min-w-0 flex-col border border-ink-200 bg-white p-6 hover:border-ink-900">
       <div className="flex items-start justify-between gap-3">
         {serial !== undefined && (
-          <span className="num text-[11px] text-ink-400" dir="ltr">
+          <span className="num text-[11px] text-ink-500" dir="ltr">
             {String(serial).padStart(2, "0")}
           </span>
         )}
         {delisted ? (
-          <span className="stamp text-ink-400">{labels.delistedBadge}</span>
+          <span className="stamp text-ink-500">{labels.delistedBadge}</span>
         ) : (
           <span className="stamp text-brand-600">MoF</span>
         )}
@@ -63,7 +63,7 @@ export function ProviderCard({
           {labels.viewProfile} <Arrow />
         </span>
         {provider.website && (
-          <span className="num max-w-[45%] truncate text-[11px] text-ink-400" dir="ltr">
+          <span className="num max-w-[45%] truncate text-[11px] text-ink-500" dir="ltr">
             {provider.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
           </span>
         )}

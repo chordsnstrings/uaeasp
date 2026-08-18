@@ -214,7 +214,7 @@ export default async function ProviderDetailPage({
           {provider.contacts.length > 0 && (
             <section className="mt-8 rounded-2xl border border-brand-100 bg-white p-6">
               <h2 className="text-lg font-medium text-ink-900">{t("officialContacts")}</h2>
-              <p className="mt-1 text-xs text-ink-400">{t("officialContactsNote")}</p>
+              <p className="mt-1 text-xs text-ink-500">{t("officialContactsNote")}</p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 {provider.contacts.map((contact, i) => (
                   <div key={i} className="rounded-xl bg-ink-50 p-4">

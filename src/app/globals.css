@@ -37,17 +37,23 @@
   --color-accent-800: #613324;
   --color-accent-900: #502c21;
 
-  /* Ink — warm greys. The old scale was Tailwind slate, which is blue,
-     and blue greys on a warm paper read as dirty. These are mixed from
-     the paper itself so every rule and every caption belongs to it. */
+  /* Ink — warm greys. The old scale was Tailwind slate, which is blue, and
+     blue greys on a warm paper read as dirty. These are mixed from the paper
+     itself so every rule and every caption belongs to it.
+     
+     The middle of the scale is pinned by contrast rather than by taste: 500
+     is the lightest value that still clears 4.5:1 against all three grounds
+     (linen, the half-tone band, and white), so it is the floor for anything
+     that is actually read. 400 clears 3:1 and is for rules, arrows and marks;
+     300 is for hairlines only and never carries text. */
   --color-ink-50: #f8f7f4;
   --color-ink-100: #f0eee8;
   --color-ink-200: #e2dfd6;
-  --color-ink-300: #c9c5b8;
-  --color-ink-400: #a4a094;
-  --color-ink-500: #7c786e;
-  --color-ink-600: #5d5a53;
-  --color-ink-700: #45433d;
+  --color-ink-300: #c0bcae;
+  --color-ink-400: #918d80;
+  --color-ink-500: #6a675e;
+  --color-ink-600: #4f4d46;
+  --color-ink-700: #3b3934;
   --color-ink-800: #2d2c28;
   --color-ink-900: #1a1a17;
   --color-ink-950: #0d0d0b;

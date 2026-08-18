@@ -54,7 +54,7 @@ export default async function InsightsPage({
   return (
     <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6">
       <FadeIn>
-        <p className="num flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.18em] text-ink-400">
+        <p className="num flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.18em] text-ink-500">
           {locale === "ar" ? "مرجع" : "Reference"}
           <span aria-hidden className="h-px w-10 bg-ink-300" />
         </p>
@@ -76,7 +76,7 @@ export default async function InsightsPage({
                 href={`/insights/${article.slug}`}
                 className="card-hover group block rounded-xl border border-ink-200 bg-white p-6 transition-transform hover:border-ink-900"
               >
-                <span className="num text-xs text-ink-400" dir="ltr">
+                <span className="num text-xs text-ink-500" dir="ltr">
                   № {String(i + 1).padStart(2, "0")}
                 </span>
                 <h2 className="mt-2 text-xl font-medium text-ink-900 group-hover:text-brand-800">

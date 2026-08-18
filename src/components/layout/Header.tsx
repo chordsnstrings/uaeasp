@@ -194,7 +194,7 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
                   }`}
                 >
                   <span>{t(`nav.${g.navKey}`)}</span>
-                  <span className="text-ink-400">
+                  <span className="text-ink-500">
                     <Chevron open={isOpen} />
                   </span>
                   {active && (
@@ -224,7 +224,7 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
                             className={si > 0 ? "mt-1.5 border-t border-ink-100 pt-1.5" : ""}
                           >
                             {section.title && (
-                              <p className="eyebrow px-3 pb-1.5 pt-2 text-ink-400">
+                              <p className="eyebrow px-3 pb-1.5 pt-2 text-ink-500">
                                 {section.title}
                               </p>
                             )}
@@ -340,7 +340,7 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
                         aria-expanded={expanded}
                         aria-label={`${t(`nav.${g.navKey}`)} submenu`}
                         onClick={() => setMobileSection(expanded ? null : g.key)}
-                        className="press grid size-10 shrink-0 place-items-center text-ink-400"
+                        className="press grid size-10 shrink-0 place-items-center text-ink-500"
                       >
                         <Chevron open={expanded} />
                       </button>

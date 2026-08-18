@@ -95,7 +95,7 @@ export default async function ResourcesPage({
       </div>
 
       <FadeIn>
-        <p className="mt-12 max-w-3xl text-xs leading-relaxed text-ink-400">{t("note")}</p>
+        <p className="mt-12 max-w-3xl text-xs leading-relaxed text-ink-500">{t("note")}</p>
       </FadeIn>
     </div>
   );

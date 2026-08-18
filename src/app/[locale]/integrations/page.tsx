@@ -90,7 +90,7 @@ export default async function IntegrationsPage({
       </StaggerGroup>
 
       <FadeIn>
-        <p className="mt-8 max-w-3xl text-xs leading-relaxed text-ink-400">{t("disclaimer")}</p>
+        <p className="mt-8 max-w-3xl text-xs leading-relaxed text-ink-500">{t("disclaimer")}</p>
       </FadeIn>
 
       <FadeIn>
