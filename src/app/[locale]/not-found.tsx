@@ -5,7 +5,7 @@ export default function NotFoundPage() {
   const t = useTranslations("notFound");
   return (
     <div className="mx-auto max-w-xl px-4 py-24 text-center sm:px-6">
-      <p className="text-7xl font-medium text-brand-100">404</p>
+      <p className="num text-7xl font-normal text-ink-400">404</p>
       <h1 className="mt-4 display-serif text-3xl text-ink-900">{t("title")}</h1>
       <p className="mt-2 text-ink-600">{t("body")}</p>
       <Link
