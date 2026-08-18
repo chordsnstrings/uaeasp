@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
-  Bricolage_Grotesque,
-  IBM_Plex_Mono,
-  Instrument_Sans,
   Alexandria,
+  Familjen_Grotesk,
+  IBM_Plex_Mono,
+  Instrument_Serif,
 } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { MotionProvider } from "@/components/motion";
@@ -22,24 +22,27 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { SITE_NAME, SITE_URL, absoluteUrl, localePath } from "@/lib/site";
 import "../globals.css";
 
-// The Ledger identity: a characterful grotesk for display, a quiet sans for
-// body, real monospace for every numeral/code, and a strong Arabic pairing.
-const display = Bricolage_Grotesque({
+// One Swedish grotesk carries the whole interface; a single high-contrast
+// serif is allowed out only at display sizes, where one line of it does more
+// for a page than any amount of colour. Mono is reserved for figures, because
+// on this site the figures are the content.
+const sans = Familjen_Grotesk({
   subsets: ["latin"],
-  variable: "--font-display-latin",
+  variable: "--font-sans-latin",
   display: "swap",
 });
 
-const body = Instrument_Sans({
+const serif = Instrument_Serif({
   subsets: ["latin"],
-  variable: "--font-sans-latin",
+  weight: "400",
+  variable: "--font-serif-latin",
   display: "swap",
 });
 
 const mono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  variable: "--font-mono",
+  variable: "--font-mono-latin",
   display: "swap",
 });
 
@@ -81,7 +84,7 @@ export async function generateMetadata({
 }
 
 export const viewport: Viewport = {
-  themeColor: "#0f766e",
+  themeColor: "#131d19",
   width: "device-width",
   initialScale: 1,
 };
@@ -105,7 +108,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={dir}
-      className={`${display.variable} ${body.variable} ${mono.variable} ${arabic.variable}`}
+      className={`${sans.variable} ${serif.variable} ${mono.variable} ${arabic.variable}`}
     >
       <head>
         {plausibleDomain && (
