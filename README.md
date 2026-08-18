@@ -29,8 +29,12 @@ Scandinavian-adjacent: unbleached linen ground, warm-neutral greys, a
 desaturated spruce for the brand and a single clay accent kept for the things
 that are genuinely time-bound. No gradients, no drop shadows outside the admin
 area, corners at 2–4px, and hairlines instead of borders wherever a rule will
-do. Familjen Grotesk carries the interface; Instrument Serif appears only at
-display sizes, where each page gets exactly one line of it.
+do. Familjen Grotesk carries the interface; Fraunces appears only at display
+sizes, where each page gets exactly one line of it. Fraunces ships with its
+optical-size axis, so the browser takes the display drawing for a masthead
+and the text drawing for anything smaller out of the same file — a face with
+one drawing thins out to hairlines when set at 72px on a dark ground, which
+is what the first attempt at this did.
 
 Two files hold the whole system and are the place to change it:
 
