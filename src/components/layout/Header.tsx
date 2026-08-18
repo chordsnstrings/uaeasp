@@ -290,9 +290,16 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
           >
             {locale === "en" ? t("localeSwitcher.ar") : t("localeSwitcher.en")}
           </Link>
-          <Link href="/get-matched" className={buttonClass({ className: "hidden sm:inline-flex" })}>
-            {t("nav.getMatched")}
-          </Link>
+          {/* Wrapped rather than hidden by a utility on the link itself: the
+              button's own class sets a display, and two display utilities on
+              one element resolve by stylesheet order rather than by intent —
+              which is why this was still showing on a 390px screen and
+              squeezing the wordmark down to "UAE …". */}
+          <div className="hidden sm:block">
+            <Link href="/get-matched" className={buttonClass()}>
+              {t("nav.getMatched")}
+            </Link>
+          </div>
           <button
             type="button"
             className="press -me-2 grid size-10 place-items-center text-ink-800 md:hidden"

@@ -23,6 +23,31 @@ Next.js 15 (App Router, standalone output) · TypeScript · Tailwind CSS v4 ·
 Drizzle ORM + PostgreSQL · Auth.js v5 · next-intl · Motion (Framer Motion) · Serwist ·
 Zod · Nodemailer (any SMTP) · Vitest · Playwright (scraper only, runs in CI).
 
+## Design language
+
+Scandinavian-adjacent: unbleached linen ground, warm-neutral greys, a
+desaturated spruce for the brand and a single clay accent kept for the things
+that are genuinely time-bound. No gradients, no drop shadows outside the admin
+area, corners at 2–4px, and hairlines instead of borders wherever a rule will
+do. Familjen Grotesk carries the interface; Instrument Serif appears only at
+display sizes, where each page gets exactly one line of it.
+
+Two files hold the whole system and are the place to change it:
+
+- `src/app/globals.css` — the tokens (`@theme`) and the handful of utilities
+  the identity needs: `.display-serif`, `.eyebrow`, `.num`, `.stamp`,
+  `.marker`, `.grain`. The middle of the ink scale is pinned by measured
+  contrast, not by eye: 500 is the lightest value that clears 4.5:1 against
+  linen, the half-tone band and white alike, so nothing that is meant to be
+  read sits above it.
+- `src/components/ui/index.tsx` — `Container`, `Section`, `Rule`, `Eyebrow`,
+  `PageHeader`, `Panel`, `Stat` and `buttonClass`. There is one primary button
+  treatment, in two values: ink on light grounds, paper on the spruce blocks.
+
+Arabic is not an afterthought of it: `[dir="rtl"]` swaps the whole stack to
+Alexandria, including `.num` and `.eyebrow`, because the Latin mono has no
+Arabic coverage and falls back glyph by glyph.
+
 ## Local development
 
 ```bash
