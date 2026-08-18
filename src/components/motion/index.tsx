@@ -116,6 +116,32 @@ export function Highlight({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * A hairline that draws itself when its section arrives.
+ *
+ * This is the site's one signature movement, and it is deliberately the
+ * quietest thing that could work: a page laid out on rules should be seen to
+ * draw them. It runs once per section, never on a loop, and reduced-motion
+ * readers get the finished rule with no animation at all.
+ *
+ * The origin flips with the writing direction — a rule that draws itself
+ * right-to-left in an English page reads as an error, and the reverse is
+ * true in Arabic.
+ */
+export function DrawRule({ className = "" }: { className?: string }) {
+  const reduced = useReducedMotion();
+  return (
+    <m.span
+      aria-hidden
+      className={`origin-left rtl:origin-right ${className}`}
+      initial={reduced ? false : { scaleX: 0 }}
+      whileInView={{ scaleX: 1 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.9, ease: [0.2, 0.6, 0.2, 1] }}
+    />
+  );
+}
+
 /** Animated count-up number (used for stats). */
 export function AnimatedNumber({
   value,

@@ -14,6 +14,10 @@ import { Arrow, Panel } from "@/components/ui";
  * The domain sits in the bottom corner in mono, because on a directory the
  * question a reader is actually asking is "who is this", and the domain
  * answers it faster than any description we could write.
+ *
+ * The only movement is the clay rule that draws across the top edge on hover
+ * (see `.entry` in globals.css). The card stays put: forty-two things that
+ * all lift under the cursor is a fidget, not a directory.
  */
 export function ProviderCard({
   provider,
@@ -31,7 +35,7 @@ export function ProviderCard({
   return (
     <Panel
       as="article"
-      className="card-hover group relative flex h-full min-w-0 flex-col p-6 hover:border-ink-900"
+      className="entry card-hover group relative flex h-full min-w-0 flex-col overflow-hidden p-6 hover:border-ink-900"
     >
       <div className="flex items-start justify-between gap-3">
         {serial !== undefined && (

@@ -114,7 +114,6 @@ export function PintFieldExplorer() {
           {filtered.map((f) => (
             <m.article
               key={f.id}
-              layout
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}

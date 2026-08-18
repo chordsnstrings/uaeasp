@@ -176,7 +176,6 @@ export function PenaltyCalculator() {
 
       <div className="flex flex-col gap-5">
         <m.div
-          layout
           className="grain relative overflow-hidden rounded-xl bg-brand-950 p-6 text-white sm:p-8"
         >
           <p className="text-xs font-medium uppercase tracking-wide text-brand-200">

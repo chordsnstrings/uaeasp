@@ -17,6 +17,10 @@ import { buttonClass } from "@/components/ui";
  * the whole bar is separated from the page by one hairline rather than by
  * a shadow that deepens as you scroll.
  *
+ * The rule under the active section is a plain span, not a shared element
+ * that slides between items: a section change is a page navigation here, so
+ * there is no moment in which both rules exist to animate between.
+ *
  * The one exception to the no-shadow rule is the dropdown panel. A menu
  * floating over body text has to be legible above all else, and a hairline
  * alone does not separate white from white. It gets the faintest possible
@@ -71,9 +75,20 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
   const locale = useLocale();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileSection, setMobileSection] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // The bar carries no rule until there is something above it to separate
+  // from. It is a single hairline fading in rather than a shadow deepening,
+  // which is the same information at a tenth of the weight.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Close menus on navigation.
   useEffect(() => {
@@ -155,7 +170,11 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
     pathname.startsWith(g.href);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-200 bg-paper/92 backdrop-blur-md">
+    <header
+      className={`sticky top-0 z-40 border-b bg-paper/92 backdrop-blur-md transition-colors duration-300 ${
+        scrolled ? "border-ink-200" : "border-transparent"
+      }`}
+    >
       <div className="mx-auto flex h-18 max-w-6xl items-center justify-between gap-6 px-5 sm:px-8">
         <Link
           href="/"
@@ -198,10 +217,9 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
                     <Chevron open={isOpen} />
                   </span>
                   {active && (
-                    <m.span
-                      layoutId="nav-active"
+                    <span
+                      aria-hidden
                       className="absolute inset-x-0 bottom-0 h-px bg-accent-500"
-                      transition={{ duration: 0.28, ease: EASE }}
                     />
                   )}
                 </Link>
@@ -228,25 +246,38 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
                                 {section.title}
                               </p>
                             )}
-                            {section.links.map((l) => (
-                              <Link
+                            {section.links.map((l, li) => (
+                              <m.div
                                 key={l.href}
-                                href={l.href}
-                                onClick={() => setOpenMenu(null)}
-                                className={`group/item flex items-center justify-between gap-3 px-3 py-2 text-sm ${
-                                  pathname.startsWith(l.href)
-                                    ? "bg-ink-50 text-ink-900"
-                                    : "text-ink-600 hover:bg-ink-50 hover:text-ink-900"
-                                }`}
+                                initial={{ opacity: 0, y: 3 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                /* Vertical, not horizontal: a slide along the
+                                   inline axis has to be flipped for Arabic,
+                                   and this reads the same in both. */
+                                transition={{
+                                  duration: 0.16,
+                                  ease: EASE,
+                                  delay: 0.03 + li * 0.022,
+                                }}
                               >
-                                <span className="min-w-0 truncate">{l.label}</span>
-                                <span
-                                  aria-hidden
-                                  className="text-ink-300 opacity-0 transition-opacity group-hover/item:opacity-100 rtl:rotate-180"
+                                <Link
+                                  href={l.href}
+                                  onClick={() => setOpenMenu(null)}
+                                  className={`group/item flex items-center justify-between gap-3 px-3 py-2 text-sm ${
+                                    pathname.startsWith(l.href)
+                                      ? "bg-ink-50 text-ink-900"
+                                      : "text-ink-600 hover:bg-ink-50 hover:text-ink-900"
+                                  }`}
                                 >
-                                  →
-                                </span>
-                              </Link>
+                                  <span className="min-w-0 truncate">{l.label}</span>
+                                  <span
+                                    aria-hidden
+                                    className="text-ink-400 opacity-0 transition-all duration-200 group-hover/item:translate-x-0.5 group-hover/item:opacity-100 rtl:rotate-180 rtl:group-hover/item:-translate-x-0.5"
+                                  >
+                                    →
+                                  </span>
+                                </Link>
+                              </m.div>
                             ))}
                           </div>
                         ))}
@@ -270,10 +301,9 @@ export function Header({ menu }: { menu: HeaderMenuData }) {
               >
                 <span>{t(`nav.${item.key}`)}</span>
                 {active && (
-                  <m.span
-                    layoutId="nav-active"
+                  <span
+                    aria-hidden
                     className="absolute inset-x-0 bottom-0 h-px bg-accent-500"
-                    transition={{ duration: 0.28, ease: EASE }}
                   />
                 )}
               </Link>
